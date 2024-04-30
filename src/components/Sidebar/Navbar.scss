@@ -1,0 +1,29 @@
+.navbar {
+	position: relative;
+	min-width: 120px;
+	background: #59340a;
+	height: 100vh;
+	color: #fff;
+	padding: 1.5em;
+	font-size: 20px;
+
+	.navToggleIcon {
+		position: absolute;
+		right: 15px;
+		top: 15px;
+		transform: rotate(180deg);
+	}
+
+	.navList {
+		margin-top: 150px;
+
+		ul {
+			padding: 0;
+		}
+
+		li {
+			list-style: none;
+			margin-top: 10px;
+		}
+	}
+}
