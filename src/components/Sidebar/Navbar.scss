@@ -1,11 +1,14 @@
 .navbar {
 	position: relative;
-	min-width: 120px;
+	min-width: 180px;
+	max-width: 200px;
 	background: #59340a;
-	height: 100vh;
+	height: calc(100vh - 60px);
 	color: #fff;
 	padding: 1.5em;
 	font-size: 20px;
+	flex-grow: 1;
+	margin-top: 60px;
 
 	.navToggleIcon {
 		position: absolute;

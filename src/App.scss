@@ -1,10 +1,17 @@
 * {
 	margin: 0;
+	box-sizing: border-box;
 }
 
 .app {
 	display: flex;
+	width: 100%;
+	position: relative;
+	color: #59340a;
+
 	.contents {
 		flex-grow: 1;
+		height: 100vh;
+		overflow-y: scroll;
 	}
 }

@@ -5,7 +5,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 const Header = () => {
 	return (
 		<div className="header">
-			<Searchbar></Searchbar>
+			<h1>My Recipe</h1>
+			<Searchbar />
 			<div className="userInfo">
 				<div className="userIcon">
 					<img src="vite.svg" alt="" />

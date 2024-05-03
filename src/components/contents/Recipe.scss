@@ -1,0 +1,96 @@
+.recipe {
+	background: #f3ede6;
+	width: 100%;
+	margin-top: 60px;
+	padding: 30px;
+	display: flex;
+	justify-content: center;
+
+	&Container {
+		max-width: 700px;
+	}
+
+	&Header {
+		margin-top: 20px;
+		display: flex;
+		justify-content: end;
+		gap: 10px;
+
+		&Like {
+			display: flex;
+			align-items: center;
+			&Icon {
+				color: #ff3040;
+			}
+		}
+	}
+
+	&Tag {
+		margin-top: 20px;
+		ul {
+			display: flex;
+			list-style: none;
+			padding: 0;
+			gap: 8px;
+
+			li {
+				padding: 5px 10px;
+				background: #59340a;
+				border-radius: 5px;
+				font-size: 14px;
+				color: #fff;
+			}
+		}
+	}
+
+	&Img {
+		margin-top: 10px;
+		width: 100%;
+		img {
+			width: 100%;
+		}
+	}
+
+	&Info {
+		margin-top: 20px;
+	}
+
+	&Material {
+		margin-top: 20px;
+		h3 {
+			margin-bottom: 5px;
+		}
+
+		ul {
+			list-style: none;
+			padding: 0;
+			li {
+				display: flex;
+
+				.recipeMaterialGroup {
+					width: 30px;
+				}
+
+				.recipeMaterialContents {
+					display: flex;
+					justify-content: space-between;
+					flex-grow: 1;
+				}
+			}
+		}
+	}
+
+	&Procedure {
+		margin-top: 20px;
+
+		h3 {
+			margin-bottom: 5px;
+		}
+
+		ol {
+			li {
+				margin-bottom: 8px;
+			}
+		}
+	}
+}
