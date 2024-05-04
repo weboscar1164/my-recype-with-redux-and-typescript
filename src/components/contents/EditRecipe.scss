@@ -1,3 +1,100 @@
 .editRecipe {
 	margin-top: 60px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	display: flex;
+	justify-content: center;
+
+	&Container {
+		width: 90%;
+		max-width: 700px;
+	}
+
+	&Form {
+		h3 {
+			margin-top: 20px;
+			font-size: 25px;
+		}
+
+		input,
+		textarea,
+		select {
+			border: none;
+			padding: 8px;
+			border-radius: 5px;
+		}
+
+		textarea {
+			height: 100px;
+			width: 100%;
+		}
+
+		&Header {
+			padding: 0;
+			list-style: none;
+
+			li {
+				display: flex;
+				flex-direction: column;
+				margin-top: 10px;
+				// align-items: center;
+			}
+		}
+
+		&Material {
+			padding: 0;
+			list-style: none;
+			li {
+				margin-top: 8px;
+				padding: 10px;
+				background: darken(#f3ede6, 10);
+				border-radius: 8px;
+			}
+
+			&Title {
+				font-weight: 800;
+				font-size: 20px;
+			}
+
+			&Content {
+				display: flex;
+				flex-direction: column;
+				margin-top: 8px;
+			}
+		}
+
+		&Add {
+			margin-top: 5px;
+			display: flex;
+			justify-content: end;
+		}
+
+		&Procedure {
+			list-style: none;
+			padding: 0;
+			li {
+				margin-top: 8px;
+				padding: 10px;
+				background: darken(#f3ede6, 10);
+				border-radius: 8px;
+
+				textarea {
+					vertical-align: top;
+				}
+			}
+		}
+
+		&Submit {
+			display: flex;
+			justify-content: end;
+			margin-top: 20px;
+			button {
+				border: none;
+				background: #59340a;
+				color: #fff;
+				padding: 10px 30px;
+				border-radius: 10px;
+			}
+		}
+	}
 }

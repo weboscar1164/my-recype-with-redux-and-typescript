@@ -11,8 +11,8 @@ function App() {
 			<Header></Header>
 			<Navbar></Navbar>
 			<div className="contents">
-				<Recipe />
-				{/* <EditRecipe /> */}
+				{/* <Recipe /> */}
+				<EditRecipe />
 			</div>
 		</div>
 	);
