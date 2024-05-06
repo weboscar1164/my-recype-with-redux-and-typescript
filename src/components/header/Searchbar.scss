@@ -1,0 +1,16 @@
+.searchbar {
+	position: relative;
+	input {
+		background: #f3ede6;
+		border: none;
+		padding: 10px 30px 10px 10px;
+		border-radius: 8px;
+	}
+
+	&Icon {
+		position: absolute;
+		right: 5px;
+		top: 5px;
+		cursor: pointer;
+	}
+}
