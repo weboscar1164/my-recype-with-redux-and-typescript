@@ -41,12 +41,18 @@
 			}
 		}
 
+		&Number {
+			span {
+				margin-left: 10px;
+			}
+		}
+
 		&Material {
 			padding: 0;
 			list-style: none;
 			li {
-				margin-top: 8px;
-				padding: 10px;
+				margin-top: 15px;
+				padding: 15px;
 				background: darken(#f3ede6, 10);
 				border-radius: 8px;
 			}
@@ -61,6 +67,11 @@
 				flex-direction: column;
 				margin-top: 8px;
 			}
+
+			&Bottom {
+				display: flex;
+				gap: 20px;
+			}
 		}
 
 		&Add {
@@ -73,27 +84,23 @@
 			list-style: none;
 			padding: 0;
 			li {
-				margin-top: 8px;
-				padding: 10px;
+				margin-top: 15px;
+				padding: 15px;
 				background: darken(#f3ede6, 10);
 				border-radius: 8px;
-
-				textarea {
-					vertical-align: top;
-				}
 			}
 		}
 
-		&Submit {
-			display: flex;
-			justify-content: end;
-			margin-top: 20px;
-			button {
-				border: none;
-				background: #59340a;
-				color: #fff;
-				padding: 10px 30px;
-				border-radius: 10px;
+		button {
+			border: none;
+			background: #59340a;
+			color: #fff;
+			padding: 10px 30px;
+			border-radius: 10px;
+			transition: background-color 0.3s;
+
+			&:hover {
+				background: lighten(#59340a, 10);
 			}
 		}
 	}

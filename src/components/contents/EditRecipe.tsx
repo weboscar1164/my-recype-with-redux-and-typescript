@@ -1,3 +1,4 @@
+import { Tooltip } from "@mui/material";
 import "./EditRecipe.scss";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -22,6 +23,10 @@ const EditRecipe = () => {
 						</li>
 					</ul>
 					<h3>材料</h3>
+					<div className="editRecipeFormNumber">
+						<input type="text" />
+						<span>人分</span>
+					</div>
 					<ul className="editRecipeFormMaterial">
 						<li>
 							<div className="editRecipeFormMaterialTitle">材料１</div>
@@ -29,20 +34,22 @@ const EditRecipe = () => {
 								<label htmlFor="material01">名前</label>
 								<input type="text" id="material01" />
 							</div>
-							<div className="editRecipeFormMaterialContent">
-								<label htmlFor="quantity01">分量</label>
-								<input type="text" id="quantity01" />
-							</div>
-							<div className="editRecipeFormMaterialContent">
-								<label htmlFor="group01">グループ</label>
-								<select name="group01" id="group01">
-									<option value="0"></option>
-									<option value="1">★</option>
-									<option value="2">☆</option>
-									<option value="3">●</option>
-									<option value="4">○</option>
-									<option value="5">◎</option>
-								</select>
+							<div className="editRecipeFormMaterialBottom">
+								<div className="editRecipeFormMaterialContent">
+									<label htmlFor="quantity01">分量</label>
+									<input type="text" id="quantity01" />
+								</div>
+								<div className="editRecipeFormMaterialContent">
+									<label htmlFor="group01">グループ</label>
+									<select name="group01" id="group01">
+										<option value="0"></option>
+										<option value="1">★</option>
+										<option value="2">☆</option>
+										<option value="3">●</option>
+										<option value="4">○</option>
+										<option value="5">◎</option>
+									</select>
+								</div>
 							</div>
 						</li>
 						<li>
@@ -51,27 +58,31 @@ const EditRecipe = () => {
 								<label htmlFor="material02">名前</label>
 								<input type="text" id="material02" />
 							</div>
-							<div className="editRecipeFormMaterialContent">
-								<label htmlFor="quantity02">分量</label>
-								<input type="text" id="quantity02" />
-							</div>
-							<div className="editRecipeFormMaterialContent">
-								<label htmlFor="group02">グループ</label>
-								<select name="group02" id="group02">
-									<option value="0"></option>
-									<option value="1">★</option>
-									<option value="2">☆</option>
-									<option value="3">●</option>
-									<option value="4">○</option>
-									<option value="5">◎</option>
-								</select>
+							<div className="editRecipeFormMaterialBottom">
+								<div className="editRecipeFormMaterialContent">
+									<label htmlFor="quantity02">分量</label>
+									<input type="text" id="quantity02" />
+								</div>
+								<div className="editRecipeFormMaterialContent">
+									<label htmlFor="group02">グループ</label>
+									<select name="group02" id="group02">
+										<option value="0"></option>
+										<option value="1">★</option>
+										<option value="2">☆</option>
+										<option value="3">●</option>
+										<option value="4">○</option>
+										<option value="5">◎</option>
+									</select>
+								</div>
 							</div>
 						</li>
 					</ul>
 
 					<div className="editRecipeFormAdd">
 						<div className="editRecipeFormAddIcon">
-							<AddIcon />
+							<Tooltip title="追加">
+								<AddIcon />
+							</Tooltip>
 						</div>
 					</div>
 					<h3>作り方</h3>
@@ -87,12 +98,14 @@ const EditRecipe = () => {
 					</ul>
 					<div className="editRecipeFormAdd">
 						<div className="editRecipeFormAddIcon">
-							<AddIcon />
+							<Tooltip title="追加">
+								<AddIcon />
+							</Tooltip>
 						</div>
 					</div>
 
 					<div className="editRecipeFormSubmit">
-						<button type="submit">確認</button>
+						<button type="submit">確認画面に進む</button>
 					</div>
 				</form>
 			</div>

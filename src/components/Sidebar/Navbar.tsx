@@ -11,9 +11,6 @@ const Navbar = () => {
 					<li>一覧</li>
 					<li>投稿</li>
 					<li>お気に入り</li>
-					<li>ログイン</li>
-					<li>ログアウト</li>
-					<li>新規登録</li>
 				</ul>
 			</nav>
 		</div>

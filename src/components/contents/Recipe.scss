@@ -92,4 +92,24 @@
 			}
 		}
 	}
+
+	&Submit {
+		display: flex;
+		justify-content: end;
+		margin-top: 20px;
+		gap: 10px;
+
+		button {
+			border: none;
+			background: #59340a;
+			color: #fff;
+			padding: 10px 30px;
+			border-radius: 10px;
+			transition: background-color 0.3s;
+
+			&:hover {
+				background: lighten(#59340a, 10);
+			}
+		}
+	}
 }
