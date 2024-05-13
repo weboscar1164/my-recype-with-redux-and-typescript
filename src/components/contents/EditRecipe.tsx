@@ -45,13 +45,21 @@ const EditRecipe = () => {
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
 	useEffect(() => {
+		if (recipeInfo) {
+			setRecipe({
+				recipeName: recipeInfo.recipeName || "",
+				recipeImage: recipeInfo.recipeImage || "",
+				comment: recipeInfo.comment || "",
+				serves: recipeInfo.serves || 1,
+			});
+		}
 		if (recipeInfo.material && recipeInfo.material.length !== 0) {
 			setMaterial(recipeInfo.material);
 		}
 		if (recipeInfo.procedure && recipeInfo.procedure.length !== 0) {
 			setProcedure(recipeInfo.procedure);
 		}
-	}, []);
+	}, [recipeInfo]);
 
 	useEffect(() => {
 		if (material.length > 1 || procedure.length > 1) {
@@ -207,7 +215,7 @@ const EditRecipe = () => {
 									handleChangeRecipe(e.target.value, "recipeName")
 								}
 								ref={recipeNameRef}
-								value={recipeInfo.recipeName || ""}
+								value={recipe.recipeName}
 							/>
 						</li>
 						<li>
@@ -219,7 +227,7 @@ const EditRecipe = () => {
 								onChange={(e) =>
 									handleChangeRecipe(e.target.value, "recipeImage")
 								}
-								value={recipeInfo.recipeImage || ""}
+								value={recipe.recipeImage}
 							/>
 						</li>
 						<li>
@@ -228,7 +236,7 @@ const EditRecipe = () => {
 								id="comment"
 								name="comment"
 								onChange={(e) => handleChangeRecipe(e.target.value, "comment")}
-								value={recipeInfo.comment || ""}
+								value={recipe.comment}
 							/>
 						</li>
 					</ul>
@@ -238,7 +246,7 @@ const EditRecipe = () => {
 							name="serves"
 							id="serves"
 							onChange={(e) => handleChangeRecipe(e.target.value, "serves")}
-							value={recipeInfo.serves || ""}
+							value={recipe.serves}
 						>
 							<option value="1">1</option>
 							<option value="2">2</option>
