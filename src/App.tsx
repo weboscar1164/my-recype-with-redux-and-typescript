@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import "./App.scss";
 import Header from "./components/header/Header";
 import Recipe from "./components/contents/Recipe";
@@ -14,7 +16,7 @@ function App() {
 
 	useEffect(() => {
 		auth.onAuthStateChanged((loginUser) => {
-			console.log(loginUser);
+			// console.log(loginUser);
 			if (loginUser) {
 				dispatch(
 					login({
@@ -32,13 +34,17 @@ function App() {
 
 	return (
 		<div className="app">
-			<Header></Header>
-			<Navbar></Navbar>
-			<div className="contents">
-				{/* <Recipe /> */}
-				<EditRecipe />
-				{/* <Confirm /> */}
-			</div>
+			<Router>
+				<Header></Header>
+				<Navbar></Navbar>
+				<div className="contents">
+					<Routes>
+						<Route path="/editrecipe" element={<EditRecipe />} />
+						<Route path="/confirm" element={<Confirm />} />
+						<Route path="/" element={<Recipe />} />
+					</Routes>
+				</div>
+			</Router>
 		</div>
 	);
 }

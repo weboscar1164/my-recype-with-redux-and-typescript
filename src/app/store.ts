@@ -1,8 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../features/userSlice";
+import recipeReducer from "../features/recipeSlice";
 
 export const store = configureStore({
-	reducer: { user: userReducer },
+	reducer: {
+		user: userReducer,
+
+		recipe: recipeReducer,
+	},
 });
 
 export type Appdispatch = typeof store.dispatch;

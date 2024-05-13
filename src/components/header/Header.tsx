@@ -10,7 +10,7 @@ import { auth, provider } from "../../firebase";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
-	console.log(user);
+	// console.log(user);
 
 	const signIn = () => {
 		signInWithPopup(auth, provider).catch((e) => {
