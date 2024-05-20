@@ -44,6 +44,7 @@ const EditRecipe = () => {
 
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
+	//再編集のためのstate取得
 	useEffect(() => {
 		if (recipeInfo) {
 			setRecipe({
@@ -61,6 +62,7 @@ const EditRecipe = () => {
 		}
 	}, [recipeInfo]);
 
+	// material,procedure追加時にフォーカスを調整する
 	useEffect(() => {
 		if (material.length > 1 || procedure.length > 1) {
 			focusMaterialFormInput(material.length);
@@ -86,6 +88,23 @@ const EditRecipe = () => {
 		const newRecipe: Recipe = { ...recipe, [key]: value };
 		// console.log(newRecipe);
 		setRecipe(newRecipe);
+	};
+
+	// ファイルのinput要素でファイルが選択されたときの処理
+	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = () => {
+				if (reader.readyState === 2) {
+					setRecipe((prevRecipe) => ({
+						...prevRecipe,
+						recipeImage: reader.result as string, // ファイルのデータを文字列としてセット
+					}));
+				}
+			};
+			reader.readAsDataURL(file); // ファイルの内容をBase64形式の文字列として読み込む
+		}
 	};
 
 	const handleChangeMaterial = (
@@ -224,12 +243,12 @@ const EditRecipe = () => {
 								type="file"
 								id="recipeImg"
 								name="recipeImg"
-								onChange={(e) =>
-									handleChangeRecipe(e.target.value, "recipeImage")
-								}
-								value={recipe.recipeImage}
+								onChange={(e) => handleImageChange(e)}
 							/>
 						</li>
+						{recipe.recipeImage && (
+							<img src={recipe.recipeImage} alt="Recipe Image" />
+						)}
 						<li>
 							<label htmlFor="comment">コメント</label>
 							<input

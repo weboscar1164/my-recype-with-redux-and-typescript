@@ -2,10 +2,13 @@ import "./Recipe.scss";
 import { useAppSelector } from "../../app/hooks";
 import { useNavigate } from "react-router-dom";
 import Recipe from "./Recipe";
+import { InitialRecipeState } from "../../Types";
 
 const Confirm = () => {
 	const naviate = useNavigate();
-	const recipeInfo = useAppSelector((state) => state.recipe);
+	const recipeInfo: InitialRecipeState = useAppSelector(
+		(state) => state.recipe
+	);
 	console.log(recipeInfo);
 
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -13,29 +16,13 @@ const Confirm = () => {
 		naviate("/editrecipe");
 	};
 
-	const setGroupIcon = (value: number) => {
-		let symbol = "";
-		switch (value) {
-			case 1:
-				symbol = "★";
-				break;
-			case 2:
-				symbol = "☆";
-				break;
-			case 3:
-				symbol = "●";
-				break;
-			case 4:
-				symbol = "○";
-				break;
-			case 5:
-				symbol = "◎";
-				break;
-			default:
-				symbol = "";
-				break;
-		}
-		return symbol;
+	const getGroupIcon = (value: number) => {
+		const symbols = ["", "★", "☆", "●", "○", "◎"];
+		return symbols[value] || "";
+	};
+
+	const getRecipeImage = () => {
+		return recipeInfo.recipeImage ? recipeInfo.recipeImage : "noimage.jpg";
 	};
 
 	return (
@@ -51,11 +38,15 @@ const Confirm = () => {
 					</ul>
 				</div> */}
 				<p className="recipeImg">
-					<img src="20200501_noimage.jpg" alt="" />
+					<img src={getRecipeImage()} alt="" />
 				</p>
 				<section className="recipeInfo">
 					<h3>Comment</h3>
-					<p>{recipeInfo.comment}</p>
+					<p>
+						{recipeInfo.comment === ""
+							? "コメントはありません"
+							: recipeInfo.comment}
+					</p>
 				</section>
 
 				<section className="recipeMaterial">
@@ -65,7 +56,7 @@ const Confirm = () => {
 							recipeInfo.material.map((item, index) => (
 								<li key={index}>
 									<div className="recipeMaterialGroup">
-										{setGroupIcon(item.group)}
+										{getGroupIcon(item.group)}
 									</div>
 									<div className="recipeMaterialContents">
 										<div className="recipeMaterialName">{item.name}</div>
