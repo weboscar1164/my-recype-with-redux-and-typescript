@@ -171,7 +171,7 @@ const EditRecipe = () => {
 		}
 	};
 
-	//add form
+	//フォーム追加
 	const handleAddMaterial = () => {
 		setMaterials([...materials, { name: "", quantity: "", group: 0 }]);
 	};
@@ -205,7 +205,7 @@ const EditRecipe = () => {
 		}
 	};
 
-	//close
+	//フォーム削除
 	const handleCloseMaterial = (index: number) => {
 		const newMaterials = [
 			...materials.slice(0, index),
@@ -294,7 +294,7 @@ const EditRecipe = () => {
 	};
 
 	const validateForm = () => {
-		const newErrors: any = { ...errors };
+		const newErrors: any = {};
 		validateRecipe(recipe, newErrors);
 		validateMaterial(materials, newErrors);
 		validateProcedure(procedures, newErrors);
