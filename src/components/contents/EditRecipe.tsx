@@ -32,10 +32,12 @@ const EditRecipe = () => {
 		comment: "",
 		serves: 1,
 	});
-	const [material, setMaterial] = useState<Material[]>([
+	const [materials, setMaterials] = useState<Material[]>([
 		{ name: "", quantity: "", group: 0 },
 	]);
-	const [procedure, setProcedure] = useState<string[]>([""]);
+	const [procedures, setProcedures] = useState<string[]>([""]);
+	const [errors, setErrors] = useState<any>({});
+	const [validateOnSubmit, setVaridateOnSubmit] = useState<boolean>(false);
 
 	//追加したフォームを参照
 	const recipeNameRef = useRef<HTMLInputElement>(null);
@@ -44,8 +46,13 @@ const EditRecipe = () => {
 
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
+	// useEffect(() => {
+
+	// },[])
+
 	//再編集のためのstate取得
 	useEffect(() => {
+		console.log("render");
 		if (recipeInfo) {
 			setRecipe({
 				recipeName: recipeInfo.recipeName || "",
@@ -54,40 +61,46 @@ const EditRecipe = () => {
 				serves: recipeInfo.serves || 1,
 			});
 		}
-		if (recipeInfo.material && recipeInfo.material.length !== 0) {
-			setMaterial(recipeInfo.material);
+		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
+			setMaterials(recipeInfo.materials);
 		}
-		if (recipeInfo.procedure && recipeInfo.procedure.length !== 0) {
-			setProcedure(recipeInfo.procedure);
+		if (recipeInfo.procedures && recipeInfo.procedures.length !== 0) {
+			setProcedures(recipeInfo.procedures);
 		}
 	}, [recipeInfo]);
 
 	// material,procedure追加時にフォーカスを調整する
 	useEffect(() => {
-		if (material.length > 1 || procedure.length > 1) {
-			focusMaterialFormInput(material.length);
+		if (materials.length > 1 || procedures.length > 1) {
+			focusMaterialFormInput(materials.length);
 		} else {
 			if (recipeNameRef.current) {
 				recipeNameRef.current.focus();
 			}
 		}
-	}, [material.length]);
+	}, [materials.length]);
 
 	useEffect(() => {
-		if (material.length > 1 || procedure.length > 1) {
-			focusProcedureFormInput(procedure.length);
+		if (materials.length > 1 || procedures.length > 1) {
+			focusProcedureFormInput(procedures.length);
 		} else {
 			if (recipeNameRef.current) {
 				recipeNameRef.current.focus();
 			}
 		}
-	}, [procedure.length]);
+	}, [procedures.length]);
 
 	//change
 	const handleChangeRecipe = (value: string | number, key: string) => {
 		const newRecipe: Recipe = { ...recipe, [key]: value };
 		// console.log(newRecipe);
 		setRecipe(newRecipe);
+		if (validateOnSubmit) {
+			console.log("validate");
+			const newErrors = { ...errors };
+			validateRecipe(newRecipe, newErrors);
+			setErrors(newErrors);
+		}
 	};
 
 	// ファイルのinput要素でファイルが選択されたときの処理
@@ -112,17 +125,31 @@ const EditRecipe = () => {
 		key: string,
 		index: number
 	) => {
-		const newMaterial: Material[] = [...material];
-		newMaterial[index] = { ...newMaterial[index], [key]: value };
-		console.log(newMaterial);
-		setMaterial(newMaterial);
+		console.log(materials);
+		setMaterials((prevMaterials) => {
+			const newMaterials: Material[] = prevMaterials.map((material, i) =>
+				i === index ? { ...material, [key]: value } : material
+			);
+
+			if (validateOnSubmit) {
+				const newErrors = { ...errors };
+				validateMaterial(newMaterials, newErrors);
+				setErrors(newErrors);
+			}
+			return newMaterials;
+		});
 	};
 
 	const handleChangeProcedure = (index: number, value: string) => {
-		const newProcedure = [...procedure];
+		const newProcedure = [...procedures];
 		newProcedure[index] = value;
 		// console.log(procedure);
-		setProcedure(newProcedure);
+		setProcedures(newProcedure);
+		if (validateOnSubmit) {
+			const newErrors = { ...errors };
+			validateProcedure(procedures, newErrors);
+			setErrors(newErrors);
+		}
 	};
 
 	//Enterを押下したときに項目を追加する
@@ -146,11 +173,11 @@ const EditRecipe = () => {
 
 	//add form
 	const handleAddMaterial = () => {
-		setMaterial([...material, { name: "", quantity: "", group: 0 }]);
+		setMaterials([...materials, { name: "", quantity: "", group: 0 }]);
 	};
 
 	const handleAddProcedure = () => {
-		setProcedure([...procedure, ""]);
+		setProcedures([...procedures, ""]);
 	};
 
 	//追加したフォームにフォーカスを当てる
@@ -180,28 +207,31 @@ const EditRecipe = () => {
 
 	//close
 	const handleCloseMaterial = (index: number) => {
-		const newMaterial = [
-			...material.slice(0, index),
-			...material.slice(index + 1),
+		const newMaterials = [
+			...materials.slice(0, index),
+			...materials.slice(index + 1),
 		];
-		// console.log(newMaterial);
-		setMaterial(newMaterial);
+		// console.log(newMaterials);
+		setMaterials(newMaterials);
 	};
 
 	const handleCloseProcedure = (index: number) => {
-		console.log(procedure);
-		const newProcedure = [
-			...procedure.slice(0, index),
-			...procedure.slice(index + 1),
+		console.log(procedures);
+		const newProcedures = [
+			...procedures.slice(0, index),
+			...procedures.slice(index + 1),
 		];
 		// console.log(newProcedure);
-		setProcedure(newProcedure);
+		setProcedures(newProcedures);
 	};
 
 	//setRecipeSlice
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		handleSetRecipeSlice();
+		setVaridateOnSubmit(true);
+		if (validateForm()) {
+			handleSetRecipeSlice();
+		}
 	};
 
 	const handleSetRecipeSlice = () => {
@@ -210,13 +240,68 @@ const EditRecipe = () => {
 			recipeImage: recipe.recipeImage,
 			comment: recipe.comment,
 			serves: recipe.serves,
-			material: material,
-			procedure: procedure,
+			materials: materials,
+			procedures: procedures,
 		};
 
 		console.log(newRecipe);
 		dispatch(setRecipeInfo(newRecipe));
 		navigate("/confirm");
+	};
+
+	//バリデーション
+	const validateRecipe = (recipe: Recipe, newErrors: any) => {
+		if (
+			!recipe.recipeName ||
+			recipe.recipeName.length < 3 ||
+			recipe.recipeName.length > 50
+		) {
+			newErrors.recipeName = "レシピ名は３～５０文字で入力してください";
+		} else {
+			delete newErrors.recipeName;
+		}
+		if (recipe.comment.length > 200) {
+			newErrors.comment = "コメントは２００文字以内で入力してください";
+		} else {
+			delete newErrors.comment;
+		}
+	};
+
+	const validateMaterial = (materials: Material[], newErrors: any) => {
+		materials.forEach((material, index) => {
+			if (!material.name) {
+				newErrors[`materialName${index}`] = "材料名を入力してください";
+			} else {
+				delete newErrors[`materialName${index}`];
+			}
+			if (!material.quantity) {
+				newErrors[`materialQuantity${index}`] = "材料の分量を入力してください";
+			} else {
+				delete newErrors[`materialQuantity${index}`];
+			}
+		});
+	};
+
+	const validateProcedure = (procedures: string[], newErrors: any) => {
+		procedures.forEach((procedure, index) => {
+			if (!procedure) {
+				newErrors[`procedure${index}`] = "作り方を入力してください";
+			} else {
+				delete newErrors[`procedure${index}`];
+			}
+		});
+		setErrors((prevErrors: any) => ({ ...prevErrors, ...errors }));
+	};
+
+	const validateForm = () => {
+		const newErrors: any = { ...errors };
+		validateRecipe(recipe, newErrors);
+		validateMaterial(materials, newErrors);
+		validateProcedure(procedures, newErrors);
+
+		console.log(newErrors);
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
 	};
 	return (
 		<div className="editRecipe">
@@ -226,6 +311,7 @@ const EditRecipe = () => {
 					<ul className="editRecipeFormHeader">
 						<li>
 							<label htmlFor="recipeName">レシピ名</label>
+
 							<input
 								type="text"
 								id="recipeName"
@@ -236,9 +322,12 @@ const EditRecipe = () => {
 								ref={recipeNameRef}
 								value={recipe.recipeName}
 							/>
+							{errors.recipeName && (
+								<span className="validationError">{errors.recipeName}</span>
+							)}
 						</li>
 						<li>
-							<label htmlFor="recipdeImg">完成画像</label>
+							<label htmlFor="recipeImg">完成画像</label>
 							<input
 								type="file"
 								id="recipeImg"
@@ -251,12 +340,16 @@ const EditRecipe = () => {
 						)}
 						<li>
 							<label htmlFor="comment">コメント</label>
+
 							<input
 								id="comment"
 								name="comment"
 								onChange={(e) => handleChangeRecipe(e.target.value, "comment")}
 								value={recipe.comment}
 							/>
+							{errors.comment && (
+								<span className="validationError">{errors.comment}</span>
+							)}
 						</li>
 					</ul>
 					<h3>材料</h3>
@@ -282,70 +375,86 @@ const EditRecipe = () => {
 					</div>
 					<div className="editRecipeFormMaterial" ref={materialRef}>
 						<ul>
-							{material.map((item, index) => (
-								<li key={index}>
-									<div
-										className="editRecipeFormMaterialClose"
-										onClick={() => handleCloseMaterial(index)}
-									>
-										<CloseIcon />
-									</div>
-									<div className="editRecipeFormMaterialTitle">
-										材料{index + 1}
-									</div>
-									<div className="editRecipeFormMaterialContent">
-										<label htmlFor="name">名前</label>
-										<input
-											type="text"
-											id="name"
-											name="name"
-											value={item.name}
-											onChange={(e) =>
-												handleChangeMaterial(e.target.value, "name", index)
-											}
-											onKeyDown={(e) => handleKeyDown(e)}
-										/>
-									</div>
-									<div className="editRecipeFormMaterialBottom">
+							{materials.length === 0 ? (
+								<p className="editRecipeFormMaterialNotice">
+									材料を追加してください。
+								</p>
+							) : (
+								materials.map((material, index) => (
+									<li key={index}>
+										<div
+											className="editRecipeFormMaterialClose"
+											onClick={() => handleCloseMaterial(index)}
+										>
+											<CloseIcon />
+										</div>
+										<div className="editRecipeFormMaterialTitle">
+											材料{index + 1}
+										</div>
 										<div className="editRecipeFormMaterialContent">
-											<label htmlFor="quantity">分量</label>
+											<label htmlFor="name">名前</label>
 											<input
 												type="text"
-												id="quantity"
-												name="quantity"
-												value={item.quantity}
+												id="name"
+												name="name"
+												value={material.name}
 												onChange={(e) =>
-													handleChangeMaterial(
-														e.target.value,
-														"quantity",
-														index
-													)
+													handleChangeMaterial(e.target.value, "name", index)
 												}
 												onKeyDown={(e) => handleKeyDown(e)}
 											/>
 										</div>
-										<div className="editRecipeFormMaterialContent">
-											<label htmlFor="group">グループ</label>
-											<select
-												name="group"
-												id="group"
-												value={item.group}
-												onChange={(e) =>
-													handleChangeMaterial(e.target.value, "group", index)
-												}
-												onKeyDown={(e) => handleKeyDown(e)}
-											>
-												<option value="0"></option>
-												<option value="1">★</option>
-												<option value="2">☆</option>
-												<option value="3">●</option>
-												<option value="4">○</option>
-												<option value="5">◎</option>
-											</select>
+										{errors[`materialName${index}`] && (
+											<span className="validationError">
+												{errors[`materialName${index}`]}
+											</span>
+										)}
+										<div className="editRecipeFormMaterialBottom">
+											<div className="editRecipeFormMaterialContent">
+												<label htmlFor="quantity">分量</label>
+												<input
+													type="text"
+													id="quantity"
+													name="quantity"
+													value={material.quantity}
+													onChange={(e) =>
+														handleChangeMaterial(
+															e.target.value,
+															"quantity",
+															index
+														)
+													}
+													onKeyDown={(e) => handleKeyDown(e)}
+												/>
+											</div>
+											<div className="editRecipeFormMaterialContent">
+												<label htmlFor="group">グループ</label>
+												<select
+													name="group"
+													id="group"
+													value={material.group}
+													onChange={(e) =>
+														handleChangeMaterial(e.target.value, "group", index)
+													}
+													onKeyDown={(e) => handleKeyDown(e)}
+												>
+													<option value="0"></option>
+													<option value="1">★</option>
+													<option value="2">☆</option>
+													<option value="3">●</option>
+													<option value="4">○</option>
+													<option value="5">◎</option>
+												</select>
+											</div>
 										</div>
-									</div>
-								</li>
-							))}
+										{errors[`materialQuantity${index}`] && (
+											<span className="validationError">
+												{errors[`materialQuantity${index}`]}
+											</span>
+										)}
+									</li>
+								))
+							)}
 						</ul>
 
 						<div className="editRecipeFormAdd">
@@ -364,28 +473,39 @@ const EditRecipe = () => {
 					<h3>作り方</h3>
 					<div className="editRecipeFormProcedure" ref={procedureRef}>
 						<ul>
-							{procedure.map((item, index) => (
-								<li key={index}>
-									<div
-										className="editRecipeFormProcedureClose"
-										onClick={() => handleCloseProcedure(index)}
-									>
-										<CloseIcon />
-									</div>
-									<div className="editRecipeFormProcedureTitle">
-										作り方{index + 1}
-									</div>
-									<input
-										id={`procedure${index + 1}`}
-										name={`procedure${index + 1}`}
-										value={item}
-										onChange={(e) =>
-											handleChangeProcedure(index, e.target.value)
-										}
-										onKeyDown={(e) => handleKeyDown(e)}
-									/>
-								</li>
-							))}
+							{procedures.length === 0 ? (
+								<p className="editRecipeFormProcedureNotice">
+									作り方を入力してください。
+								</p>
+							) : (
+								procedures.map((procedure, index) => (
+									<li key={index}>
+										<div
+											className="editRecipeFormProcedureClose"
+											onClick={() => handleCloseProcedure(index)}
+										>
+											<CloseIcon />
+										</div>
+										<div className="editRecipeFormProcedureTitle">
+											作り方{index + 1}
+										</div>
+										<input
+											id={`procedure${index + 1}`}
+											name={`procedure${index + 1}`}
+											value={procedure}
+											onChange={(e) =>
+												handleChangeProcedure(index, e.target.value)
+											}
+											onKeyDown={(e) => handleKeyDown(e)}
+										/>
+										{errors[`procedure${index}`] && (
+											<span className="validationError">
+												{errors[`procedure${index}`]}
+											</span>
+										)}
+									</li>
+								))
+							)}
 						</ul>
 						<div className="editRecipeFormAdd">
 							<div

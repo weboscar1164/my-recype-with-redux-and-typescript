@@ -3,13 +3,23 @@ import { useAppSelector } from "../../app/hooks";
 import { useNavigate } from "react-router-dom";
 import Recipe from "./Recipe";
 import { InitialRecipeState } from "../../Types";
+import { useEffect } from "react";
+import { isInitialState } from "../../features/recipeSlice";
 
 const Confirm = () => {
 	const naviate = useNavigate();
 	const recipeInfo: InitialRecipeState = useAppSelector(
 		(state) => state.recipe
 	);
-	console.log(recipeInfo);
+	const initialStateCheck = isInitialState(recipeInfo);
+	// console.log(recipeInfo);
+
+	useEffect(() => {
+		// initialStateであるかを判定してtrueならばeditRecipeにリダイレクト
+		if (initialStateCheck) {
+			naviate("/editRecipe");
+		}
+	}, []);
 
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -52,16 +62,16 @@ const Confirm = () => {
 				<section className="recipeMaterial">
 					<h3>材料{recipeInfo.serves}人分</h3>
 					<ul>
-						{recipeInfo.material &&
-							recipeInfo.material.map((item, index) => (
+						{recipeInfo.materials &&
+							recipeInfo.materials.map((material, index) => (
 								<li key={index}>
 									<div className="recipeMaterialGroup">
-										{getGroupIcon(item.group)}
+										{getGroupIcon(material.group)}
 									</div>
 									<div className="recipeMaterialContents">
-										<div className="recipeMaterialName">{item.name}</div>
+										<div className="recipeMaterialName">{material.name}</div>
 										<div className="recipeMaterialQuantity">
-											{item.quantity}
+											{material.quantity}
 										</div>
 									</div>
 								</li>
@@ -72,9 +82,9 @@ const Confirm = () => {
 				<section className="recipeProcedure">
 					<h3>作り方</h3>
 					<ol>
-						{recipeInfo.procedure &&
-							recipeInfo.procedure.map((item, index) => (
-								<li key={index}>{item}</li>
+						{recipeInfo.procedures &&
+							recipeInfo.procedures.map((procedure, index) => (
+								<li key={index}>{procedure}</li>
 							))}
 					</ol>
 				</section>

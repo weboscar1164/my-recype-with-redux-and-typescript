@@ -12,11 +12,11 @@ export interface InitialRecipeState {
 	recipeImage: string | null;
 	comment: string | null;
 	serves: number;
-	material: Material[] | null;
-	procedure: string[] | null;
+	materials: MaterialState[] | null;
+	procedures: string[] | null;
 }
 
-interface Material {
+export interface MaterialState {
 	name: string;
 	quantity: string;
 	group: number;

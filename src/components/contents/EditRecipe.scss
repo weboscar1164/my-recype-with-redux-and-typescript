@@ -60,6 +60,11 @@
 				border-radius: 8px;
 			}
 
+			&Notice {
+				margin-top: 20px;
+				color: #96003d;
+			}
+
 			&Close {
 				position: absolute;
 				top: 15px;
@@ -115,6 +120,10 @@
 					width: 100%;
 				}
 			}
+			&Notice {
+				margin-top: 20px;
+				color: #96003d;
+			}
 
 			&Close {
 				position: absolute;
@@ -142,4 +151,9 @@
 			}
 		}
 	}
+}
+
+.validationError {
+	margin-top: 3px;
+	color: #96003d;
 }
