@@ -1,16 +1,24 @@
 import "./Recipe.scss";
+import {
+	CollectionReference,
+	addDoc,
+	collection,
+	serverTimestamp,
+} from "firebase/firestore";
 import { useAppSelector } from "../../app/hooks";
 import { useNavigate } from "react-router-dom";
-import Recipe from "./Recipe";
-import { InitialRecipeState } from "../../Types";
-import { useEffect } from "react";
+import { InitialRecipeState, UpdateRecipeState } from "../../Types";
+import React, { useEffect } from "react";
 import { isInitialState } from "../../features/recipeSlice";
+import { db } from "../../firebase";
 
 const Confirm = () => {
 	const naviate = useNavigate();
 	const recipeInfo: InitialRecipeState = useAppSelector(
 		(state) => state.recipe
 	);
+	const user = useAppSelector((state) => state.user.user);
+
 	const initialStateCheck = isInitialState(recipeInfo);
 	// console.log(recipeInfo);
 
@@ -31,8 +39,40 @@ const Confirm = () => {
 		return symbols[value] || "";
 	};
 
+	const getIsPublic = (value: number) => {
+		const currentPublic = ["非公開", "公開"];
+		return currentPublic[value] || "";
+	};
+
 	const getRecipeImage = () => {
 		return recipeInfo.recipeImage ? recipeInfo.recipeImage : "noimage.jpg";
+	};
+
+	const uploadRecipeToFirestore = async (
+		e: React.MouseEvent<HTMLButtonElement>
+	) => {
+		e.preventDefault();
+
+		if (!user) {
+			return;
+		}
+
+		const collectionRef = collection(
+			db,
+			"recipes"
+		) as CollectionReference<UpdateRecipeState>;
+		await addDoc(collectionRef, {
+			isPublic: recipeInfo.isPublic,
+			recipeName: recipeInfo.recipeName,
+			comment: recipeInfo.comment,
+			user: user.uid,
+			recipeImage: recipeInfo.recipeImage,
+			serves: recipeInfo.serves,
+			materials: recipeInfo.materials,
+			procedures: recipeInfo.procedures,
+			createdAt: serverTimestamp(),
+			updatedAt: serverTimestamp(),
+		});
 	};
 
 	return (
@@ -47,6 +87,7 @@ const Confirm = () => {
 						<li>ひき肉</li>
 					</ul>
 				</div> */}
+				<div>{getIsPublic(recipeInfo.isPublic)}</div>
 				<p className="recipeImg">
 					<img src={getRecipeImage()} alt="" />
 				</p>
@@ -90,7 +131,13 @@ const Confirm = () => {
 				</section>
 				<div className="recipeSubmit">
 					<button onClick={(e) => handleReEdit(e)}>再編集</button>
-					<button>確定</button>
+					<button
+						onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+							uploadRecipeToFirestore(e)
+						}
+					>
+						確定
+					</button>
 				</div>
 			</div>
 		</div>

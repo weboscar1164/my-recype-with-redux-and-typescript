@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface InitialUserState {
 	user: null | {
 		uid: string;
@@ -7,7 +9,21 @@ export interface InitialUserState {
 	};
 }
 
+export interface UpdateRecipeState {
+	isPublic: number;
+	recipeName: string | null;
+	recipeImage: string | null;
+	comment: string | null;
+	serves: number;
+	materials: MaterialState[] | null;
+	procedures: string[] | null;
+	user: string;
+	createdAt: Timestamp | null;
+	updatedAt: Timestamp;
+}
+
 export interface InitialRecipeState {
+	isPublic: number;
 	recipeName: string | null;
 	recipeImage: string | null;
 	comment: string | null;

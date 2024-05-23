@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { InitialRecipeState, MaterialState } from "../Types";
 
 const initialState: InitialRecipeState = {
+	isPublic: 0,
 	recipeName: null,
 	recipeImage: null,
 	comment: null,
@@ -19,6 +20,7 @@ export const recipeSlice = createSlice({
 	reducers: {
 		setRecipeInfo: (state, action) => {
 			const sortedMaterials = sortMaterialsByGroup(action.payload.materials);
+			state.isPublic = action.payload.isPublic;
 			state.recipeName = action.payload.recipeName;
 			state.recipeImage = action.payload.recipeImage;
 			state.comment = action.payload.comment;

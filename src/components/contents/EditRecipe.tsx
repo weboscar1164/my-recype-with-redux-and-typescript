@@ -8,12 +8,14 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
+import { validateImage } from "image-validator";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	interface Recipe {
+		isPublic: number;
 		recipeName: string;
 		recipeImage: string;
 		comment: string;
@@ -27,6 +29,7 @@ const EditRecipe = () => {
 	}
 
 	const [recipe, setRecipe] = useState<Recipe>({
+		isPublic: 0,
 		recipeName: "",
 		recipeImage: "",
 		comment: "",
@@ -37,6 +40,7 @@ const EditRecipe = () => {
 	]);
 	const [procedures, setProcedures] = useState<string[]>([""]);
 	const [errors, setErrors] = useState<any>({});
+	const [imgErrors, setImgErrors] = useState<any>({});
 	const [validateOnSubmit, setVaridateOnSubmit] = useState<boolean>(false);
 
 	//追加したフォームを参照
@@ -46,15 +50,11 @@ const EditRecipe = () => {
 
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
-	// useEffect(() => {
-
-	// },[])
-
 	//再編集のためのstate取得
 	useEffect(() => {
-		console.log("render");
 		if (recipeInfo) {
 			setRecipe({
+				isPublic: recipeInfo.isPublic || 0,
 				recipeName: recipeInfo.recipeName || "",
 				recipeImage: recipeInfo.recipeImage || "",
 				comment: recipeInfo.comment || "",
@@ -91,7 +91,10 @@ const EditRecipe = () => {
 	}, [procedures.length]);
 
 	//change
-	const handleChangeRecipe = (value: string | number, key: string) => {
+	const handleChangeRecipe = (
+		value: string | number | File | null,
+		key: string
+	) => {
 		const newRecipe: Recipe = { ...recipe, [key]: value };
 		// console.log(newRecipe);
 		setRecipe(newRecipe);
@@ -106,7 +109,30 @@ const EditRecipe = () => {
 	// ファイルのinput要素でファイルが選択されたときの処理
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
+		setRecipe((prevRecipe) => ({ ...prevRecipe, recipeImage: "" }));
 		if (file) {
+			// ファイルサイズを2MB以下に制限
+			let newImgErrors: any = {};
+			const maxSyzeInBytes = 2 * 1024 * 1024; //2MB
+			if (file.size > maxSyzeInBytes) {
+				newImgErrors.sizeError = "ファイルサイズは2MB以下にしてください。";
+				setImgErrors(newImgErrors);
+				return;
+			} else {
+				delete newImgErrors.sizeError;
+				setImgErrors(newImgErrors);
+			}
+
+			// ファイルタイプが画像であることを確認
+			if (!file.type.startsWith("image/")) {
+				newImgErrors.notImg = "画像ファイルを選択してください。";
+				setImgErrors(newImgErrors);
+				return;
+			} else {
+				delete newImgErrors.notImg;
+				setImgErrors(newImgErrors);
+			}
+
 			const reader = new FileReader();
 			reader.onload = () => {
 				if (reader.readyState === 2) {
@@ -119,6 +145,10 @@ const EditRecipe = () => {
 			reader.readAsDataURL(file); // ファイルの内容をBase64形式の文字列として読み込む
 		}
 	};
+	// const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	// 	const file = e.target.files?.[0] || null;
+	// 	handleChangeRecipe(file, "recipeImage");
+	// };
 
 	const handleChangeMaterial = (
 		value: string | number,
@@ -236,6 +266,7 @@ const EditRecipe = () => {
 
 	const handleSetRecipeSlice = () => {
 		const newRecipe: InitialRecipeState = {
+			isPublic: recipe.isPublic,
 			recipeName: recipe.recipeName,
 			recipeImage: recipe.recipeImage,
 			comment: recipe.comment,
@@ -250,7 +281,7 @@ const EditRecipe = () => {
 	};
 
 	//バリデーション
-	const validateRecipe = (recipe: Recipe, newErrors: any) => {
+	const validateRecipe = async (recipe: Recipe, newErrors: any) => {
 		if (
 			!recipe.recipeName ||
 			recipe.recipeName.length < 3 ||
@@ -260,11 +291,26 @@ const EditRecipe = () => {
 		} else {
 			delete newErrors.recipeName;
 		}
+
 		if (recipe.comment.length > 200) {
 			newErrors.comment = "コメントは２００文字以内で入力してください";
 		} else {
 			delete newErrors.comment;
 		}
+
+		// const limitFileSize = 3 * 1024 * 1024;
+
+		// if (recipe.recipeImage && recipe.recipeImage.size > limitFileSize) {
+		// 	newErrors.imgSize = "ファイルサイズは3MB未満にしてください。";
+		// }
+
+		// const isValidImg = recipe.recipeImage
+		// 	? await validateImage(recipe.recipeImage)
+		// 	: true;
+
+		// if (recipe.recipeImage && !isValidImg) {
+		// 	newErrors.notImg = "画像ファイルを選択してください。";
+		// }
 	};
 
 	const validateMaterial = (materials: Material[], newErrors: any) => {
@@ -311,7 +357,6 @@ const EditRecipe = () => {
 					<ul className="editRecipeFormHeader">
 						<li>
 							<label htmlFor="recipeName">レシピ名</label>
-
 							<input
 								type="text"
 								id="recipeName"
@@ -327,6 +372,17 @@ const EditRecipe = () => {
 							)}
 						</li>
 						<li>
+							<select
+								name="isPublic"
+								id="isPublic"
+								onChange={(e) => handleChangeRecipe(e.target.value, "isPublic")}
+								value={recipe.isPublic}
+							>
+								<option value="0">非公開</option>
+								<option value="1">公開</option>
+							</select>
+						</li>
+						<li>
 							<label htmlFor="recipeImg">完成画像</label>
 							<input
 								type="file"
@@ -336,8 +392,17 @@ const EditRecipe = () => {
 							/>
 						</li>
 						{recipe.recipeImage && (
-							<img src={recipe.recipeImage} alt="Recipe Image" />
+							<div className="editRecipeFormImg">
+								<img src={recipe.recipeImage} alt="Recipe Image" />
+							</div>
 						)}
+						{imgErrors.notImg && (
+							<span className="validationError">{imgErrors.notImg}</span>
+						)}
+						{imgErrors.sizeError && (
+							<span className="validationError">{imgErrors.sizeError}</span>
+						)}
+
 						<li>
 							<label htmlFor="comment">コメント</label>
 
