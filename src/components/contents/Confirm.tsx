@@ -11,6 +11,7 @@ import { InitialRecipeState, UpdateRecipeState } from "../../Types";
 import React, { useEffect } from "react";
 import { isInitialState } from "../../features/recipeSlice";
 import { db } from "../../firebase";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const Confirm = () => {
 	const naviate = useNavigate();
@@ -45,6 +46,7 @@ const Confirm = () => {
 	};
 
 	const getRecipeImage = () => {
+		console.log(recipeInfo.recipeImage);
 		return recipeInfo.recipeImage ? recipeInfo.recipeImage : "noimage.jpg";
 	};
 
@@ -57,22 +59,50 @@ const Confirm = () => {
 			return;
 		}
 
+		const imageUrl = await uploadImage(
+			recipeInfo.recipeImage ? recipeInfo.recipeImage : ""
+		);
+
 		const collectionRef = collection(
 			db,
 			"recipes"
 		) as CollectionReference<UpdateRecipeState>;
+
 		await addDoc(collectionRef, {
 			isPublic: recipeInfo.isPublic,
 			recipeName: recipeInfo.recipeName,
 			comment: recipeInfo.comment,
 			user: user.uid,
-			recipeImage: recipeInfo.recipeImage,
+			recipeImageUrl: imageUrl || "",
 			serves: recipeInfo.serves,
 			materials: recipeInfo.materials,
 			procedures: recipeInfo.procedures,
 			createdAt: serverTimestamp(),
 			updatedAt: serverTimestamp(),
 		});
+	};
+
+	const uploadImage = async (fileUrl: string) => {
+		try {
+			const response = await fetch(fileUrl);
+
+			if (!response.ok) {
+				throw new Error("Failed to fetch image blob");
+			}
+			const fileBlob = await response.blob();
+			const storage = getStorage();
+			const timeStamp = new Date().getTime();
+			const uniqueFilename = `${timeStamp}_recipe_image`;
+			const storageRef = ref(storage, uniqueFilename);
+
+			await uploadBytes(storageRef, fileBlob);
+
+			const fireBaseStorageUrl = await getDownloadURL(storageRef);
+
+			return fireBaseStorageUrl;
+		} catch (error) {
+			console.error("Error uploading file", error);
+		}
 	};
 
 	return (

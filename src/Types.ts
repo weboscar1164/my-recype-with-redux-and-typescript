@@ -12,7 +12,7 @@ export interface InitialUserState {
 export interface UpdateRecipeState {
 	isPublic: number;
 	recipeName: string | null;
-	recipeImage: string | null;
+	recipeImageUrl: string | null;
 	comment: string | null;
 	serves: number;
 	materials: MaterialState[] | null;

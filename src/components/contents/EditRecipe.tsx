@@ -42,6 +42,7 @@ const EditRecipe = () => {
 	const [errors, setErrors] = useState<any>({});
 	const [imgErrors, setImgErrors] = useState<any>({});
 	const [validateOnSubmit, setVaridateOnSubmit] = useState<boolean>(false);
+	const [preview, setPreview] = useState<string>("");
 
 	//追加したフォームを参照
 	const recipeNameRef = useRef<HTMLInputElement>(null);
@@ -60,6 +61,7 @@ const EditRecipe = () => {
 				comment: recipeInfo.comment || "",
 				serves: recipeInfo.serves || 1,
 			});
+			setPreview(recipeInfo.recipeImage || "");
 		}
 		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
 			setMaterials(recipeInfo.materials);
@@ -110,9 +112,21 @@ const EditRecipe = () => {
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		setRecipe((prevRecipe) => ({ ...prevRecipe, recipeImage: "" }));
+		setPreview("");
+
 		if (file) {
-			// ファイルサイズを2MB以下に制限
+			// ファイルタイプが画像であることを確認
 			let newImgErrors: any = {};
+			if (!file.type.startsWith("image/")) {
+				newImgErrors.notImg = "画像ファイルを選択してください。";
+				setImgErrors(newImgErrors);
+				return;
+			} else {
+				delete newImgErrors.notImg;
+				setImgErrors(newImgErrors);
+			}
+
+			// ファイルサイズを2MB以下に制限
 			const maxSyzeInBytes = 2 * 1024 * 1024; //2MB
 			if (file.size > maxSyzeInBytes) {
 				newImgErrors.sizeError = "ファイルサイズは2MB以下にしてください。";
@@ -123,32 +137,21 @@ const EditRecipe = () => {
 				setImgErrors(newImgErrors);
 			}
 
-			// ファイルタイプが画像であることを確認
-			if (!file.type.startsWith("image/")) {
-				newImgErrors.notImg = "画像ファイルを選択してください。";
-				setImgErrors(newImgErrors);
-				return;
-			} else {
-				delete newImgErrors.notImg;
-				setImgErrors(newImgErrors);
-			}
-
 			const reader = new FileReader();
 			reader.onload = () => {
 				if (reader.readyState === 2) {
-					setRecipe((prevRecipe) => ({
-						...prevRecipe,
-						recipeImage: reader.result as string, // ファイルのデータを文字列としてセット
-					}));
+					// setRecipe((prevRecipe) => ({
+					// 	...prevRecipe,
+					// 	recipeImage: reader.result as string, // ファイルのデータを文字列としてセット
+					// }));
+					const filePath = URL.createObjectURL(file);
+					setPreview(reader.result as string);
+					handleChangeRecipe(filePath, "recipeImage");
 				}
 			};
 			reader.readAsDataURL(file); // ファイルの内容をBase64形式の文字列として読み込む
 		}
 	};
-	// const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-	// 	const file = e.target.files?.[0] || null;
-	// 	handleChangeRecipe(file, "recipeImage");
-	// };
 
 	const handleChangeMaterial = (
 		value: string | number,
@@ -297,20 +300,6 @@ const EditRecipe = () => {
 		} else {
 			delete newErrors.comment;
 		}
-
-		// const limitFileSize = 3 * 1024 * 1024;
-
-		// if (recipe.recipeImage && recipe.recipeImage.size > limitFileSize) {
-		// 	newErrors.imgSize = "ファイルサイズは3MB未満にしてください。";
-		// }
-
-		// const isValidImg = recipe.recipeImage
-		// 	? await validateImage(recipe.recipeImage)
-		// 	: true;
-
-		// if (recipe.recipeImage && !isValidImg) {
-		// 	newErrors.notImg = "画像ファイルを選択してください。";
-		// }
 	};
 
 	const validateMaterial = (materials: Material[], newErrors: any) => {
@@ -393,7 +382,7 @@ const EditRecipe = () => {
 						</li>
 						{recipe.recipeImage && (
 							<div className="editRecipeFormImg">
-								<img src={recipe.recipeImage} alt="Recipe Image" />
+								<img src={preview} alt="Recipe Image" />
 							</div>
 						)}
 						{imgErrors.notImg && (

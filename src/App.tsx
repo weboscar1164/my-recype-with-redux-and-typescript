@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.scss";
 import Header from "./components/header/Header";
 import Recipe from "./components/contents/Recipe";
+import RecipeList from "./components/contents/RecipeList";
 import Navbar from "./components/Sidebar/Navbar";
 import EditRecipe from "./components/contents/EditRecipe";
 import Confirm from "./components/contents/Confirm";
@@ -41,7 +42,8 @@ function App() {
 					<Routes>
 						<Route path="/editrecipe" element={<EditRecipe />} />
 						<Route path="/confirm" element={<Confirm />} />
-						<Route path="/" element={<Recipe />} />
+						<Route path="/Recipe" element={<Recipe />} />
+						<Route path="/" element={<RecipeList />} />
 					</Routes>
 				</div>
 			</Router>
