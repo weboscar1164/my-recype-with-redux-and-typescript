@@ -158,7 +158,7 @@ const EditRecipe = () => {
 		key: string,
 		index: number
 	) => {
-		console.log(materials);
+		// console.log(materials);
 		setMaterials((prevMaterials) => {
 			const newMaterials: Material[] = prevMaterials.map((material, i) =>
 				i === index ? { ...material, [key]: value } : material
