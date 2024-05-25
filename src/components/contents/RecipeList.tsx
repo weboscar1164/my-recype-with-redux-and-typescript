@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./RecipeList.scss";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { QuerySnapshot, collection, getDocs, query } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "../../firebase";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { InitialRecipeState } from "../../Types";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setRecipeInfo } from "../../features/recipeSlice";
 
 const recipeList = () => {
 	interface RecipeListItem {
@@ -11,6 +16,9 @@ const recipeList = () => {
 		recipeImageUrl: string;
 		recipeId: string;
 	}
+
+	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
 	useEffect(() => {
@@ -36,9 +44,35 @@ const recipeList = () => {
 	};
 
 	const getRecipeImage = (recipeImageUrl: string) => {
-		console.log(recipeImageUrl);
+		// console.log(recipeImageUrl);
 		return recipeImageUrl ? recipeImageUrl : "noimage.jpg";
 	};
+
+	const handleClickRecipe = async (recipeId: string) => {
+		const docRef = doc(db, "recipes", recipeId);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			// console.log("DocumentData: ", docSnap.data());
+			const currentRecipe = docSnap.data();
+			const newRecipe: InitialRecipeState = {
+				isPublic: currentRecipe.isPublic,
+				recipeName: currentRecipe.recipeName,
+				recipeImage: currentRecipe.recipeImage,
+				comment: currentRecipe.comment,
+				serves: currentRecipe.serves,
+				materials: currentRecipe.materials,
+				procedures: currentRecipe.procedures,
+			};
+
+			console.log(newRecipe);
+			dispatch(setRecipeInfo(newRecipe));
+			navigate("/recipe");
+		} else {
+			console.log("no sutch document!");
+		}
+	};
+
 	return (
 		<div className="recipeList">
 			<div className="recipeListContainer">
@@ -47,7 +81,10 @@ const recipeList = () => {
 					{recipeList &&
 						recipeList.map((item) => (
 							<li key={item.recipeId}>
-								<div className="recipeListItemLeft">
+								<div
+									className="recipeListItemLeft"
+									onClick={() => handleClickRecipe(item.recipeId)}
+								>
 									<div className="recipeListImg">
 										<img src={getRecipeImage(item.recipeImageUrl)} alt="" />
 									</div>
