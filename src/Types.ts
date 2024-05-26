@@ -17,19 +17,23 @@ export interface UpdateRecipeState {
 	serves: number;
 	materials: MaterialState[] | null;
 	procedures: string[] | null;
-	user: string;
-	createdAt: Timestamp | null;
-	updatedAt: Timestamp;
+	user?: string;
+	createdAt?: Timestamp | null;
+	updatedAt?: Timestamp;
 }
 
 export interface InitialRecipeState {
 	isPublic: number;
 	recipeName: string | null;
-	recipeImage: string | null;
+	recipeImageUrl: string | null;
 	comment: string | null;
 	serves: number;
 	materials: MaterialState[] | null;
 	procedures: string[] | null;
+	user?: string;
+	userDisprayName?: string;
+	createdAt?: Timestamp | null;
+	updatedAt?: Timestamp;
 }
 
 export interface MaterialState {

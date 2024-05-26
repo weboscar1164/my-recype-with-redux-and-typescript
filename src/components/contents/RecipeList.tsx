@@ -58,11 +58,13 @@ const recipeList = () => {
 			const newRecipe: InitialRecipeState = {
 				isPublic: currentRecipe.isPublic,
 				recipeName: currentRecipe.recipeName,
-				recipeImage: currentRecipe.recipeImage,
+				recipeImageUrl: currentRecipe.recipeImageUrl,
 				comment: currentRecipe.comment,
 				serves: currentRecipe.serves,
 				materials: currentRecipe.materials,
 				procedures: currentRecipe.procedures,
+				user: currentRecipe.user,
+				userDisprayName: currentRecipe.userDisprayName,
 			};
 
 			console.log(newRecipe);

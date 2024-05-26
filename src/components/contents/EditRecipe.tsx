@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
-import { validateImage } from "image-validator";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -17,7 +16,7 @@ const EditRecipe = () => {
 	interface Recipe {
 		isPublic: number;
 		recipeName: string;
-		recipeImage: string;
+		recipeImageUrl: string;
 		comment: string;
 		serves: number;
 	}
@@ -31,7 +30,7 @@ const EditRecipe = () => {
 	const [recipe, setRecipe] = useState<Recipe>({
 		isPublic: 0,
 		recipeName: "",
-		recipeImage: "",
+		recipeImageUrl: "",
 		comment: "",
 		serves: 1,
 	});
@@ -57,11 +56,11 @@ const EditRecipe = () => {
 			setRecipe({
 				isPublic: recipeInfo.isPublic || 0,
 				recipeName: recipeInfo.recipeName || "",
-				recipeImage: recipeInfo.recipeImage || "",
+				recipeImageUrl: recipeInfo.recipeImageUrl || "",
 				comment: recipeInfo.comment || "",
 				serves: recipeInfo.serves || 1,
 			});
-			setPreview(recipeInfo.recipeImage || "");
+			setPreview(recipeInfo.recipeImageUrl || "");
 		}
 		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
 			setMaterials(recipeInfo.materials);
@@ -146,7 +145,7 @@ const EditRecipe = () => {
 					// }));
 					const filePath = URL.createObjectURL(file);
 					setPreview(reader.result as string);
-					handleChangeRecipe(filePath, "recipeImage");
+					handleChangeRecipe(filePath, "recipeImageUrl");
 				}
 			};
 			reader.readAsDataURL(file); // ファイルの内容をBase64形式の文字列として読み込む
@@ -271,7 +270,7 @@ const EditRecipe = () => {
 		const newRecipe: InitialRecipeState = {
 			isPublic: recipe.isPublic,
 			recipeName: recipe.recipeName,
-			recipeImage: recipe.recipeImage,
+			recipeImageUrl: recipe.recipeImageUrl,
 			comment: recipe.comment,
 			serves: recipe.serves,
 			materials: materials,
@@ -380,7 +379,7 @@ const EditRecipe = () => {
 								onChange={(e) => handleImageChange(e)}
 							/>
 						</li>
-						{recipe.recipeImage && (
+						{recipe.recipeImageUrl && (
 							<div className="editRecipeFormImg">
 								<img src={preview} alt="Recipe Image" />
 							</div>

@@ -4,7 +4,7 @@ import { InitialRecipeState, MaterialState } from "../Types";
 const initialState: InitialRecipeState = {
 	isPublic: 0,
 	recipeName: null,
-	recipeImage: null,
+	recipeImageUrl: null,
 	comment: null,
 	serves: 0,
 	materials: null,
@@ -22,11 +22,13 @@ export const recipeSlice = createSlice({
 			const sortedMaterials = sortMaterialsByGroup(action.payload.materials);
 			state.isPublic = action.payload.isPublic;
 			state.recipeName = action.payload.recipeName;
-			state.recipeImage = action.payload.recipeImage;
+			state.recipeImageUrl = action.payload.recipeImageUrl;
 			state.comment = action.payload.comment;
 			state.serves = action.payload.serves;
 			state.materials = sortedMaterials;
 			state.procedures = action.payload.procedures;
+			state.user = action.payload.user;
+			state.userDisprayName = action.payload.userDisprayName;
 		},
 	},
 });

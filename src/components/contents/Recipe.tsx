@@ -2,103 +2,94 @@ import "./Recipe.scss";
 import EditIcon from "@mui/icons-material/Edit";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useAppSelector } from "../../app/hooks";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Recipe = () => {
+	const initialState = {
+		isPublic: 0,
+		recipeName: null,
+		recipeImageUrl: null,
+		comment: null,
+		serves: 0,
+		materials: null,
+		procedures: null,
+	};
+	const currentRecipe = useAppSelector((state) => state.recipe);
+	const navigate = useNavigate();
+	useEffect(() => {
+		if (JSON.stringify(currentRecipe) === JSON.stringify(initialState)) {
+			navigate("/");
+		}
+	}, []);
+
+	const getRecipeImage = (recipeImageUrl: string | null) => {
+		// console.log(recipeImageUrl);
+		return recipeImageUrl ? recipeImageUrl : "noimage.jpg";
+	};
+
+	const getGroupIcon = (value: number) => {
+		const symbols = ["", "★", "☆", "●", "○", "◎"];
+		return symbols[value] || "";
+	};
+
 	return (
 		<div className="recipe">
 			<div className="recipeContainer">
-				<h2>オーブンを使ったハンバーグ</h2>
+				<h2>{currentRecipe.recipeName}</h2>
 				<div className="recipeHeader">
-					<div className="recipeHeaderAuther">すぎはら</div>
+					<div className="recipeHeaderAuther">
+						{currentRecipe.userDisprayName}
+					</div>
 					<div className="recipeHeaderLike">
 						<FavoriteBorderIcon className="recipeHeaderLikeIcon" />
 						<span>10</span>
 					</div>
 					<EditIcon />
 				</div>
-				<div className="recipeTag">
+				{/* <div className="recipeTag">
 					<ul>
 						<li>ハンバーグ</li>
 						<li>オーブン</li>
 						<li>ひき肉</li>
 					</ul>
-				</div>
+				</div> */}
 				<p className="recipeImg">
-					<img src="20200501_noimage.jpg" alt="" />
+					<img src={getRecipeImage(currentRecipe.recipeImageUrl)} alt="" />
 				</p>
 				<section className="recipeInfo">
 					<h3>Comment</h3>
-					<p>オーブンを使った失敗しにくいハンバーグです</p>
+					<p>{currentRecipe.comment}</p>
 				</section>
 
 				<section className="recipeMaterial">
-					<h3>材料4人分</h3>
+					<h3>材料{currentRecipe.serves}人分</h3>
 					<ul>
-						<li>
-							<div className="recipeMaterialGroup"></div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">合いびき肉</div>
-								<div className="recipeMaterialQuantity">600g</div>
-							</div>
-						</li>
-						<li>
-							<div className="recipeMaterialGroup"></div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">玉ねぎ</div>
-								<div className="recipeMaterialQuantity">1玉</div>
-							</div>
-						</li>
-						<li>
-							<div className="recipeMaterialGroup">◯</div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">パン粉</div>
-								<div className="recipeMaterialQuantity">1カップ</div>
-							</div>
-						</li>
-						<li>
-							<div className="recipeMaterialGroup">◯</div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">牛乳</div>
-								<div className="recipeMaterialQuantity">大さじ4</div>
-							</div>
-						</li>
-						<li>
-							<div className="recipeMaterialGroup">★</div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">醤油</div>
-								<div className="recipeMaterialQuantity">大さじ4</div>
-							</div>
-						</li>
-						<li>
-							<div className="recipeMaterialGroup">★</div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">みりん</div>
-								<div className="recipeMaterialQuantity">大さじ4</div>
-							</div>
-						</li>
-						<li>
-							<div className="recipeMaterialGroup">★</div>
-							<div className="recipeMaterialContents">
-								<div className="recipeMaterialName">砂糖</div>
-								<div className="recipeMaterialQuantity">大さじ2</div>
-							</div>
-						</li>
+						{currentRecipe.materials &&
+							currentRecipe.materials.map((material, index) => (
+								<li key={`material-${index}`}>
+									<div className="recipeMaterialGroup">
+										{getGroupIcon(material.group)}
+									</div>
+									<div className="recipeMaterialContents">
+										<div className="recipeMaterialName">{material.name}</div>
+										<div className="recipeMaterialQuantity">
+											{material.quantity}
+										</div>
+									</div>
+								</li>
+							))}
 					</ul>
 				</section>
 
 				<section className="recipeProcedure">
 					<h3>作り方</h3>
 					<ol>
-						<li>ひき肉は塩ひとつまみを入れ、粘りが出るまでこねる</li>
-						<li>玉ねぎをフードプロセッサーに入れてみじん切りにする</li>
-						<li>2で刻んだ玉ねぎと◯を入れよくこねる</li>
-						<li>
-							形を整えた3を熱したフライパンに乗せ、両面に焼き目がつくまで焼く
-						</li>
-						<li>オーブンに入れ、250度で9分焼く</li>
-						<li>
-							オーブンで焼いている間にフライパンに残った油に★を入れて熱する
-						</li>
+						{currentRecipe.procedures &&
+							currentRecipe.procedures.map((procedure, index) => (
+								<li key={index}>{procedure}</li>
+							))}
 					</ol>
 				</section>
 			</div>

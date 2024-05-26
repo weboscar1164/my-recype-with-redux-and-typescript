@@ -7,7 +7,7 @@ import {
 } from "firebase/firestore";
 import { useAppSelector } from "../../app/hooks";
 import { useNavigate } from "react-router-dom";
-import { InitialRecipeState, UpdateRecipeState } from "../../Types";
+import { InitialRecipeState } from "../../Types";
 import React, { useEffect } from "react";
 import { isInitialState } from "../../features/recipeSlice";
 import { db } from "../../firebase";
@@ -46,8 +46,10 @@ const Confirm = () => {
 	};
 
 	const getRecipeImage = () => {
-		console.log(recipeInfo.recipeImage);
-		return recipeInfo.recipeImage ? recipeInfo.recipeImage : "noimage.jpg";
+		console.log(recipeInfo.recipeImageUrl);
+		return recipeInfo.recipeImageUrl
+			? recipeInfo.recipeImageUrl
+			: "noimage.jpg";
 	};
 
 	const uploadRecipeToFirestore = async (
@@ -60,19 +62,20 @@ const Confirm = () => {
 		}
 
 		const imageUrl = await uploadImage(
-			recipeInfo.recipeImage ? recipeInfo.recipeImage : ""
+			recipeInfo.recipeImageUrl ? recipeInfo.recipeImageUrl : ""
 		);
 
 		const collectionRef = collection(
 			db,
 			"recipes"
-		) as CollectionReference<UpdateRecipeState>;
+		) as CollectionReference<InitialRecipeState>;
 
 		await addDoc(collectionRef, {
 			isPublic: recipeInfo.isPublic,
 			recipeName: recipeInfo.recipeName,
 			comment: recipeInfo.comment,
 			user: user.uid,
+			userDisprayName: user.displayName,
 			recipeImageUrl: imageUrl || "",
 			serves: recipeInfo.serves,
 			materials: recipeInfo.materials,
