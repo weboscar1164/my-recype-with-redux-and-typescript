@@ -9,6 +9,7 @@ import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
+import { update } from "firebase/database";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -47,6 +48,7 @@ const EditRecipe = () => {
 	const [imgErrors, setImgErrors] = useState<any>({});
 	const [validateOnSubmit, setVaridateOnSubmit] = useState<boolean>(false);
 	const [preview, setPreview] = useState<string>("");
+	const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
 
 	//追加したフォームを参照
 	const recipeNameRef = useRef<HTMLInputElement>(null);
@@ -66,17 +68,34 @@ const EditRecipe = () => {
 			});
 			setPreview(recipeInfo.recipeImageUrl || "");
 		}
+
 		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
 			setMaterials(recipeInfo.materials);
 		}
+
 		if (recipeInfo.procedures && recipeInfo.procedures.length !== 0) {
 			setProcedures(recipeInfo.procedures);
+		}
+
+		// 初回レンダリング時に最初のinputにフォーカスする
+		if (isInitialRender) {
+			if (recipeNameRef.current) {
+				recipeNameRef.current.focus();
+			}
+
+			// setMaterials,setProceduresが完了するまで時間差を設ける（非同期ではうまくいかなかった）
+			setTimeout(() => {
+				setIsInitialRender(false);
+			}, 200);
 		}
 	}, [recipeInfo]);
 
 	// material,procedure追加時にフォーカスを調整する
 	useEffect(() => {
-		if (materials.length > 1 || procedures.length > 1) {
+		if (
+			(!isInitialRender && procedures.length > 1) ||
+			(!isInitialRender && materials.length > 1)
+		) {
 			focusMaterialFormInput(materials.length);
 		} else {
 			if (recipeNameRef.current) {
@@ -86,7 +105,10 @@ const EditRecipe = () => {
 	}, [materials.length]);
 
 	useEffect(() => {
-		if (materials.length > 1 || procedures.length > 1) {
+		if (
+			(!isInitialRender && procedures.length > 1) ||
+			(!isInitialRender && materials.length > 1)
+		) {
 			focusProcedureFormInput(procedures.length);
 		} else {
 			if (recipeNameRef.current) {
@@ -104,7 +126,6 @@ const EditRecipe = () => {
 		// console.log(newRecipe);
 		setRecipe(newRecipe);
 		if (validateOnSubmit) {
-			console.log("validate");
 			const newErrors = { ...errors };
 			validateRecipe(newRecipe, newErrors);
 			setErrors(newErrors);
@@ -214,13 +235,10 @@ const EditRecipe = () => {
 
 	//追加したフォームにフォーカスを当てる
 	const focusMaterialFormInput = (index: number) => {
-		console.log(materialRef);
-		console.log(index);
 		if (materialRef.current) {
 			const input = materialRef.current.querySelector(
 				`li:nth-child(${index}) input`
 			);
-			console.log(input);
 			if (input) {
 				(input as HTMLElement).focus();
 			}
@@ -248,7 +266,7 @@ const EditRecipe = () => {
 	};
 
 	const handleCloseProcedure = (index: number) => {
-		console.log(procedures);
+		// console.log(procedures);
 		const newProcedures = [
 			...procedures.slice(0, index),
 			...procedures.slice(index + 1),
@@ -334,7 +352,7 @@ const EditRecipe = () => {
 		validateMaterial(materials, newErrors);
 		validateProcedure(procedures, newErrors);
 
-		console.log(newErrors);
+		// console.log(newErrors);
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -342,7 +360,7 @@ const EditRecipe = () => {
 		<div className="editRecipe">
 			<div className="editRecipeContainer">
 				<form className="editRecipeForm" onSubmit={handleSubmit}>
-					<h2>レシピ編集</h2>
+					<h2>{!recipe.recipeId ? "レシピ作成" : "レシピ編集"}</h2>
 					<ul className="editRecipeFormHeader">
 						<li>
 							<label htmlFor="recipeName">レシピ名</label>
@@ -367,8 +385,8 @@ const EditRecipe = () => {
 								onChange={(e) => handleChangeRecipe(e.target.value, "isPublic")}
 								value={recipe.isPublic}
 							>
-								<option value="0">非公開</option>
 								<option value="1">公開</option>
+								<option value="0">非公開</option>
 							</select>
 						</li>
 						<li>

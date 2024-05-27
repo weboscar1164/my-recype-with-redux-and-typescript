@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { InitialRecipeState } from "../../Types";
 import React, { useEffect } from "react";
 import { isInitialState } from "../../features/recipeSlice";
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const Confirm = () => {
@@ -118,7 +118,6 @@ const Confirm = () => {
 				throw new Error("Failed to fetch image blob");
 			}
 			const fileBlob = await response.blob();
-			const storage = getStorage();
 			const timeStamp = new Date().getTime();
 			const uniqueFilename = `${timeStamp}_recipe_image`;
 			const storageRef = ref(storage, uniqueFilename);

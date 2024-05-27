@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyCS7FRBL56cr75AFZbyIyI4BGGBa1z1B1Q",
@@ -16,10 +17,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const storage = getStorage();
 
 // 複数ユーザーによるログインを設定
 provider.setCustomParameters({
 	prompt: "select_account",
 });
 
-export { auth, provider, db };
+export { auth, provider, db, storage };

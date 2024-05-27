@@ -13,6 +13,7 @@
 	&Header {
 		margin-top: 20px;
 		display: flex;
+		align-items: center;
 		justify-content: end;
 		gap: 10px;
 
@@ -22,6 +23,15 @@
 			&Icon {
 				color: #ff3040;
 			}
+			cursor: pointer;
+		}
+
+		&Edit {
+			cursor: pointer;
+		}
+
+		&Delete {
+			cursor: pointer;
 		}
 	}
 

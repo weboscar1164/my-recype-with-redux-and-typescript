@@ -4,13 +4,12 @@
 }
 
 .app {
-	display: flex;
 	width: 100%;
 	position: relative;
 	color: #59340a;
 
 	.contents {
-		flex-grow: 1;
+		margin-left: 40px;
 		height: 100vh;
 		overflow-y: scroll;
 		background: #f3ede6;
