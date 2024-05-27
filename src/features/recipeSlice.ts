@@ -27,6 +27,7 @@ export const recipeSlice = createSlice({
 			state.serves = action.payload.serves;
 			state.materials = sortedMaterials;
 			state.procedures = action.payload.procedures;
+			state.recipeId = action.payload.recipeId;
 			state.user = action.payload.user;
 			state.userDisprayName = action.payload.userDisprayName;
 		},

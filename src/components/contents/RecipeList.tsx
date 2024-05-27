@@ -63,6 +63,7 @@ const recipeList = () => {
 				serves: currentRecipe.serves,
 				materials: currentRecipe.materials,
 				procedures: currentRecipe.procedures,
+				recipeId: recipeId,
 				user: currentRecipe.user,
 				userDisprayName: currentRecipe.userDisprayName,
 			};

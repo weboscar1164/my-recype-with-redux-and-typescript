@@ -30,6 +30,7 @@ export interface InitialRecipeState {
 	serves: number;
 	materials: MaterialState[] | null;
 	procedures: string[] | null;
+	recipeId?: string;
 	user?: string;
 	userDisprayName?: string;
 	createdAt?: Timestamp | null;

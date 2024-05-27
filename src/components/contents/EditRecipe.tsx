@@ -8,12 +8,14 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
+import { Timestamp } from "firebase/firestore";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	interface Recipe {
+		recipeId?: string;
 		isPublic: number;
 		recipeName: string;
 		recipeImageUrl: string;
@@ -27,7 +29,10 @@ const EditRecipe = () => {
 		group: number;
 	}
 
+	const recipeInfo = useAppSelector((state) => state.recipe);
+
 	const [recipe, setRecipe] = useState<Recipe>({
+		recipeId: "",
 		isPublic: 0,
 		recipeName: "",
 		recipeImageUrl: "",
@@ -48,12 +53,11 @@ const EditRecipe = () => {
 	const materialRef = useRef<HTMLDivElement>(null);
 	const procedureRef = useRef<HTMLDivElement>(null);
 
-	const recipeInfo = useAppSelector((state) => state.recipe);
-
 	//再編集のためのstate取得
 	useEffect(() => {
 		if (recipeInfo) {
 			setRecipe({
+				recipeId: recipeInfo.recipeId || "",
 				isPublic: recipeInfo.isPublic || 0,
 				recipeName: recipeInfo.recipeName || "",
 				recipeImageUrl: recipeInfo.recipeImageUrl || "",
@@ -139,10 +143,6 @@ const EditRecipe = () => {
 			const reader = new FileReader();
 			reader.onload = () => {
 				if (reader.readyState === 2) {
-					// setRecipe((prevRecipe) => ({
-					// 	...prevRecipe,
-					// 	recipeImage: reader.result as string, // ファイルのデータを文字列としてセット
-					// }));
 					const filePath = URL.createObjectURL(file);
 					setPreview(reader.result as string);
 					handleChangeRecipe(filePath, "recipeImageUrl");
@@ -268,6 +268,7 @@ const EditRecipe = () => {
 
 	const handleSetRecipeSlice = () => {
 		const newRecipe: InitialRecipeState = {
+			recipeId: recipe.recipeId,
 			isPublic: recipe.isPublic,
 			recipeName: recipe.recipeName,
 			recipeImageUrl: recipe.recipeImageUrl,

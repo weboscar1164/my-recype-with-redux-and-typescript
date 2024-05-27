@@ -3,7 +3,9 @@ import {
 	CollectionReference,
 	addDoc,
 	collection,
+	doc,
 	serverTimestamp,
+	updateDoc,
 } from "firebase/firestore";
 import { useAppSelector } from "../../app/hooks";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +30,7 @@ const Confirm = () => {
 		if (initialStateCheck) {
 			naviate("/editRecipe");
 		}
+		console.log(recipeInfo);
 	}, []);
 
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -61,28 +64,50 @@ const Confirm = () => {
 			return;
 		}
 
-		const imageUrl = await uploadImage(
-			recipeInfo.recipeImageUrl ? recipeInfo.recipeImageUrl : ""
-		);
+		let imageUrl = recipeInfo.recipeImageUrl || "";
+		if (
+			!imageUrl.startsWith("https://firebasestorage.googleapis.com/") &&
+			imageUrl
+		) {
+			imageUrl = (await uploadImage(imageUrl)) || "";
+		}
 
-		const collectionRef = collection(
-			db,
-			"recipes"
-		) as CollectionReference<InitialRecipeState>;
+		if (!recipeInfo.recipeId) {
+			console.log("added");
+			const collectionRef = collection(
+				db,
+				"recipes"
+			) as CollectionReference<InitialRecipeState>;
 
-		await addDoc(collectionRef, {
-			isPublic: recipeInfo.isPublic,
-			recipeName: recipeInfo.recipeName,
-			comment: recipeInfo.comment,
-			user: user.uid,
-			userDisprayName: user.displayName,
-			recipeImageUrl: imageUrl || "",
-			serves: recipeInfo.serves,
-			materials: recipeInfo.materials,
-			procedures: recipeInfo.procedures,
-			createdAt: serverTimestamp(),
-			updatedAt: serverTimestamp(),
-		});
+			await addDoc(collectionRef, {
+				isPublic: recipeInfo.isPublic,
+				recipeName: recipeInfo.recipeName,
+				comment: recipeInfo.comment,
+				user: user.uid,
+				userDisprayName: user.displayName,
+				recipeImageUrl: imageUrl || "",
+				serves: recipeInfo.serves,
+				materials: recipeInfo.materials,
+				procedures: recipeInfo.procedures,
+				createdAt: serverTimestamp(),
+				updatedAt: serverTimestamp(),
+			});
+		} else {
+			console.log("updated");
+			const docRef = doc(db, "recipes", recipeInfo.recipeId);
+			await updateDoc(docRef, {
+				isPublic: recipeInfo.isPublic,
+				recipeName: recipeInfo.recipeName,
+				comment: recipeInfo.comment,
+				recipeImageUrl: imageUrl || "",
+				serves: recipeInfo.serves,
+				materials: recipeInfo.materials,
+				procedures: recipeInfo.procedures,
+				updatedAt: serverTimestamp(),
+			});
+		}
+
+		naviate("/");
 	};
 
 	const uploadImage = async (fileUrl: string) => {

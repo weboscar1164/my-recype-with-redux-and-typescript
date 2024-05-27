@@ -34,6 +34,10 @@ const Recipe = () => {
 		return symbols[value] || "";
 	};
 
+	const handleToEditRecipe = () => {
+		navigate("/editRecipe");
+	};
+
 	return (
 		<div className="recipe">
 			<div className="recipeContainer">
@@ -46,7 +50,9 @@ const Recipe = () => {
 						<FavoriteBorderIcon className="recipeHeaderLikeIcon" />
 						<span>10</span>
 					</div>
-					<EditIcon />
+					<div onClick={handleToEditRecipe}>
+						<EditIcon />
+					</div>
 				</div>
 				{/* <div className="recipeTag">
 					<ul>
