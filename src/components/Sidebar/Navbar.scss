@@ -2,28 +2,31 @@
 	position: absolute;
 	width: 200px;
 	background: #59340a;
-	height: calc(100vh - 60px);
+	height: 40px;
 	color: #fff;
 	padding: 1.5em;
 	font-size: 20px;
-	flex-grow: 1;
 	margin-top: 60px;
-	transform: translateX(-160px);
-	transition: transform 0.3s;
+	border-radius: 0 8px 8px 0;
+	transform: translateX(-170px);
+	transition: transform 0.5s, height 0.5s;
 	z-index: 100;
 
 	&Open {
+		height: calc(100vh - 60px);
 		transform: translateX(0);
+		border-radius: 0;
 	}
 
 	.navToggleIcon {
 		position: absolute;
-		right: 10px;
-		top: 15px;
-		transition: transform 0.3s;
+		right: 5px;
+		top: 18px;
+		transition: transform 0.5s;
 		cursor: pointer;
 
 		&Open {
+			right: 15px;
 			transform: rotate(180deg);
 		}
 	}
