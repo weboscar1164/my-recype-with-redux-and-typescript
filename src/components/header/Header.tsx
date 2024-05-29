@@ -1,6 +1,7 @@
 import Searchbar from "./Searchbar";
 import "./Header.scss";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { crearFavorites } from "../../features/favoritesSlice";
 
 import { Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -10,6 +11,8 @@ import { auth, provider } from "../../firebase";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
+
+	const dispatch = useAppDispatch();
 	// console.log(user);
 
 	const signIn = () => {
@@ -21,6 +24,7 @@ const Header = () => {
 	const signOutConfirm = () => {
 		if (confirm("ログアウトしますか？")) {
 			auth.signOut();
+			dispatch(crearFavorites());
 		}
 	};
 

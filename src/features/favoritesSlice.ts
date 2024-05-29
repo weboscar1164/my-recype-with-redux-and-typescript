@@ -26,6 +26,6 @@ export const recipeSlice = createSlice({
 	},
 });
 
-export const { setFavorites, addFavorite, removeFavorite } =
+export const { setFavorites, addFavorite, removeFavorite, crearFavorites } =
 	recipeSlice.actions;
 export default recipeSlice.reducer;
