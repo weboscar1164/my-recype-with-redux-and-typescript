@@ -9,6 +9,9 @@ const initialState: InitialRecipeState = {
 	serves: 0,
 	materials: null,
 	procedures: null,
+	recipeId: "",
+	user: "",
+	userDisprayName: "",
 };
 const sortMaterialsByGroup = (materials: MaterialState[]) => {
 	return [...materials].sort((a, b) => a.group - b.group);
@@ -31,10 +34,12 @@ export const recipeSlice = createSlice({
 			state.user = action.payload.user;
 			state.userDisprayName = action.payload.userDisprayName;
 		},
+
+		resetRecipeInfo: () => initialState,
 	},
 });
 
-export const { setRecipeInfo } = recipeSlice.actions;
+export const { setRecipeInfo, resetRecipeInfo } = recipeSlice.actions;
 export default recipeSlice.reducer;
 
 //initialStateかどうかを判定

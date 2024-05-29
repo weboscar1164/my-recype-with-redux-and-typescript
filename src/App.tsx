@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.scss";
@@ -11,9 +11,15 @@ import Confirm from "./components/contents/Confirm";
 import { login, logout } from "./features/userSlice";
 import { auth } from "./firebase";
 import { useAppDispatch } from "./app/hooks";
+import { useFavorites } from "./app/firebaseHooks";
 
 function App() {
 	const dispatch = useAppDispatch();
+	const {
+		fetchFavorites,
+		loading: loadingFavorites,
+		error: errorFavorites,
+	} = useFavorites();
 
 	useEffect(() => {
 		auth.onAuthStateChanged((loginUser) => {
@@ -27,6 +33,7 @@ function App() {
 						displayName: loginUser.displayName,
 					})
 				);
+				fetchFavorites(loginUser.uid);
 			} else {
 				dispatch(logout());
 			}

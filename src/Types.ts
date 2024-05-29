@@ -42,3 +42,9 @@ export interface MaterialState {
 	quantity: string;
 	group: number;
 }
+
+export interface FavoriteState {
+	recipeId: string;
+	recipeName: string;
+	createdAt: string;
+}

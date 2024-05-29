@@ -2,12 +2,21 @@ import React, { useState } from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import "./Navbar.scss";
 import { Link } from "react-router-dom";
+import { useAppDispatch } from "../../app/hooks";
+import { resetRecipeInfo } from "../../features/recipeSlice";
 
 const Navbar = () => {
+	const dispatch = useAppDispatch();
+
 	const [isOpen, setIsOpen] = useState(false);
 
 	const handleNavToggle = () => {
 		setIsOpen(!isOpen);
+	};
+
+	const handleToEditRecipe = () => {
+		dispatch(resetRecipeInfo());
+		handleNavToggle();
 	};
 
 	return (
@@ -29,7 +38,7 @@ const Navbar = () => {
 						<Link
 							className="navItem"
 							to={"/editRecipe"}
-							onClick={handleNavToggle}
+							onClick={handleToEditRecipe}
 						>
 							投稿
 						</Link>

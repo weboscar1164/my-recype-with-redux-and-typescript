@@ -5,11 +5,26 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
 import { useAppSelector } from "../../app/hooks";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db, storage } from "../../firebase";
-import { deleteDoc, doc } from "firebase/firestore";
+import { db, storage } from "../../firebase";
+import {
+	addDoc,
+	collection,
+	deleteDoc,
+	doc,
+	getDocs,
+	query,
+	serverTimestamp,
+	where,
+} from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
+import {
+	useAddFavorite,
+	useDeleteFavorite,
+	useFavorites,
+} from "../../app/firebaseHooks";
+import { FavoriteState } from "../../Types";
 
 const Recipe = () => {
 	const initialState = {
@@ -21,17 +36,57 @@ const Recipe = () => {
 		materials: null,
 		procedures: null,
 	};
+
 	const user = useAppSelector((state) => state.user.user);
 	const currentRecipe = useAppSelector((state) => state.recipe);
+	const favorites = useAppSelector((state) => state.favorites);
 
 	const navigate = useNavigate();
 
+	const {
+		addFavoriteAsync,
+		loading: loadingAdd,
+		error: errorAdd,
+	} = useAddFavorite();
+	const {
+		deleteFavoriteAsync,
+		loading: loadingDelete,
+		error: errorDelete,
+	} = useDeleteFavorite();
+
+	// if (loadingFavorites) return <p>Loading favorites...</p>;
+	// if (errorFavorites) return <p>Error loading favorites: {errorFavorites.message}</p>;
+
+	const handleToggleFavorite = async (
+		userId: string,
+		recipeId: string,
+		recipeName: string
+	) => {
+		if (
+			currentRecipe.recipeId &&
+			containsFavoritesWithRecipeId(favorites, currentRecipe.recipeId)
+		) {
+			deleteFavoriteAsync(userId, recipeId);
+		} else {
+			addFavoriteAsync(userId, recipeId, recipeName);
+		}
+	};
+
 	useEffect(() => {
-		if (JSON.stringify(currentRecipe) === JSON.stringify(initialState)) {
+		if (!currentRecipe.recipeId) {
 			navigate("/");
 		}
+
+		console.log(favorites);
 		console.log(currentRecipe);
 	}, []);
+
+	const containsFavoritesWithRecipeId = (
+		favorites: FavoriteState[],
+		recipeId: string
+	) => {
+		return favorites.some((favorite) => favorite.recipeId === recipeId);
+	};
 
 	const getRecipeImage = (recipeImageUrl: string | null) => {
 		// console.log(recipeImageUrl);
@@ -55,8 +110,16 @@ const Recipe = () => {
 	};
 
 	const deleteFirebaseDocument = async () => {
-		if (currentRecipe.recipeId && currentRecipe.recipeImageUrl) {
-			await deleteDoc(doc(db, "recipes", currentRecipe.recipeId));
+		if (currentRecipe.recipeId) {
+			await deleteDoc(doc(db, "recipes", currentRecipe.recipeId))
+				.then(() => {
+					console.log("recipe delete successfully");
+				})
+				.catch((error) => {
+					error && console.error("recipe delete feild: ", error);
+				});
+		}
+		if (currentRecipe.recipeImageUrl) {
 			const desertRef = ref(storage, currentRecipe.recipeImageUrl);
 
 			deleteObject(desertRef)
@@ -77,9 +140,30 @@ const Recipe = () => {
 					<div className="recipeHeaderAuther">
 						by: {currentRecipe.userDisprayName}
 					</div>
-					<Tooltip title="いいね！">
-						<div className="recipeHeaderLike">
-							<FavoriteBorderIcon className="recipeHeaderLikeIcon" />
+					<Tooltip title="お気に入り">
+						<div
+							className="recipeHeaderLike"
+							onClick={() =>
+								user?.uid &&
+								currentRecipe.recipeId &&
+								currentRecipe.recipeName &&
+								handleToggleFavorite(
+									user.uid,
+									currentRecipe.recipeId,
+									currentRecipe.recipeName
+								)
+							}
+						>
+							{currentRecipe.recipeId &&
+							containsFavoritesWithRecipeId(
+								favorites,
+								currentRecipe.recipeId
+							) ? (
+								<FavoriteIcon className="recipeHeaderLikeIcon" />
+							) : (
+								<FavoriteBorderIcon className="recipeHeaderLikeIcon" />
+							)}
+
 							<span>10</span>
 						</div>
 					</Tooltip>

@@ -33,7 +33,7 @@ const recipeList = () => {
 		const querySnapshot = await getDocs(q);
 		const recipes: RecipeListItem[] = [];
 		querySnapshot.forEach((doc) => {
-			console.log(doc.id, " => ", doc.data());
+			// console.log(doc.id, " => ", doc.data());
 			recipes.push({
 				recipeName: doc.data().recipeName,
 				recipeImageUrl: doc.data().recipeImageUrl,
@@ -68,7 +68,7 @@ const recipeList = () => {
 				userDisprayName: currentRecipe.userDisprayName,
 			};
 
-			console.log(newRecipe);
+			// console.log(newRecipe);
 			dispatch(setRecipeInfo(newRecipe));
 			navigate("/recipe");
 		} else {
