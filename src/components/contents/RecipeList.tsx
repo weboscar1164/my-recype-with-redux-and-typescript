@@ -5,10 +5,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { InitialRecipeState } from "../../Types";
-import { useDispatch } from "react-redux";
+import { FavoriteState, InitialRecipeState } from "../../Types";
 import { useNavigate } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
+import userSlice from "../../features/userSlice";
+import { useAddFavorite, useDeleteFavorite } from "../../app/firebaseHooks";
 
 const recipeList = () => {
 	interface RecipeListItem {
@@ -21,6 +22,32 @@ const recipeList = () => {
 	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
+
+	const favorites = useAppSelector((state) => state.favorites);
+	const user = useAppSelector((state) => state.user.user);
+
+	const {
+		addFavoriteAsync,
+		loading: loadingAdd,
+		error: errorAdd,
+	} = useAddFavorite();
+	const {
+		deleteFavoriteAsync,
+		loading: loadingDelete,
+		error: errorDelete,
+	} = useDeleteFavorite();
+
+	const handleToggleFavorite = async (
+		userId: string,
+		recipeId: string,
+		recipeName: string
+	) => {
+		if (recipeId && containsFavoritesWithRecipeId(favorites, recipeId)) {
+			deleteFavoriteAsync(userId, recipeId);
+		} else {
+			addFavoriteAsync(userId, recipeId, recipeName);
+		}
+	};
 	useEffect(() => {
 		getRecipeList();
 	}, []);
@@ -76,6 +103,14 @@ const recipeList = () => {
 		}
 	};
 
+	// favorites
+	const containsFavoritesWithRecipeId = (
+		favorites: FavoriteState[],
+		recipeId: string
+	) => {
+		return favorites.some((favorite) => favorite.recipeId === recipeId);
+	};
+
 	return (
 		<div className="recipeList">
 			<div className="recipeListContainer">
@@ -93,8 +128,23 @@ const recipeList = () => {
 									</div>
 									<h3>{item.recipeName}</h3>
 								</div>
-								<div className="recipeListLike">
-									<FavoriteBorderIcon className="recipeListLikeIcon" />
+								<div
+									className="recipeListFav"
+									onClick={() =>
+										user &&
+										handleToggleFavorite(
+											user.uid,
+											item.recipeId,
+											item.recipeName
+										)
+									}
+								>
+									{item.recipeId &&
+									containsFavoritesWithRecipeId(favorites, item.recipeId) ? (
+										<FavoriteIcon className="recipeHeaderFavIcon" />
+									) : (
+										<FavoriteBorderIcon className="recipeHeaderFavIcon" />
+									)}
 									<span>10</span>
 								</div>
 							</li>

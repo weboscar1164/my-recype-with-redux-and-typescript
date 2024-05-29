@@ -62,10 +62,7 @@ const Recipe = () => {
 		recipeId: string,
 		recipeName: string
 	) => {
-		if (
-			currentRecipe.recipeId &&
-			containsFavoritesWithRecipeId(favorites, currentRecipe.recipeId)
-		) {
+		if (containsFavoritesWithRecipeId(favorites, recipeId)) {
 			deleteFavoriteAsync(userId, recipeId);
 		} else {
 			addFavoriteAsync(userId, recipeId, recipeName);
