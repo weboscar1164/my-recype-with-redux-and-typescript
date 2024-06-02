@@ -4,68 +4,36 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
-import { useAppSelector } from "../../app/hooks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { db, storage } from "../../firebase";
+import { FavoriteState } from "../../Types";
 import {
-	addDoc,
-	collection,
-	deleteDoc,
-	doc,
-	getDocs,
-	query,
-	serverTimestamp,
-	where,
-} from "firebase/firestore";
-import { deleteObject, ref } from "firebase/storage";
-import {
+	useAppSelector,
 	useAddFavorite,
 	useDeleteFavorite,
-	useFavorites,
-} from "../../app/firebaseHooks";
-import { FavoriteState } from "../../Types";
+	useDeleteFirebaseDocument,
+} from "../../app/hooks/hooks";
 
 const Recipe = () => {
-	const initialState = {
-		isPublic: 0,
-		recipeName: null,
-		recipeImageUrl: null,
-		comment: null,
-		serves: 0,
-		materials: null,
-		procedures: null,
-	};
-
 	const user = useAppSelector((state) => state.user.user);
 	const currentRecipe = useAppSelector((state) => state.recipe);
 	const favorites = useAppSelector((state) => state.favorites);
 
 	const navigate = useNavigate();
 
-	const {
-		addFavoriteAsync,
-		loading: loadingAdd,
-		error: errorAdd,
-	} = useAddFavorite();
-	const {
-		deleteFavoriteAsync,
-		loading: loadingDelete,
-		error: errorDelete,
-	} = useDeleteFavorite();
+	const { addFavoriteAsync } = useAddFavorite();
+	const { deleteFavoriteAsync } = useDeleteFavorite();
+	const { deleteFirebaseDocument } = useDeleteFirebaseDocument();
 
-	// if (loadingFavorites) return <p>Loading favorites...</p>;
-	// if (errorFavorites) return <p>Error loading favorites: {errorFavorites.message}</p>;
-
-	const handleToggleFavorite = async (
+	const handleChangeFavorite = async (
 		userId: string,
 		recipeId: string,
 		recipeName: string
 	) => {
 		if (containsFavoritesWithRecipeId(favorites, recipeId)) {
-			deleteFavoriteAsync(userId, recipeId);
+			await deleteFavoriteAsync(userId, recipeId);
 		} else {
-			addFavoriteAsync(userId, recipeId, recipeName);
+			await addFavoriteAsync(userId, recipeId, recipeName);
 		}
 	};
 
@@ -74,8 +42,8 @@ const Recipe = () => {
 			navigate("/");
 		}
 
-		console.log(favorites);
-		console.log(currentRecipe);
+		// console.log(favorites);
+		// console.log(currentRecipe);
 	}, []);
 
 	const containsFavoritesWithRecipeId = (
@@ -101,33 +69,38 @@ const Recipe = () => {
 
 	const handleDeleteRecipe = () => {
 		if (window.confirm("削除しますか？")) {
-			deleteFirebaseDocument();
+			if (currentRecipe.recipeId) {
+				deleteFirebaseDocument(
+					currentRecipe.recipeId,
+					currentRecipe.recipeImageUrl
+				);
+			}
 		}
 		navigate("/");
 	};
 
-	const deleteFirebaseDocument = async () => {
-		if (currentRecipe.recipeId) {
-			await deleteDoc(doc(db, "recipes", currentRecipe.recipeId))
-				.then(() => {
-					console.log("recipe delete successfully");
-				})
-				.catch((error) => {
-					error && console.error("recipe delete feild: ", error);
-				});
-		}
-		if (currentRecipe.recipeImageUrl) {
-			const desertRef = ref(storage, currentRecipe.recipeImageUrl);
+	// const deleteFirebaseDocument = async () => {
+	// 	if (currentRecipe.recipeId) {
+	// 		await deleteDoc(doc(db, "recipes", currentRecipe.recipeId))
+	// 			.then(() => {
+	// 				console.log("recipe delete successfully");
+	// 			})
+	// 			.catch((error) => {
+	// 				error && console.error("recipe delete feild: ", error);
+	// 			});
+	// 	}
+	// 	if (currentRecipe.recipeImageUrl) {
+	// 		const desertRef = ref(storage, currentRecipe.recipeImageUrl);
 
-			deleteObject(desertRef)
-				.then(() => {
-					console.log("file delete successfully");
-				})
-				.catch((error) => {
-					error && console.error("file delete faild :", error);
-				});
-		}
-	};
+	// 		deleteObject(desertRef)
+	// 			.then(() => {
+	// 				console.log("file delete successfully");
+	// 			})
+	// 			.catch((error) => {
+	// 				error && console.error("file delete faild :", error);
+	// 			});
+	// 	}
+	// };
 
 	return (
 		<div className="recipe">
@@ -139,16 +112,17 @@ const Recipe = () => {
 					</div>
 					<Tooltip title="お気に入り">
 						<div
-							className="recipeHeaderLike"
+							className="recipeHeaderFav"
 							onClick={() =>
-								user?.uid &&
-								currentRecipe.recipeId &&
-								currentRecipe.recipeName &&
-								handleToggleFavorite(
-									user.uid,
-									currentRecipe.recipeId,
-									currentRecipe.recipeName
-								)
+								user?.uid
+									? currentRecipe.recipeId &&
+									  currentRecipe.recipeName &&
+									  handleChangeFavorite(
+											user.uid,
+											currentRecipe.recipeId,
+											currentRecipe.recipeName
+									  )
+									: alert("お気に入り機能を使用するにはログインしてください。")
 							}
 						>
 							{currentRecipe.recipeId &&
@@ -156,12 +130,14 @@ const Recipe = () => {
 								favorites,
 								currentRecipe.recipeId
 							) ? (
-								<FavoriteIcon className="recipeHeaderLikeIcon" />
+								<FavoriteIcon className="recipeHeaderFavIcon" />
 							) : (
-								<FavoriteBorderIcon className="recipeHeaderLikeIcon" />
+								<FavoriteBorderIcon className="recipeHeaderFavIcon" />
 							)}
 
-							<span>10</span>
+							<span className="recipeHeaderFavCount">
+								{currentRecipe.favoriteCount}
+							</span>
 						</div>
 					</Tooltip>
 					{currentRecipe.user === user?.uid && (

@@ -30,6 +30,7 @@ export interface InitialRecipeState {
 	serves: number;
 	materials: MaterialState[] | null;
 	procedures: string[] | null;
+	favoriteCount?: number;
 	recipeId?: string;
 	user?: string;
 	userDisprayName?: string;
@@ -47,4 +48,11 @@ export interface FavoriteState {
 	recipeId: string;
 	recipeName: string;
 	createdAt: string;
+}
+
+export interface RecipeListItem {
+	recipeName: string;
+	recipeImageUrl: string;
+	recipeId: string;
+	favoriteCount: number;
 }

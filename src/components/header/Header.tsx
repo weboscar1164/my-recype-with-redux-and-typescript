@@ -1,6 +1,6 @@
 import Searchbar from "./Searchbar";
 import "./Header.scss";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { crearFavorites } from "../../features/favoritesSlice";
 
 import { Tooltip } from "@mui/material";

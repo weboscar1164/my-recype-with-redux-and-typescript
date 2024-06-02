@@ -9,9 +9,9 @@ export const recipeSlice = createSlice({
 	reducers: {
 		setFavorites: (state, action) => action.payload,
 		addFavorite: (state, action) => {
-			console.log(action.payload);
+			// console.log(action.payload);
 			const { recipeId, recipeName, createdAt } = action.payload;
-			console.log({ recipeId, recipeName, createdAt });
+			// console.log({ recipeId, recipeName, createdAt });
 			state.push({
 				recipeId,
 				recipeName,
@@ -19,7 +19,7 @@ export const recipeSlice = createSlice({
 			});
 		},
 		removeFavorite: (state, action) => {
-			console.log(action.payload);
+			// console.log(action.payload);
 			return state.filter((favorite) => favorite.recipeId !== action.payload);
 		},
 		crearFavorites: () => initialState,

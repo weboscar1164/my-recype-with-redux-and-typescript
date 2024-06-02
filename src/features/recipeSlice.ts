@@ -12,6 +12,7 @@ const initialState: InitialRecipeState = {
 	recipeId: "",
 	user: "",
 	userDisprayName: "",
+	favoriteCount: 0,
 };
 const sortMaterialsByGroup = (materials: MaterialState[]) => {
 	return [...materials].sort((a, b) => a.group - b.group);
@@ -31,15 +32,21 @@ export const recipeSlice = createSlice({
 			state.materials = sortedMaterials;
 			state.procedures = action.payload.procedures;
 			state.recipeId = action.payload.recipeId;
+			state.favoriteCount = action.payload.favoriteCount;
 			state.user = action.payload.user;
 			state.userDisprayName = action.payload.userDisprayName;
+		},
+
+		setFavoriteCount: (state, action) => {
+			state.favoriteCount = action.payload;
 		},
 
 		resetRecipeInfo: () => initialState,
 	},
 });
 
-export const { setRecipeInfo, resetRecipeInfo } = recipeSlice.actions;
+export const { setRecipeInfo, setFavoriteCount, resetRecipeInfo } =
+	recipeSlice.actions;
 export default recipeSlice.reducer;
 
 //initialStateかどうかを判定

@@ -1,80 +1,69 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./RecipeList.scss";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { FavoriteState, InitialRecipeState } from "../../Types";
+import {
+	useAppDispatch,
+	useAppSelector,
+	useGetRecipeList,
+	useAddFavorite,
+	useDeleteFavorite,
+} from "../../app/hooks/hooks";
+import { InitialRecipeState, RecipeListItem } from "../../Types";
 import { useNavigate } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
-import userSlice from "../../features/userSlice";
-import { useAddFavorite, useDeleteFavorite } from "../../app/firebaseHooks";
 
 const recipeList = () => {
-	interface RecipeListItem {
-		recipeName: string;
-		recipeImageUrl: string;
-		recipeId: string;
-	}
-
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
+	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
 
 	const favorites = useAppSelector((state) => state.favorites);
 	const user = useAppSelector((state) => state.user.user);
 
-	const {
-		addFavoriteAsync,
-		loading: loadingAdd,
-		error: errorAdd,
-	} = useAddFavorite();
-	const {
-		deleteFavoriteAsync,
-		loading: loadingDelete,
-		error: errorDelete,
-	} = useDeleteFavorite();
+	const { addFavoriteAsync } = useAddFavorite();
+	const { deleteFavoriteAsync } = useDeleteFavorite();
+	const { getRecipeList } = useGetRecipeList();
 
-	const handleToggleFavorite = async (
-		userId: string,
-		recipeId: string,
-		recipeName: string
-	) => {
-		if (recipeId && containsFavoritesWithRecipeId(favorites, recipeId)) {
-			deleteFavoriteAsync(userId, recipeId);
-		} else {
-			addFavoriteAsync(userId, recipeId, recipeName);
-		}
-	};
+	// 初回レンダリング時にrecipeList取得
 	useEffect(() => {
-		getRecipeList();
+		const fetchRecipeList = async () => {
+			const recipes = await getRecipeList();
+			if (recipes) {
+				setRecipeList(recipes);
+			}
+		};
+		fetchRecipeList();
 	}, []);
 
-	const getRecipeList = async () => {
-		setRecipeList([]);
+	// const getRecipeList = async () => {
+	// 	try {
+	// 		const q = query(collection(db, "recipes"));
 
-		const q = query(collection(db, "recipes"));
-
-		const querySnapshot = await getDocs(q);
-		const recipes: RecipeListItem[] = [];
-		querySnapshot.forEach((doc) => {
-			// console.log(doc.id, " => ", doc.data());
-			recipes.push({
-				recipeName: doc.data().recipeName,
-				recipeImageUrl: doc.data().recipeImageUrl,
-				recipeId: doc.id,
-			});
-		});
-		setRecipeList(recipes);
-	};
+	// 		const querySnapshot = await getDocs(q);
+	// 		const recipes: RecipeListItem[] = querySnapshot.docs.map((doc) => ({
+	// 			recipeName: doc.data().recipeName,
+	// 			recipeImageUrl: doc.data().recipeImageUrl,
+	// 			recipeId: doc.id,
+	// 			favoriteCount: doc.data().favoriteCount,
+	// 		}));
+	// 		return recipes;
+	// 	} catch (e) {
+	// 		console.log(e);
+	// 		return [];
+	// 	}
+	// };
 
 	const getRecipeImage = (recipeImageUrl: string) => {
 		// console.log(recipeImageUrl);
 		return recipeImageUrl ? recipeImageUrl : "noimage.jpg";
 	};
 
+	// recipeクリック時詳細ページにジャンプ
 	const handleClickRecipe = async (recipeId: string) => {
 		const docRef = doc(db, "recipes", recipeId);
 		const docSnap = await getDoc(docRef);
@@ -93,8 +82,10 @@ const recipeList = () => {
 				recipeId: recipeId,
 				user: currentRecipe.user,
 				userDisprayName: currentRecipe.userDisprayName,
+				favoriteCount: currentRecipe.favoriteCount,
 			};
 
+			console.log("newRecipe: ", newRecipe);
 			// console.log(newRecipe);
 			dispatch(setRecipeInfo(newRecipe));
 			navigate("/recipe");
@@ -104,11 +95,39 @@ const recipeList = () => {
 	};
 
 	// favorites
-	const containsFavoritesWithRecipeId = (
-		favorites: FavoriteState[],
-		recipeId: string
+
+	const handleClickFavorite = async (
+		userId: string | undefined,
+		recipeId: string,
+		recipeName: string
 	) => {
-		return favorites.some((favorite) => favorite.recipeId === recipeId);
+		if (userId) {
+			const isFavorite = favorites.some(
+				(favorite) => favorite.recipeId === recipeId
+			);
+			if (recipeId && isFavorite) {
+				await deleteFavoriteAsync(userId, recipeId);
+				updateFavoriteCount(recipeId, -1);
+			} else {
+				await addFavoriteAsync(userId, recipeId, recipeName);
+				updateFavoriteCount(recipeId, 1);
+			}
+			setAnimatingFavIcon(recipeId);
+
+			setTimeout(() => setAnimatingFavIcon(null), 300);
+		} else {
+			alert("お気に入り機能を使用するにはログインしてください。");
+		}
+	};
+
+	const updateFavoriteCount = (recipeId: string, increment: number) => {
+		setRecipeList((prevList) =>
+			prevList.map((recipe) =>
+				recipe.recipeId === recipeId
+					? { ...recipe, favoriteCount: recipe.favoriteCount + increment }
+					: recipe
+			)
+		);
 	};
 
 	return (
@@ -117,7 +136,7 @@ const recipeList = () => {
 				<h2>レシピ一覧</h2>
 				<ul>
 					{recipeList &&
-						recipeList.map((item) => (
+						recipeList.map((item: RecipeListItem) => (
 							<li key={item.recipeId}>
 								<div
 									className="recipeListItemLeft"
@@ -131,21 +150,34 @@ const recipeList = () => {
 								<div
 									className="recipeListFav"
 									onClick={() =>
-										user &&
-										handleToggleFavorite(
-											user.uid,
+										handleClickFavorite(
+											user?.uid,
 											item.recipeId,
 											item.recipeName
 										)
 									}
 								>
 									{item.recipeId &&
-									containsFavoritesWithRecipeId(favorites, item.recipeId) ? (
-										<FavoriteIcon className="recipeHeaderFavIcon" />
+									favorites.some(
+										(favorite) => favorite.recipeId === item.recipeId
+									) ? (
+										<FavoriteIcon
+											className={`recipeHeaderFavIcon ${
+												animatingFavIcon === item.recipeId &&
+												"recipeHeaderFavIconAnimation"
+											}`}
+										/>
 									) : (
-										<FavoriteBorderIcon className="recipeHeaderFavIcon" />
+										<FavoriteBorderIcon
+											className={`recipeHeaderFavIcon ${
+												animatingFavIcon === item.recipeId &&
+												"recipeHeaderFavIconAnimation"
+											}`}
+										/>
 									)}
-									<span>10</span>
+									<span className="recipeHeaderFavCount">
+										{item.favoriteCount}
+									</span>
 								</div>
 							</li>
 						))}

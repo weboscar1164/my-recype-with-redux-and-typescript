@@ -4,7 +4,7 @@ import "./EditRecipe.scss";
 
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +34,7 @@ const EditRecipe = () => {
 
 	const [recipe, setRecipe] = useState<Recipe>({
 		recipeId: "",
-		isPublic: 0,
+		isPublic: 1,
 		recipeName: "",
 		recipeImageUrl: "",
 		comment: "",
@@ -60,7 +60,7 @@ const EditRecipe = () => {
 		if (recipeInfo) {
 			setRecipe({
 				recipeId: recipeInfo.recipeId || "",
-				isPublic: recipeInfo.isPublic || 0,
+				isPublic: recipeInfo.isPublic || 1,
 				recipeName: recipeInfo.recipeName || "",
 				recipeImageUrl: recipeInfo.recipeImageUrl || "",
 				comment: recipeInfo.comment || "",

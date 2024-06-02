@@ -7,13 +7,13 @@ import {
 	serverTimestamp,
 	updateDoc,
 } from "firebase/firestore";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { useNavigate } from "react-router-dom";
 import { InitialRecipeState } from "../../Types";
 import React, { useEffect } from "react";
 import { isInitialState, resetRecipeInfo } from "../../features/recipeSlice";
 import { db, storage } from "../../firebase";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Confirm = () => {
 	const naviate = useNavigate();
@@ -90,6 +90,7 @@ const Confirm = () => {
 				serves: recipeInfo.serves,
 				materials: recipeInfo.materials,
 				procedures: recipeInfo.procedures,
+				favoriteCount: 0,
 				createdAt: serverTimestamp(),
 				updatedAt: serverTimestamp(),
 			});

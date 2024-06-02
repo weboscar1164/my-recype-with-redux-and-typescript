@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import "./Navbar.scss";
 import { Link } from "react-router-dom";
-import { useAppDispatch } from "../../app/hooks";
+import { useAppDispatch } from "../../app/hooks/hooks";
 import { resetRecipeInfo } from "../../features/recipeSlice";
 
 const Navbar = () => {

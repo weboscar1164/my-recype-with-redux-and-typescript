@@ -10,16 +10,16 @@ import EditRecipe from "./components/contents/EditRecipe";
 import Confirm from "./components/contents/Confirm";
 import { login, logout } from "./features/userSlice";
 import { auth } from "./firebase";
-import { useAppDispatch } from "./app/hooks";
-import { useFavorites } from "./app/firebaseHooks";
+import { useAppDispatch, useAppSelector } from "./app/hooks/hooks";
+import { useFavorites } from "./app/hooks/hooks";
+import Loading from "./components/Loading";
 
 function App() {
 	const dispatch = useAppDispatch();
-	const {
-		fetchFavorites,
-		loading: loadingFavorites,
-		error: errorFavorites,
-	} = useFavorites();
+	const { fetchFavorites } = useFavorites();
+
+	const isLoading = useAppSelector((state) => state.loading.isLoading);
+	const Error = useAppSelector((state) => state.loading.error);
 
 	useEffect(() => {
 		auth.onAuthStateChanged((loginUser) => {
@@ -53,6 +53,7 @@ function App() {
 						<Route path="/" element={<RecipeList />} />
 					</Routes>
 				</div>
+				{isLoading && <Loading />}
 			</Router>
 		</div>
 	);

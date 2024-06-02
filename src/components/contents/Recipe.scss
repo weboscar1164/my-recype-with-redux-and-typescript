@@ -22,7 +22,15 @@
 			align-items: center;
 			&Icon {
 				color: #ff3040;
+				&Animation {
+					animation: bounce 0.3s;
+				}
 			}
+			&Count {
+				width: 30px;
+				text-align: right;
+			}
+
 			cursor: pointer;
 		}
 
@@ -127,5 +135,21 @@
 				background: lighten(#59340a, 10);
 			}
 		}
+	}
+}
+
+@keyframes bounce {
+	0%,
+	20%,
+	50%,
+	80%,
+	100% {
+		transform: translateY(0);
+	}
+	40% {
+		transform: translateY(-10px);
+	}
+	60% {
+		transform: translateY(-5px);
 	}
 }
