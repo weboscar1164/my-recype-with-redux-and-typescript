@@ -8,12 +8,13 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
 
 	const dispatch = useAppDispatch();
-	// console.log(user);
+	const navigate = useNavigate();
 
 	const signIn = () => {
 		signInWithPopup(auth, provider).catch((e) => {
@@ -25,6 +26,7 @@ const Header = () => {
 		if (confirm("ログアウトしますか？")) {
 			auth.signOut();
 			dispatch(crearFavorites());
+			navigate("/");
 		}
 	};
 

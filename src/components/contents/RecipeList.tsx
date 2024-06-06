@@ -14,12 +14,16 @@ import {
 import { InitialRecipeState, RecipeListItem } from "../../Types";
 import { useNavigate } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
+import RecipeImage from "./RecipeImage";
 
-const recipeList = () => {
+const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
+	const [favoriteRecipeList, setFavoriteRecipeList] = useState<
+		RecipeListItem[]
+	>([]);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
 
 	const favorites = useAppSelector((state) => state.favorites);
@@ -39,29 +43,6 @@ const recipeList = () => {
 		};
 		fetchRecipeList();
 	}, []);
-
-	// const getRecipeList = async () => {
-	// 	try {
-	// 		const q = query(collection(db, "recipes"));
-
-	// 		const querySnapshot = await getDocs(q);
-	// 		const recipes: RecipeListItem[] = querySnapshot.docs.map((doc) => ({
-	// 			recipeName: doc.data().recipeName,
-	// 			recipeImageUrl: doc.data().recipeImageUrl,
-	// 			recipeId: doc.id,
-	// 			favoriteCount: doc.data().favoriteCount,
-	// 		}));
-	// 		return recipes;
-	// 	} catch (e) {
-	// 		console.log(e);
-	// 		return [];
-	// 	}
-	// };
-
-	const getRecipeImage = (recipeImageUrl: string) => {
-		// console.log(recipeImageUrl);
-		return recipeImageUrl ? recipeImageUrl : "noimage.jpg";
-	};
 
 	// recipeクリック時詳細ページにジャンプ
 	const handleClickRecipe = async (recipeId: string) => {
@@ -130,57 +111,64 @@ const recipeList = () => {
 		);
 	};
 
+	// お気に入り一覧表示
+	const sortedRecipes = showFavorites
+		? recipeList.filter((recipe) =>
+				favorites.some((favorite) => favorite.recipeId === recipe.recipeId)
+		  )
+		: recipeList;
+
 	return (
 		<div className="recipeList">
 			<div className="recipeListContainer">
-				<h2>レシピ一覧</h2>
+				<h2>{showFavorites ? "お気に入り一覧" : "レシピ一覧"}</h2>
 				<ul>
-					{recipeList &&
-						recipeList.map((item: RecipeListItem) => (
-							<li key={item.recipeId}>
-								<div
-									className="recipeListItemLeft"
-									onClick={() => handleClickRecipe(item.recipeId)}
-								>
-									<div className="recipeListImg">
-										<img src={getRecipeImage(item.recipeImageUrl)} alt="" />
-									</div>
-									<h3>{item.recipeName}</h3>
+					{sortedRecipes.map((item: RecipeListItem) => (
+						<li key={item.recipeId}>
+							<div
+								className="recipeListItemLeft"
+								onClick={() => handleClickRecipe(item.recipeId)}
+							>
+								<div className="recipeListImg">
+									<RecipeImage
+										src={
+											item.recipeImageUrl ? item.recipeImageUrl : "noimage.jpg"
+										}
+										alt={item.recipeName}
+									/>
 								</div>
-								<div
-									className="recipeListFav"
-									onClick={() =>
-										handleClickFavorite(
-											user?.uid,
-											item.recipeId,
-											item.recipeName
-										)
-									}
-								>
-									{item.recipeId &&
-									favorites.some(
-										(favorite) => favorite.recipeId === item.recipeId
-									) ? (
-										<FavoriteIcon
-											className={`recipeHeaderFavIcon ${
-												animatingFavIcon === item.recipeId &&
-												"recipeHeaderFavIconAnimation"
-											}`}
-										/>
-									) : (
-										<FavoriteBorderIcon
-											className={`recipeHeaderFavIcon ${
-												animatingFavIcon === item.recipeId &&
-												"recipeHeaderFavIconAnimation"
-											}`}
-										/>
-									)}
-									<span className="recipeHeaderFavCount">
-										{item.favoriteCount}
-									</span>
-								</div>
-							</li>
-						))}
+								<h3>{item.recipeName}</h3>
+							</div>
+							<div
+								className="recipeListFav"
+								onClick={() =>
+									handleClickFavorite(user?.uid, item.recipeId, item.recipeName)
+								}
+							>
+								{item.recipeId &&
+								favorites.some(
+									(favorite) => favorite.recipeId === item.recipeId
+								) ? (
+									<FavoriteIcon
+										className={`recipeHeaderFavIcon ${
+											animatingFavIcon === item.recipeId &&
+											"recipeHeaderFavIconAnimation"
+										}`}
+									/>
+								) : (
+									<FavoriteBorderIcon
+										className={`recipeHeaderFavIcon ${
+											animatingFavIcon === item.recipeId &&
+											"recipeHeaderFavIconAnimation"
+										}`}
+									/>
+								)}
+								<span className="recipeHeaderFavCount">
+									{item.favoriteCount}
+								</span>
+							</div>
+						</li>
+					))}
 				</ul>
 			</div>
 		</div>

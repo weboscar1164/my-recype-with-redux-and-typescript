@@ -13,6 +13,7 @@ import { auth } from "./firebase";
 import { useAppDispatch, useAppSelector } from "./app/hooks/hooks";
 import { useFavorites } from "./app/hooks/hooks";
 import Loading from "./components/Loading";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -47,10 +48,39 @@ function App() {
 				<Navbar></Navbar>
 				<div className="contents">
 					<Routes>
-						<Route path="/editrecipe" element={<EditRecipe />} />
-						<Route path="/confirm" element={<Confirm />} />
-						<Route path="/Recipe" element={<Recipe />} />
-						<Route path="/" element={<RecipeList />} />
+						<Route
+							path="/editrecipe"
+							element={
+								<ProtectedRoute>
+									<EditRecipe />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/confirm"
+							element={
+								<ProtectedRoute>
+									<Confirm />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/Recipe"
+							element={
+								<ProtectedRoute>
+									<Recipe />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/favorites"
+							element={
+								<ProtectedRoute>
+									<RecipeList showFavorites={true} />
+								</ProtectedRoute>
+							}
+						/>
+						<Route path="/" element={<RecipeList showFavorites={false} />} />
 					</Routes>
 				</div>
 				{isLoading && <Loading />}
