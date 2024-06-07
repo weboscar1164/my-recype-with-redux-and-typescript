@@ -21,13 +21,11 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
-	const [favoriteRecipeList, setFavoriteRecipeList] = useState<
-		RecipeListItem[]
-	>([]);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
 
 	const favorites = useAppSelector((state) => state.favorites);
 	const user = useAppSelector((state) => state.user.user);
+	const searchWord = useAppSelector((state) => state.searchWord);
 
 	const { addFavoriteAsync } = useAddFavorite();
 	const { deleteFavoriteAsync } = useDeleteFavorite();
@@ -75,8 +73,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		}
 	};
 
-	// favorites
-
+	// お気に入り切り替え
 	const handleClickFavorite = async (
 		userId: string | undefined,
 		recipeId: string,
@@ -111,17 +108,28 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		);
 	};
 
-	// お気に入り一覧表示
-	const sortedRecipes = showFavorites
-		? recipeList.filter((recipe) =>
-				favorites.some((favorite) => favorite.recipeId === recipe.recipeId)
-		  )
-		: recipeList;
+	// // お気に入り一覧表示
+	// const sortedRecipes = showFavorites
+	// 	? recipeList.filter((recipe) =>
+	// 			favorites.some((favorite) => favorite.recipeId === recipe.recipeId)
+	// 	  )
+	// 	: recipeList;
+
+	const sortedRecipes = recipeList.filter((recipe) => {
+		const matchesSerch = searchWord
+			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase())
+			: true;
+		const matchesFavorites = showFavorites
+			? favorites.some((favorites) => favorites.recipeId === recipe.recipeId)
+			: true;
+		return matchesSerch && matchesFavorites;
+	});
 
 	return (
 		<div className="recipeList">
 			<div className="recipeListContainer">
 				<h2>{showFavorites ? "お気に入り一覧" : "レシピ一覧"}</h2>
+				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				<ul>
 					{sortedRecipes.map((item: RecipeListItem) => (
 						<li key={item.recipeId}>

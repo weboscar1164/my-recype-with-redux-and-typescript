@@ -3,6 +3,7 @@ import userReducer from "../features/userSlice";
 import recipeReducer from "../features/recipeSlice";
 import favoritesReducer from "../features/favoritesSlice";
 import loadingReducer from "../features/loadingSlice";
+import searchWordReducer from "../features/searchWordSlice";
 
 export const store = configureStore({
 	reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
 		recipe: recipeReducer,
 		favorites: favoritesReducer,
 		loading: loadingReducer,
+		searchWord: searchWordReducer,
 	},
 });
 
