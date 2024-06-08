@@ -4,7 +4,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FavoriteState } from "../../Types";
 import {
@@ -15,6 +15,8 @@ import {
 } from "../../app/hooks/hooks";
 
 const Recipe = () => {
+	const [animatingFavIcon, setAnimatingFavIcon] = useState<boolean>(false);
+
 	const user = useAppSelector((state) => state.user.user);
 	const currentRecipe = useAppSelector((state) => state.recipe);
 	const favorites = useAppSelector((state) => state.favorites);
@@ -25,18 +27,6 @@ const Recipe = () => {
 	const { deleteFavoriteAsync } = useDeleteFavorite();
 	const { deleteFirebaseDocument } = useDeleteFirebaseDocument();
 
-	const handleChangeFavorite = async (
-		userId: string,
-		recipeId: string,
-		recipeName: string
-	) => {
-		if (containsFavoritesWithRecipeId(favorites, recipeId)) {
-			await deleteFavoriteAsync(userId, recipeId);
-		} else {
-			await addFavoriteAsync(userId, recipeId, recipeName);
-		}
-	};
-
 	useEffect(() => {
 		if (!currentRecipe.recipeId) {
 			navigate("/");
@@ -46,10 +36,21 @@ const Recipe = () => {
 		// console.log(currentRecipe);
 	}, []);
 
-	const containsFavoritesWithRecipeId = (
-		favorites: FavoriteState[],
-		recipeId: string
+	const handleChangeFavorite = async (
+		userId: string,
+		recipeId: string,
+		recipeName: string
 	) => {
+		if (containsFavorites(favorites, recipeId)) {
+			await deleteFavoriteAsync(userId, recipeId);
+		} else {
+			await addFavoriteAsync(userId, recipeId, recipeName);
+		}
+		setAnimatingFavIcon(true);
+		setTimeout(() => setAnimatingFavIcon(false), 300);
+	};
+
+	const containsFavorites = (favorites: FavoriteState[], recipeId: string) => {
 		return favorites.some((favorite) => favorite.recipeId === recipeId);
 	};
 
@@ -64,7 +65,7 @@ const Recipe = () => {
 	};
 
 	const handleToEditRecipe = () => {
-		navigate("/editRecipe");
+		navigate("/editrecipe");
 	};
 
 	const handleDeleteRecipe = () => {
@@ -78,29 +79,6 @@ const Recipe = () => {
 		}
 		navigate("/");
 	};
-
-	// const deleteFirebaseDocument = async () => {
-	// 	if (currentRecipe.recipeId) {
-	// 		await deleteDoc(doc(db, "recipes", currentRecipe.recipeId))
-	// 			.then(() => {
-	// 				console.log("recipe delete successfully");
-	// 			})
-	// 			.catch((error) => {
-	// 				error && console.error("recipe delete feild: ", error);
-	// 			});
-	// 	}
-	// 	if (currentRecipe.recipeImageUrl) {
-	// 		const desertRef = ref(storage, currentRecipe.recipeImageUrl);
-
-	// 		deleteObject(desertRef)
-	// 			.then(() => {
-	// 				console.log("file delete successfully");
-	// 			})
-	// 			.catch((error) => {
-	// 				error && console.error("file delete faild :", error);
-	// 			});
-	// 	}
-	// };
 
 	return (
 		<div className="recipe">
@@ -126,13 +104,18 @@ const Recipe = () => {
 							}
 						>
 							{currentRecipe.recipeId &&
-							containsFavoritesWithRecipeId(
-								favorites,
-								currentRecipe.recipeId
-							) ? (
-								<FavoriteIcon className="recipeHeaderFavIcon" />
+							containsFavorites(favorites, currentRecipe.recipeId) ? (
+								<FavoriteIcon
+									className={`recipeHeaderFavIcon ${
+										animatingFavIcon && "recipeHeaderFavIconAnimation"
+									}`}
+								/>
 							) : (
-								<FavoriteBorderIcon className="recipeHeaderFavIcon" />
+								<FavoriteBorderIcon
+									className={`recipeHeaderFavIcon ${
+										animatingFavIcon && "recipeHeaderFavIconAnimation"
+									}`}
+								/>
 							)}
 
 							<span className="recipeHeaderFavCount">

@@ -24,7 +24,6 @@ function App() {
 
 	useEffect(() => {
 		auth.onAuthStateChanged((loginUser) => {
-			// console.log(loginUser);
 			if (loginUser) {
 				dispatch(
 					login({
@@ -64,14 +63,7 @@ function App() {
 								</ProtectedRoute>
 							}
 						/>
-						<Route
-							path="/Recipe"
-							element={
-								<ProtectedRoute>
-									<Recipe />
-								</ProtectedRoute>
-							}
-						/>
+						<Route path="/Recipe" element={<Recipe />} />
 						<Route
 							path="/favorites"
 							element={

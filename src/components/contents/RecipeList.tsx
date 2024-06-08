@@ -108,17 +108,12 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		);
 	};
 
-	// // お気に入り一覧表示
-	// const sortedRecipes = showFavorites
-	// 	? recipeList.filter((recipe) =>
-	// 			favorites.some((favorite) => favorite.recipeId === recipe.recipeId)
-	// 	  )
-	// 	: recipeList;
-
 	const sortedRecipes = recipeList.filter((recipe) => {
+		// 検索語句との一致
 		const matchesSerch = searchWord
 			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase())
 			: true;
+		//　お気に入りリストとの一致
 		const matchesFavorites = showFavorites
 			? favorites.some((favorites) => favorites.recipeId === recipe.recipeId)
 			: true;
@@ -130,54 +125,64 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 			<div className="recipeListContainer">
 				<h2>{showFavorites ? "お気に入り一覧" : "レシピ一覧"}</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
-				<ul>
-					{sortedRecipes.map((item: RecipeListItem) => (
-						<li key={item.recipeId}>
-							<div
-								className="recipeListItemLeft"
-								onClick={() => handleClickRecipe(item.recipeId)}
-							>
-								<div className="recipeListImg">
-									<RecipeImage
-										src={
-											item.recipeImageUrl ? item.recipeImageUrl : "noimage.jpg"
-										}
-										alt={item.recipeName}
-									/>
+				{sortedRecipes.length !== 0 ? (
+					<ul>
+						{sortedRecipes.map((item: RecipeListItem) => (
+							<li key={item.recipeId}>
+								<div
+									className="recipeListItemLeft"
+									onClick={() => handleClickRecipe(item.recipeId)}
+								>
+									<div className="recipeListImg">
+										<RecipeImage
+											src={
+												item.recipeImageUrl
+													? item.recipeImageUrl
+													: "noimage.jpg"
+											}
+											alt={item.recipeName}
+										/>
+									</div>
+									<h3>{item.recipeName}</h3>
 								</div>
-								<h3>{item.recipeName}</h3>
-							</div>
-							<div
-								className="recipeListFav"
-								onClick={() =>
-									handleClickFavorite(user?.uid, item.recipeId, item.recipeName)
-								}
-							>
-								{item.recipeId &&
-								favorites.some(
-									(favorite) => favorite.recipeId === item.recipeId
-								) ? (
-									<FavoriteIcon
-										className={`recipeHeaderFavIcon ${
-											animatingFavIcon === item.recipeId &&
-											"recipeHeaderFavIconAnimation"
-										}`}
-									/>
-								) : (
-									<FavoriteBorderIcon
-										className={`recipeHeaderFavIcon ${
-											animatingFavIcon === item.recipeId &&
-											"recipeHeaderFavIconAnimation"
-										}`}
-									/>
-								)}
-								<span className="recipeHeaderFavCount">
-									{item.favoriteCount}
-								</span>
-							</div>
-						</li>
-					))}
-				</ul>
+								<div
+									className="recipeListFav"
+									onClick={() =>
+										handleClickFavorite(
+											user?.uid,
+											item.recipeId,
+											item.recipeName
+										)
+									}
+								>
+									{item.recipeId &&
+									favorites.some(
+										(favorite) => favorite.recipeId === item.recipeId
+									) ? (
+										<FavoriteIcon
+											className={`recipeHeaderFavIcon ${
+												animatingFavIcon === item.recipeId &&
+												"recipeHeaderFavIconAnimation"
+											}`}
+										/>
+									) : (
+										<FavoriteBorderIcon
+											className={`recipeHeaderFavIcon ${
+												animatingFavIcon === item.recipeId &&
+												"recipeHeaderFavIconAnimation"
+											}`}
+										/>
+									)}
+									<span className="recipeHeaderFavCount">
+										{item.favoriteCount}
+									</span>
+								</div>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p>レシピがありません。</p>
+				)}
 			</div>
 		</div>
 	);

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import "./Navbar.scss";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { resetRecipeInfo } from "../../features/recipeSlice";
+import { clearSearchQuery } from "../../features/searchWordSlice";
 
 const Navbar = () => {
 	const user = useAppSelector((state) => state.user.user);
@@ -16,8 +17,9 @@ const Navbar = () => {
 		setIsOpen(!isOpen);
 	};
 
-	const handleToEditRecipe = () => {
+	const onClickLink = () => {
 		dispatch(resetRecipeInfo());
+		dispatch(clearSearchQuery());
 		handleNavToggle();
 	};
 
@@ -32,7 +34,7 @@ const Navbar = () => {
 			<nav className="navList">
 				<ul>
 					<li>
-						<Link className="navItem" to={"/"} onClick={handleNavToggle}>
+						<Link className="navItem" to={"/"} onClick={onClickLink}>
 							一覧
 						</Link>
 					</li>
@@ -42,7 +44,7 @@ const Navbar = () => {
 								<Link
 									className="navItem"
 									to={"/editRecipe"}
-									onClick={handleToEditRecipe}
+									onClick={onClickLink}
 								>
 									投稿
 								</Link>
@@ -51,7 +53,7 @@ const Navbar = () => {
 								<Link
 									className="navItem"
 									to={"/favorites"}
-									onClick={handleNavToggle}
+									onClick={onClickLink}
 								>
 									お気に入り
 								</Link>
