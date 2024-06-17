@@ -28,14 +28,13 @@ const Recipe = () => {
 	const { deleteFirebaseDocument } = useDeleteFirebaseDocument();
 
 	useEffect(() => {
+		// レシピデータが入っていない場合は一覧にリダイレクトする
 		if (!currentRecipe.recipeId) {
 			navigate("/");
 		}
-
-		// console.log(favorites);
-		// console.log(currentRecipe);
 	}, []);
 
+	// お気に入り制御
 	const handleChangeFavorite = async (
 		userId: string,
 		recipeId: string,
@@ -50,24 +49,29 @@ const Recipe = () => {
 		setTimeout(() => setAnimatingFavIcon(false), 300);
 	};
 
+	// お気に入りの状態を取得
 	const containsFavorites = (favorites: FavoriteState[], recipeId: string) => {
 		return favorites.some((favorite) => favorite.recipeId === recipeId);
 	};
 
+	// レシピ画像がない場合はnoimageを表示
 	const getRecipeImage = (recipeImageUrl: string | null) => {
 		// console.log(recipeImageUrl);
 		return recipeImageUrl ? recipeImageUrl : "noimage.jpg";
 	};
 
+	// グループ記号を取得
 	const getGroupIcon = (value: number) => {
 		const symbols = ["", "★", "☆", "●", "○", "◎"];
 		return symbols[value] || "";
 	};
 
+	// 編集画面にジャンプ
 	const handleToEditRecipe = () => {
 		navigate("/editrecipe");
 	};
 
+	// レシピ削除
 	const handleDeleteRecipe = () => {
 		if (window.confirm("削除しますか？")) {
 			if (currentRecipe.recipeId) {
@@ -88,41 +92,49 @@ const Recipe = () => {
 					<div className="recipeHeaderAuther">
 						by: {currentRecipe.userDisprayName}
 					</div>
-					<Tooltip title="お気に入り">
-						<div
-							className="recipeHeaderFav"
-							onClick={() =>
-								user?.uid
-									? currentRecipe.recipeId &&
-									  currentRecipe.recipeName &&
-									  handleChangeFavorite(
-											user.uid,
-											currentRecipe.recipeId,
-											currentRecipe.recipeName
-									  )
-									: alert("お気に入り機能を使用するにはログインしてください。")
-							}
-						>
-							{currentRecipe.recipeId &&
-							containsFavorites(favorites, currentRecipe.recipeId) ? (
-								<FavoriteIcon
-									className={`recipeHeaderFavIcon ${
-										animatingFavIcon && "recipeHeaderFavIconAnimation"
-									}`}
-								/>
-							) : (
-								<FavoriteBorderIcon
-									className={`recipeHeaderFavIcon ${
-										animatingFavIcon && "recipeHeaderFavIconAnimation"
-									}`}
-								/>
-							)}
+					{currentRecipe.isPublic == 1 ? (
+						<Tooltip title="お気に入り">
+							<div
+								className="recipeHeaderFav"
+								onClick={() =>
+									user?.uid
+										? currentRecipe.recipeId &&
+										  currentRecipe.recipeName &&
+										  handleChangeFavorite(
+												user.uid,
+												currentRecipe.recipeId,
+												currentRecipe.recipeName
+										  )
+										: alert(
+												"お気に入り機能を使用するにはログインしてください。"
+										  )
+								}
+							>
+								{currentRecipe.recipeId &&
+								containsFavorites(favorites, currentRecipe.recipeId) ? (
+									<FavoriteIcon
+										className={`recipeHeaderFavIcon ${
+											animatingFavIcon && "recipeHeaderFavIconAnimation"
+										}`}
+									/>
+								) : (
+									<FavoriteBorderIcon
+										className={`recipeHeaderFavIcon ${
+											animatingFavIcon && "recipeHeaderFavIconAnimation"
+										}`}
+									/>
+								)}
 
-							<span className="recipeHeaderFavCount">
-								{currentRecipe.favoriteCount}
-							</span>
-						</div>
-					</Tooltip>
+								<span className="recipeHeaderFavCount">
+									{currentRecipe.favoriteCount}
+								</span>
+							</div>
+						</Tooltip>
+					) : (
+						<Tooltip title="公開していません">
+							<div className="recipeHeaderPrivate">非公開</div>
+						</Tooltip>
+					)}
 					{currentRecipe.user === user?.uid && (
 						<>
 							<Tooltip title="編集">

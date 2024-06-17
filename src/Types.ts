@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
+// ユーザー情報
 export interface InitialUserState {
 	user: null | {
 		uid: string;
@@ -9,19 +10,7 @@ export interface InitialUserState {
 	};
 }
 
-export interface UpdateRecipeState {
-	isPublic: number;
-	recipeName: string | null;
-	recipeImageUrl: string | null;
-	comment: string | null;
-	serves: number;
-	materials: MaterialState[] | null;
-	procedures: string[] | null;
-	user?: string;
-	createdAt?: Timestamp | null;
-	updatedAt?: Timestamp;
-}
-
+// レシピ
 export interface InitialRecipeState {
 	isPublic: number;
 	recipeName: string | null;
@@ -38,21 +27,26 @@ export interface InitialRecipeState {
 	updatedAt?: Timestamp;
 }
 
+// 材料
 export interface MaterialState {
 	name: string;
 	quantity: string;
 	group: number;
 }
 
+// お気に入り
 export interface FavoriteState {
 	recipeId: string;
 	recipeName: string;
 	createdAt: string;
 }
 
+// 一覧として取得するアイテム
 export interface RecipeListItem {
 	recipeName: string;
 	recipeImageUrl: string;
 	recipeId: string;
 	favoriteCount: number;
+	isPublic: number;
+	user: string;
 }

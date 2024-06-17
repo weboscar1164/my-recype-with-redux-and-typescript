@@ -18,6 +18,8 @@ export const useGetRecipeList = () => {
 				recipeImageUrl: doc.data().recipeImageUrl,
 				recipeId: doc.id,
 				favoriteCount: doc.data().favoriteCount,
+				isPublic: doc.data().isPublic,
+				user: doc.data().user,
 			}));
 
 			return recipes;

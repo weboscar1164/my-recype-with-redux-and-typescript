@@ -117,7 +117,12 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		const matchesFavorites = showFavorites
 			? favorites.some((favorites) => favorites.recipeId === recipe.recipeId)
 			: true;
-		return matchesSerch && matchesFavorites;
+
+		// 公開状態のチェック
+		const isPublicCheck = user
+			? recipe.isPublic == 1 || recipe.user === user.uid
+			: recipe.isPublic == 1;
+		return matchesSerch && matchesFavorites && isPublicCheck;
 	});
 
 	return (
@@ -145,38 +150,42 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 									</div>
 									<h3>{item.recipeName}</h3>
 								</div>
-								<div
-									className="recipeListFav"
-									onClick={() =>
-										handleClickFavorite(
-											user?.uid,
-											item.recipeId,
-											item.recipeName
-										)
-									}
-								>
-									{item.recipeId &&
-									favorites.some(
-										(favorite) => favorite.recipeId === item.recipeId
-									) ? (
-										<FavoriteIcon
-											className={`recipeHeaderFavIcon ${
-												animatingFavIcon === item.recipeId &&
-												"recipeHeaderFavIconAnimation"
-											}`}
-										/>
-									) : (
-										<FavoriteBorderIcon
-											className={`recipeHeaderFavIcon ${
-												animatingFavIcon === item.recipeId &&
-												"recipeHeaderFavIconAnimation"
-											}`}
-										/>
-									)}
-									<span className="recipeHeaderFavCount">
-										{item.favoriteCount}
-									</span>
-								</div>
+								{item.isPublic == 1 ? (
+									<div
+										className="recipeListFav"
+										onClick={() =>
+											handleClickFavorite(
+												user?.uid,
+												item.recipeId,
+												item.recipeName
+											)
+										}
+									>
+										{item.recipeId &&
+										favorites.some(
+											(favorite) => favorite.recipeId === item.recipeId
+										) ? (
+											<FavoriteIcon
+												className={`recipeHeaderFavIcon ${
+													animatingFavIcon === item.recipeId &&
+													"recipeHeaderFavIconAnimation"
+												}`}
+											/>
+										) : (
+											<FavoriteBorderIcon
+												className={`recipeHeaderFavIcon ${
+													animatingFavIcon === item.recipeId &&
+													"recipeHeaderFavIconAnimation"
+												}`}
+											/>
+										)}
+										<span className="recipeHeaderFavCount">
+											{item.favoriteCount}
+										</span>
+									</div>
+								) : (
+									<div className="recipeHeaderPrivate">非公開</div>
+								)}
 							</li>
 						))}
 					</ul>
