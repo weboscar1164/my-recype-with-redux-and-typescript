@@ -16,12 +16,17 @@ import { useNavigate } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import RecipeImage from "./RecipeImage";
 
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+
 const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
+	const recipesPerPage = 10;
 
 	const favorites = useAppSelector((state) => state.favorites);
 	const user = useAppSelector((state) => state.user.user);
@@ -98,6 +103,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		}
 	};
 
+	// お気に入りカウンターの操作
 	const updateFavoriteCount = (recipeId: string, increment: number) => {
 		setRecipeList((prevList) =>
 			prevList.map((recipe) =>
@@ -108,6 +114,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		);
 	};
 
+	// 表示するリストのソート
 	const sortedRecipes = recipeList.filter((recipe) => {
 		// 検索語句との一致
 		const matchesSerch = searchWord
@@ -125,14 +132,125 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		return matchesSerch && matchesFavorites && isPublicCheck;
 	});
 
+	//ページネーションのためのインデックス計算
+	const indexOfLastRecipe = currentPage * recipesPerPage;
+	const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+	const currentRecipes = sortedRecipes.slice(
+		indexOfFirstRecipe,
+		indexOfLastRecipe
+	);
+
+	const handlePageChange = (pageNumber: number) => {
+		setCurrentPage(pageNumber);
+	};
+
+	const handleNextPage = () => {
+		if (currentPage < pageNumbers.length) {
+			setCurrentPage(currentPage + 1);
+		}
+	};
+
+	const handlePrevPage = () => {
+		if (currentPage > 1) {
+			setCurrentPage(currentPage - 1);
+		}
+	};
+
+	const pageNumbers: number[] = [];
+	for (let i = 1; i <= Math.ceil(sortedRecipes.length / recipesPerPage); i++) {
+		pageNumbers.push(i);
+	}
+
+	const maxPageNumbersToshow = 5;
+	const totalPageNumbers = pageNumbers.length;
+
+	const renderPageNumbers = () => {
+		if (totalPageNumbers <= maxPageNumbersToshow) {
+			return pageNumbers.map((number) => (
+				<button
+					key={number}
+					onClick={() => handlePageChange(number)}
+					className={`paginationButton ${
+						number === currentPage ? "paginationActive" : "paginationInactive"
+					}`}
+				>
+					{number}
+				</button>
+			));
+		}
+
+		const pages = [];
+		let startPage, endPage;
+
+		if (currentPage <= 3) {
+			startPage = 1;
+			endPage = maxPageNumbersToshow;
+		} else if (currentPage + 2 >= totalPageNumbers) {
+			startPage = totalPageNumbers - 4;
+			endPage = totalPageNumbers;
+		} else {
+			startPage = currentPage - 2;
+			endPage = currentPage + 2;
+		}
+
+		// Add first page and ellipsis if needed
+		if (startPage > 1) {
+			pages.push(
+				<button
+					key={1}
+					onClick={() => handlePageChange(1)}
+					className="paginationButton paginationInactive"
+				>
+					1
+				</button>
+			);
+			if (startPage > 2) {
+				pages.push(<span key="start-ellipsis">...</span>);
+			}
+		}
+
+		// Add page numbers
+		for (let i = startPage; i <= endPage; i++) {
+			pages.push(
+				<button
+					key={i}
+					onClick={() => handlePageChange(i)}
+					className={`paginationButton ${
+						i === currentPage ? "paginationActive" : "paginationInactive"
+					}`}
+				>
+					{i}
+				</button>
+			);
+		}
+
+		// Add last page and ellipsis if needed
+		if (endPage < totalPageNumbers) {
+			if (endPage < totalPageNumbers - 1) {
+				pages.push(<span key="end-ellipsis">...</span>);
+			}
+			pages.push(
+				<button
+					key={totalPageNumbers}
+					onClick={() => handlePageChange(totalPageNumbers)}
+					className="paginationButton paginationInactive"
+				>
+					{totalPageNumbers}
+				</button>
+			);
+		}
+
+		return pages;
+	};
+
 	return (
 		<div className="recipeList">
 			<div className="recipeListContainer">
 				<h2>{showFavorites ? "お気に入り一覧" : "レシピ一覧"}</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
-				{sortedRecipes.length !== 0 ? (
+				{currentRecipes.length !== 0 ? (
 					<ul>
-						{sortedRecipes.map((item: RecipeListItem) => (
+						{currentRecipes.map((item: RecipeListItem) => (
 							<li key={item.recipeId}>
 								<div
 									className="recipeListItemLeft"
@@ -192,6 +310,28 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 				) : (
 					<p>レシピがありません。</p>
 				)}
+				<div className="pagination">
+					<div
+						className={`paginationChangepage ${
+							currentPage !== 1 ? "paginationChangepageActive" : ""
+						}`}
+						onClick={handlePrevPage}
+					>
+						<ArrowBackIosNewIcon />
+					</div>
+					{renderPageNumbers()}
+
+					<div
+						className={`paginationChangepage ${
+							currentPage !== pageNumbers.length
+								? "paginationChangepageActive"
+								: ""
+						}`}
+						onClick={handleNextPage}
+					>
+						<ArrowForwardIosIcon />
+					</div>
+				</div>
 			</div>
 		</div>
 	);

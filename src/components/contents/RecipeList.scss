@@ -84,6 +84,40 @@
 	}
 }
 
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	margin-top: 20px;
+	&Button {
+		background: none;
+		border: none;
+		font-size: 16px;
+		color: #59340a;
+	}
+
+	&Active {
+		color: #9d9d9d;
+	}
+
+	&Inactive {
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	&Changepage {
+		width: 23px;
+		height: 23px;
+		color: #9d9d9d;
+
+		&Active {
+			cursor: pointer;
+			color: #59340a;
+		}
+	}
+}
+
 @keyframes loading {
 	0% {
 		background-position: 200% 0;
