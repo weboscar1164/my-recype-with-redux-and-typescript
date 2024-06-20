@@ -8,6 +8,7 @@ import RecipeList from "./components/contents/RecipeList";
 import Navbar from "./components/Sidebar/Navbar";
 import EditRecipe from "./components/contents/EditRecipe";
 import Confirm from "./components/contents/Confirm";
+import Error from "./components/Error";
 import { login, logout } from "./features/userSlice";
 import { auth } from "./firebase";
 import { useAppDispatch, useAppSelector } from "./app/hooks/hooks";
@@ -20,7 +21,7 @@ function App() {
 	const { fetchFavorites } = useFavorites();
 
 	const isLoading = useAppSelector((state) => state.loading.isLoading);
-	const Error = useAppSelector((state) => state.loading.error);
+	const error = useAppSelector((state) => state.loading.error);
 
 	useEffect(() => {
 		auth.onAuthStateChanged((loginUser) => {
@@ -46,34 +47,38 @@ function App() {
 				<Header></Header>
 				<Navbar></Navbar>
 				<div className="contents">
-					<Routes>
-						<Route
-							path="/editrecipe"
-							element={
-								<ProtectedRoute>
-									<EditRecipe />
-								</ProtectedRoute>
-							}
-						/>
-						<Route
-							path="/confirm"
-							element={
-								<ProtectedRoute>
-									<Confirm />
-								</ProtectedRoute>
-							}
-						/>
-						<Route path="/Recipe" element={<Recipe />} />
-						<Route
-							path="/favorites"
-							element={
-								<ProtectedRoute>
-									<RecipeList showFavorites={true} />
-								</ProtectedRoute>
-							}
-						/>
-						<Route path="/" element={<RecipeList showFavorites={false} />} />
-					</Routes>
+					{!error ? (
+						<Routes>
+							<Route
+								path="/editrecipe"
+								element={
+									<ProtectedRoute>
+										<EditRecipe />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/confirm"
+								element={
+									<ProtectedRoute>
+										<Confirm />
+									</ProtectedRoute>
+								}
+							/>
+							<Route path="/Recipe" element={<Recipe />} />
+							<Route
+								path="/favorites"
+								element={
+									<ProtectedRoute>
+										<RecipeList showFavorites={true} />
+									</ProtectedRoute>
+								}
+							/>
+							<Route path="/" element={<RecipeList showFavorites={false} />} />
+						</Routes>
+					) : (
+						<Error />
+					)}
 				</div>
 				{isLoading && <Loading />}
 			</Router>

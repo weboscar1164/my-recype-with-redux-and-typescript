@@ -11,7 +11,7 @@ import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { addFavorite } from "../../features/favoritesSlice";
 import { setFavoriteCount } from "../../features/recipeSlice";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError } from "../../features/loadingSlice";
 
 export const useAddFavorite = () => {
 	const dispatch = useAppDispatch();
@@ -21,7 +21,6 @@ export const useAddFavorite = () => {
 		recipeId: string,
 		recipeName: string
 	) => {
-		// dispatch(setLoading(true));
 		try {
 			// userのサブクエリfavoritesに追加
 			const favoritesRef = collection(db, "users", userId, "favorites");
@@ -59,7 +58,6 @@ export const useAddFavorite = () => {
 			dispatch(setError("お気に入り操作時にエラーが発生しました。"));
 			console.log(e);
 		} finally {
-			// dispatch(setLoading(false));
 		}
 	};
 
