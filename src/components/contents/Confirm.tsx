@@ -1,30 +1,20 @@
 import "./Recipe.scss";
-import {
-	CollectionReference,
-	addDoc,
-	collection,
-	doc,
-	serverTimestamp,
-	updateDoc,
-} from "firebase/firestore";
-import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
+import { useAppSelector } from "../../app/hooks/hooks";
 import { useNavigate } from "react-router-dom";
 import { InitialRecipeState } from "../../Types";
 import React, { useEffect } from "react";
-import { isInitialState, resetRecipeInfo } from "../../features/recipeSlice";
-import { db, storage } from "../../firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { isInitialState } from "../../features/recipeSlice";
+import { useUploadRecipe } from "../../app/hooks/useUploadRecipe";
 
 const Confirm = () => {
 	const naviate = useNavigate();
-	const dispatch = useAppDispatch();
 	const recipeInfo: InitialRecipeState = useAppSelector(
 		(state) => state.recipe
 	);
-	const user = useAppSelector((state) => state.user.user);
 
 	const initialStateCheck = isInitialState(recipeInfo);
-	// console.log(recipeInfo);
+
+	const { uploadRecipeToFirestore } = useUploadRecipe();
 
 	useEffect(() => {
 		// initialStateであるかを判定してtrueならばeditRecipeにリダイレクト
@@ -56,83 +46,10 @@ const Confirm = () => {
 			: "noimage.jpg";
 	};
 
-	const uploadRecipeToFirestore = async (
-		e: React.MouseEvent<HTMLButtonElement>
-	) => {
+	const handleRecipeSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 
-		if (!user) {
-			return;
-		}
-
-		let imageUrl = recipeInfo.recipeImageUrl || "";
-		if (
-			!imageUrl.startsWith("https://firebasestorage.googleapis.com/") &&
-			imageUrl
-		) {
-			imageUrl = (await uploadImage(imageUrl)) || "";
-		}
-
-		if (!recipeInfo.recipeId) {
-			console.log("added");
-			const collectionRef = collection(
-				db,
-				"recipes"
-			) as CollectionReference<InitialRecipeState>;
-
-			await addDoc(collectionRef, {
-				isPublic: recipeInfo.isPublic,
-				recipeName: recipeInfo.recipeName,
-				comment: recipeInfo.comment,
-				user: user.uid,
-				userDisprayName: user.displayName,
-				recipeImageUrl: imageUrl || "",
-				serves: recipeInfo.serves,
-				materials: recipeInfo.materials,
-				procedures: recipeInfo.procedures,
-				favoriteCount: 0,
-				createdAt: serverTimestamp(),
-				updatedAt: serverTimestamp(),
-			});
-		} else {
-			console.log("updated");
-			const docRef = doc(db, "recipes", recipeInfo.recipeId);
-			await updateDoc(docRef, {
-				isPublic: recipeInfo.isPublic,
-				recipeName: recipeInfo.recipeName,
-				comment: recipeInfo.comment,
-				recipeImageUrl: imageUrl || "",
-				serves: recipeInfo.serves,
-				materials: recipeInfo.materials,
-				procedures: recipeInfo.procedures,
-				updatedAt: serverTimestamp(),
-			});
-		}
-
-		dispatch(resetRecipeInfo());
-		naviate("/");
-	};
-
-	const uploadImage = async (fileUrl: string) => {
-		try {
-			const response = await fetch(fileUrl);
-
-			if (!response.ok) {
-				throw new Error("Failed to fetch image blob");
-			}
-			const fileBlob = await response.blob();
-			const timeStamp = new Date().getTime();
-			const uniqueFilename = `${timeStamp}_recipe_image`;
-			const storageRef = ref(storage, uniqueFilename);
-
-			await uploadBytes(storageRef, fileBlob);
-
-			const fireBaseStorageUrl = await getDownloadURL(storageRef);
-
-			return fireBaseStorageUrl;
-		} catch (error) {
-			console.error("Error uploading file", error);
-		}
+		uploadRecipeToFirestore();
 	};
 
 	return (
@@ -193,7 +110,7 @@ const Confirm = () => {
 					<button onClick={(e) => handleReEdit(e)}>再編集</button>
 					<button
 						onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-							uploadRecipeToFirestore(e)
+							handleRecipeSubmit(e)
 						}
 					>
 						確定
