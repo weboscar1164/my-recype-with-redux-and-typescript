@@ -71,6 +71,11 @@ const Recipe = () => {
 		navigate("/editrecipe");
 	};
 
+	// 前のページに戻る
+	const handleBack = () => {
+		navigate(-1);
+	};
+
 	// レシピ削除
 	const handleDeleteRecipe = () => {
 		if (window.confirm("削除しますか？")) {
@@ -197,6 +202,9 @@ const Recipe = () => {
 							))}
 					</ol>
 				</section>
+				<div className="recipeSubmit">
+					<button onClick={handleBack}>前のページに戻る</button>
+				</div>
 			</div>
 		</div>
 	);
