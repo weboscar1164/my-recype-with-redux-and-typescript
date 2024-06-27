@@ -24,44 +24,50 @@ const Navbar = () => {
 	};
 
 	return (
-		<div className={`navbar ${isOpen ? "navbarOpen" : ""}`}>
+		<div className="navbar">
 			<div
-				className={`navToggleIcon ${isOpen ? "navToggleIconOpen" : ""}`}
+				className={`navbarBackground ${isOpen ? "navbarBackgroundOpen" : ""}`}
 				onClick={handleNavToggle}
-			>
-				<ArrowForwardIosIcon />
+			></div>
+			<div className={`navbarContainer ${isOpen ? "navbarContainerOpen" : ""}`}>
+				<div
+					className={`navToggleIcon ${isOpen ? "navToggleIconOpen" : ""}`}
+					onClick={handleNavToggle}
+				>
+					<ArrowForwardIosIcon />
+				</div>
+				<nav className="navList">
+					<ul>
+						<li>
+							<Link className="navItem" to={"/"} onClick={onClickLink}>
+								一覧
+							</Link>
+						</li>
+						{user?.uid && (
+							<>
+								<li>
+									<Link
+										className="navItem"
+										to={"/editRecipe"}
+										onClick={onClickLink}
+									>
+										投稿
+									</Link>
+								</li>
+								<li>
+									<Link
+										className="navItem"
+										to={"/favorites"}
+										onClick={onClickLink}
+									>
+										お気に入り
+									</Link>
+								</li>
+							</>
+						)}
+					</ul>
+				</nav>
 			</div>
-			<nav className="navList">
-				<ul>
-					<li>
-						<Link className="navItem" to={"/"} onClick={onClickLink}>
-							一覧
-						</Link>
-					</li>
-					{user?.uid && (
-						<>
-							<li>
-								<Link
-									className="navItem"
-									to={"/editRecipe"}
-									onClick={onClickLink}
-								>
-									投稿
-								</Link>
-							</li>
-							<li>
-								<Link
-									className="navItem"
-									to={"/favorites"}
-									onClick={onClickLink}
-								>
-									お気に入り
-								</Link>
-							</li>
-						</>
-					)}
-				</ul>
-			</nav>
 		</div>
 	);
 };
