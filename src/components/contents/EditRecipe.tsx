@@ -8,8 +8,6 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
-import { Timestamp } from "firebase/firestore";
-import { update } from "firebase/database";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -464,11 +462,11 @@ const EditRecipe = () => {
 											材料{index + 1}
 										</div>
 										<div className="editRecipeFormMaterialContent">
-											<label htmlFor="name">名前</label>
+											<label htmlFor={`materialName${index}`}>名前</label>
 											<input
 												type="text"
-												id="name"
-												name="name"
+												id={`materialName${index}`}
+												name={`materialName${index}`}
 												value={material.name}
 												onChange={(e) =>
 													handleChangeMaterial(e.target.value, "name", index)
@@ -483,11 +481,11 @@ const EditRecipe = () => {
 										)}
 										<div className="editRecipeFormMaterialBottom">
 											<div className="editRecipeFormMaterialContent">
-												<label htmlFor="quantity">分量</label>
+												<label htmlFor={`quantity${index}`}>分量</label>
 												<input
 													type="text"
-													id="quantity"
-													name="quantity"
+													id={`quantity${index}`}
+													name={`quantity${index}`}
 													value={material.quantity}
 													onChange={(e) =>
 														handleChangeMaterial(
@@ -500,10 +498,10 @@ const EditRecipe = () => {
 												/>
 											</div>
 											<div className="editRecipeFormMaterialContent">
-												<label htmlFor="group">グループ</label>
+												<label htmlFor={`group${index}`}>グループ</label>
 												<select
-													name="group"
-													id="group"
+													name={`group${index}`}
+													id={`group${index}`}
 													value={material.group}
 													onChange={(e) =>
 														handleChangeMaterial(e.target.value, "group", index)

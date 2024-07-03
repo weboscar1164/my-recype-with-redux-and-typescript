@@ -8,15 +8,17 @@ const Searchbar = () => {
 	const [searchWord, setSearchWord] = useState<string>("");
 	const dispatch = useAppDispatch();
 
-	const handleSerchClick = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSearchClick = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		dispatch(setSearchQuery(searchWord));
 	};
 	return (
 		<div className="searchbar">
-			<form onSubmit={handleSerchClick}>
+			<form onSubmit={handleSearchClick}>
 				<input
 					type="text"
+					id="searchInput"
+					name="searchInput"
 					placeholder="レシピを検索"
 					value={searchWord}
 					onChange={(e) => setSearchWord(e.target.value)}
