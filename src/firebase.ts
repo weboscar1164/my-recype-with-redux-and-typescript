@@ -2,14 +2,15 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
-	apiKey: "AIzaSyCS7FRBL56cr75AFZbyIyI4BGGBa1z1B1Q",
-	authDomain: "my-recipe-with-redux-and-ts.firebaseapp.com",
-	projectId: "my-recipe-with-redux-and-ts",
-	storageBucket: "my-recipe-with-redux-and-ts.appspot.com",
-	messagingSenderId: "1097527782135",
-	appId: "1:1097527782135:web:4d194e6ec968f8a88741f2",
+	apiKey: import.meta.env.VITE_APP_FIREBASE_API_KEY,
+	authDomain: import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN,
+	projectId: import.meta.env.VITE_APP_FIREBASE_PROJECT_ID,
+	storageBucket: import.meta.env.VITE_APP_FIREBASE_STORAGE_BUCKET,
+	messagingSenderId: import.meta.env.VITE_APP_FIREBASE_MESSAGING_SENDER_ID,
+	appId: import.meta.env.VITE_APP_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -18,10 +19,11 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const storage = getStorage();
+const functions = getFunctions(app);
 
 // 複数ユーザーによるログインを設定
 provider.setCustomParameters({
 	prompt: "select_account",
 });
 
-export { auth, provider, db, storage };
+export { auth, provider, db, storage, functions };

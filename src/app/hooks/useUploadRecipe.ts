@@ -26,14 +26,15 @@ export const useUploadRecipe = () => {
 		dispatch(setLoading(true));
 
 		try {
-			let imageUrl = await handleImageUpload(recipeInfo.recipeImageUrl);
-			await saveRecipeToFirestore(imageUrl);
+			const imageUrl = await handleImageUpload(recipeInfo.recipeImageUrl);
+			const response = await saveRecipeToFirestore(imageUrl);
 
 			navigate("/");
 			dispatch(resetRecipeInfo());
+			return response;
 		} catch (error) {
 			dispatch(setError("レシピのアップロード時にエラーが発生しました。"));
-			throw error;
+			console.error(error);
 		} finally {
 			dispatch(setLoading(false));
 		}
@@ -106,7 +107,8 @@ export const useUploadRecipe = () => {
 					db,
 					"recipes"
 				) as CollectionReference<InitialRecipeState>;
-				await addDoc(collectionRef, recipeData);
+				const docRef = await addDoc(collectionRef, recipeData);
+				return docRef;
 			}
 		} catch (error) {
 			console.error(error);

@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "./app/hooks/hooks";
 import { useFavorites } from "./app/hooks/hooks";
 import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminPanel from "./components/contents/AdminPanel";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -75,6 +76,14 @@ function App() {
 								}
 							/>
 							<Route path="/" element={<RecipeList showFavorites={false} />} />
+							<Route
+								path="/admin"
+								element={
+									<ProtectedRoute>
+										<AdminPanel />
+									</ProtectedRoute>
+								}
+							/>
 						</Routes>
 					) : (
 						<Error />

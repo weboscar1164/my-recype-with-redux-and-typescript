@@ -77,16 +77,20 @@ const Recipe = () => {
 	};
 
 	// レシピ削除
-	const handleDeleteRecipe = () => {
+	const handleDeleteRecipe = async () => {
 		if (window.confirm("削除しますか？")) {
 			if (currentRecipe.recipeId) {
-				deleteFirebaseDocument(
-					currentRecipe.recipeId,
-					currentRecipe.recipeImageUrl
-				);
+				try {
+					await deleteFirebaseDocument(
+						currentRecipe.recipeId,
+						currentRecipe.recipeImageUrl
+					);
+					navigate("/");
+				} catch (error) {
+					console.error("レシピ削除時にエラーが発生しました: ", error);
+				}
 			}
 		}
-		navigate("/");
 	};
 
 	return (

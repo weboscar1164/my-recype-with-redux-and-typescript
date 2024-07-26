@@ -282,6 +282,10 @@ const EditRecipe = () => {
 		}
 	};
 
+	const handleBackPage = () => {
+		navigate(-1);
+	};
+
 	const handleSetRecipeSlice = () => {
 		const newRecipe: InitialRecipeState = {
 			recipeId: recipe.recipeId,
@@ -354,6 +358,7 @@ const EditRecipe = () => {
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
+
 	return (
 		<div className="editRecipe">
 			<div className="editRecipeContainer">
@@ -593,6 +598,9 @@ const EditRecipe = () => {
 
 					<div className="editRecipeFormSubmit">
 						<button type="submit">確認画面に進む</button>
+						<button type="button" onClick={handleBackPage}>
+							前のページに戻る
+						</button>
 					</div>
 				</form>
 			</div>

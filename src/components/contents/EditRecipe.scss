@@ -149,6 +149,12 @@
 			}
 		}
 
+		&Submit {
+			margin-top: 20px;
+			display: flex;
+			justify-content: space-between;
+		}
+
 		button {
 			border: none;
 			background: #59340a;

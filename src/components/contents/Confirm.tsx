@@ -7,7 +7,7 @@ import { isInitialState } from "../../features/recipeSlice";
 import { useUploadRecipe } from "../../app/hooks/useUploadRecipe";
 
 const Confirm = () => {
-	const naviate = useNavigate();
+	const navigate = useNavigate();
 	const recipeInfo: InitialRecipeState = useAppSelector(
 		(state) => state.recipe
 	);
@@ -17,16 +17,14 @@ const Confirm = () => {
 	const { uploadRecipeToFirestore } = useUploadRecipe();
 
 	useEffect(() => {
-		// initialStateであるかを判定してtrueならばeditRecipeにリダイレクト
 		if (initialStateCheck) {
-			naviate("/editRecipe");
+			navigate("/editRecipe");
 		}
-		console.log(recipeInfo);
-	}, []);
+	}, [recipeInfo, initialStateCheck]);
 
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-		naviate("/editrecipe");
+		navigate("/editrecipe");
 	};
 
 	const getGroupIcon = (value: number) => {
@@ -50,6 +48,7 @@ const Confirm = () => {
 		e.preventDefault();
 
 		uploadRecipeToFirestore();
+		navigate("/");
 	};
 
 	return (
@@ -57,13 +56,13 @@ const Confirm = () => {
 			<div className="recipeContainer">
 				<h2>確認画面</h2>
 				<h3>{recipeInfo.recipeName}</h3>
-				{/* <div className="recipeTag">
+				{/*<div className="recipeTag">
 					<ul>
-						<li>ハンバーグ</li>
-						<li>オーブン</li>
-						<li>ひき肉</li>
+						{tags.map((tag) => (
+							<li>{tag}</li>
+						))}
 					</ul>
-				</div> */}
+					</div>*/}
 				<div>{getIsPublic(recipeInfo.isPublic)}</div>
 				<p className="recipeImg">
 					<img src={getRecipeImage()} alt="" />
@@ -107,7 +106,6 @@ const Confirm = () => {
 					</ol>
 				</section>
 				<div className="recipeSubmit">
-					<button onClick={(e) => handleReEdit(e)}>再編集</button>
 					<button
 						onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
 							handleRecipeSubmit(e)
@@ -115,6 +113,7 @@ const Confirm = () => {
 					>
 						確定
 					</button>
+					<button onClick={(e) => handleReEdit(e)}>再編集</button>
 				</div>
 			</div>
 		</div>
