@@ -10,12 +10,13 @@ import EditRecipe from "./components/contents/EditRecipe";
 import Confirm from "./components/contents/Confirm";
 import Error from "./components/Error";
 import { login, logout } from "./features/userSlice";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
 import { useAppDispatch, useAppSelector } from "./app/hooks/hooks";
 import { useFavorites } from "./app/hooks/hooks";
 import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminPanel from "./components/contents/AdminPanel";
+import AdminPanel from "./components/contents/admin/AdminPanel";
+import { doc, getDoc } from "firebase/firestore";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -25,14 +26,21 @@ function App() {
 	const error = useAppSelector((state) => state.loading.error);
 
 	useEffect(() => {
-		auth.onAuthStateChanged((loginUser) => {
+		auth.onAuthStateChanged(async (loginUser) => {
 			if (loginUser) {
+				//firebaseから管理者情報を取得
+				const userDoc = await getDoc(doc(db, "admins", loginUser.uid));
+				const isAdmin = userDoc.exists();
+
 				dispatch(
 					login({
-						uid: loginUser.uid,
-						photo: loginUser.photoURL,
-						email: loginUser.email,
-						displayName: loginUser.displayName,
+						user: {
+							uid: loginUser.uid,
+							photo: loginUser.photoURL,
+							email: loginUser.email,
+							displayName: loginUser.displayName,
+						},
+						isAdmin: isAdmin,
 					})
 				);
 				fetchFavorites(loginUser.uid);
@@ -53,7 +61,7 @@ function App() {
 							<Route
 								path="/editrecipe"
 								element={
-									<ProtectedRoute>
+									<ProtectedRoute condition="isAuthenticated">
 										<EditRecipe />
 									</ProtectedRoute>
 								}
@@ -61,7 +69,7 @@ function App() {
 							<Route
 								path="/confirm"
 								element={
-									<ProtectedRoute>
+									<ProtectedRoute condition="isAuthenticated">
 										<Confirm />
 									</ProtectedRoute>
 								}
@@ -70,7 +78,7 @@ function App() {
 							<Route
 								path="/favorites"
 								element={
-									<ProtectedRoute>
+									<ProtectedRoute condition="isAuthenticated">
 										<RecipeList showFavorites={true} />
 									</ProtectedRoute>
 								}
@@ -79,7 +87,7 @@ function App() {
 							<Route
 								path="/admin"
 								element={
-									<ProtectedRoute>
+									<ProtectedRoute condition="isAdmin">
 										<AdminPanel />
 									</ProtectedRoute>
 								}

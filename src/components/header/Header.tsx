@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
+	const isAdmin = useAppSelector((state) => state.user.isAdmin);
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
@@ -37,8 +38,11 @@ const Header = () => {
 			{user ? (
 				<div className="userInfo" onClick={signOutConfirm}>
 					<Tooltip title={user?.displayName}>
-						<div className="userIcon">
-							<img className="userIconLoggedin" src={user?.photo} alt="" />
+						<div className="userIconWrapper">
+							<div className="userIcon">
+								<img className="userIconLoggedin" src={user?.photo} alt="" />
+							</div>
+							{isAdmin && <div className="userIconAdmin">admin</div>}
 						</div>
 					</Tooltip>
 					<Tooltip title="ログアウト">

@@ -5,6 +5,14 @@
 	display: flex;
 	justify-content: center;
 
+	&Admin {
+		margin-top: 20px;
+		padding: 0;
+		&Container {
+			width: 100%;
+		}
+	}
+
 	&Container {
 		max-width: 700px;
 		width: 90%;

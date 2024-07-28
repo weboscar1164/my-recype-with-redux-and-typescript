@@ -3,6 +3,7 @@ import { InitialUserState } from "../Types";
 
 const initialState: InitialUserState = {
 	user: null,
+	isAdmin: false,
 };
 
 export const userSlice = createSlice({
@@ -10,11 +11,13 @@ export const userSlice = createSlice({
 	initialState,
 	reducers: {
 		login: (state, action) => {
-			state.user = action.payload;
+			state.user = action.payload.user;
+			state.isAdmin = action.payload.isAdmin;
 		},
 
 		logout: (state) => {
 			state.user = null;
+			state.isAdmin = false;
 		},
 	},
 });

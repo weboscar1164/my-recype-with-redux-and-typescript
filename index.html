@@ -9,11 +9,12 @@
 			http-equiv="Content-Security-Policy"
 			content="
 			default-src 'self'; 
-			script-src 'self' https://www.gstatic.com https://www.googleapis.com; 
+			script-src 'self' https://www.gstatic.com https://www.googleapis.com https://apis.google.com; 
 			style-src 'self' 'unsafe-inline'; 
 			img-src 'self' https://firebasestorage.googleapis.com https://lh3.googleusercontent.com data: blob:; 
 			connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebasestorage.googleapis.com blob:;
-		"
+			frame-src 'self' https://my-recipe-with-redux-and-ts.firebaseapp.com;
+			"
 		/>
 
 		<title>My Recipe</title>

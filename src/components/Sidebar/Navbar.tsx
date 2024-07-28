@@ -8,6 +8,7 @@ import { clearSearchQuery } from "../../features/searchWordSlice";
 
 const Navbar = () => {
 	const user = useAppSelector((state) => state.user.user);
+	const isAdmin = useAppSelector((state) => state.user.isAdmin);
 
 	const dispatch = useAppDispatch();
 
@@ -63,6 +64,17 @@ const Navbar = () => {
 										お気に入り
 									</Link>
 								</li>
+								{isAdmin && (
+									<li>
+										<Link
+											className="navItem"
+											to={"/admin"}
+											onClick={onClickLink}
+										>
+											管理ページ
+										</Link>
+									</li>
+								)}
 							</>
 						)}
 					</ul>

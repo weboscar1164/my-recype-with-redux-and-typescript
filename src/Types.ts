@@ -2,12 +2,15 @@ import { Timestamp } from "firebase/firestore";
 
 // ユーザー情報
 export interface InitialUserState {
-	user: null | {
-		uid: string;
-		photo: string;
-		email: string;
-		displayName: string;
-	};
+	user: null | User;
+	isAdmin: false;
+}
+
+export interface User {
+	uid: string;
+	photo: string;
+	email: string;
+	displayName: string;
 }
 
 // レシピ
