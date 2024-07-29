@@ -3,9 +3,15 @@ import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { User } from "../../Types";
 import { setError, setLoading } from "../../features/loadingSlice";
+import { getAuth } from "firebase/auth";
 
 export const useFetchUsers = () => {
 	const dispatch = useAppDispatch();
+
+	const fetchUserDetails = async (uid: string) => {
+		const auth = getAuth();
+		const userRecord = await getUser(auth, uid);
+	};
 
 	const fetchUsers = async () => {
 		dispatch(setLoading(true));
@@ -28,6 +34,8 @@ export const useFetchUsers = () => {
 				setError(`ユーザー一覧取得時にエラーが発生しました。: ${error}`)
 			);
 			console.error("Error fetching users: ", error);
+		} finally {
+			dispatch(setLoading(false));
 		}
 	};
 
