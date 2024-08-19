@@ -3,31 +3,40 @@ import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { User } from "../../Types";
 import { setError, setLoading } from "../../features/loadingSlice";
-import { getAuth } from "firebase/auth";
 
 export const useFetchUsers = () => {
 	const dispatch = useAppDispatch();
 
-	const fetchUserDetails = async (uid: string) => {
-		const auth = getAuth();
-		const userRecord = await getUser(auth, uid);
-	};
-
 	const fetchUsers = async () => {
 		dispatch(setLoading(true));
+		const usersList: User[] = [];
 		try {
-			const querySnapshot = await getDocs(collection(db, "users"));
-			const usersList: User[] = [];
-			querySnapshot.forEach((doc) => {
-				usersList.push({
-					uid: doc.id,
-					photo: doc.id,
-					email: doc.id,
-					displayName: doc.id,
-					...doc.data(),
-				} as User);
-			});
+			const userSnapshot = await getDocs(collection(db, "users"));
 
+			console.log(userSnapshot.size);
+			const userInfoCollectionPromises = userSnapshot.docs.map(
+				async (userDoc) => {
+					const userInfoCollectionRef = collection(
+						db,
+						"users",
+						userDoc.id,
+						"userInfo"
+					);
+					const userInfoSnapshot = await getDocs(userInfoCollectionRef);
+
+					userInfoSnapshot.forEach((doc) => {
+						usersList.push({
+							uid: doc.id,
+							photoURL: doc.data().photoURL,
+							email: doc.data().email,
+							displayName: doc.data().displayName,
+						} as User);
+					});
+				}
+			);
+			await Promise.all(userInfoCollectionPromises);
+
+			console.log(usersList);
 			return usersList;
 		} catch (error) {
 			dispatch(

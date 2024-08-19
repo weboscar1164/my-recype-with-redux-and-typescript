@@ -12,7 +12,7 @@ const checkCondition = (
 	user: any,
 	isAdmin: boolean
 ): boolean => {
-	console.log(user, isAdmin);
+	// console.log(user, isAdmin);
 	switch (condition) {
 		case "isAuthenticated":
 			return !!user;

@@ -17,6 +17,7 @@ import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPanel from "./components/contents/admin/AdminPanel";
 import { doc, getDoc } from "firebase/firestore";
+import { useRegistUser } from "./app/hooks/useRegistUser";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -25,8 +26,10 @@ function App() {
 	const isLoading = useAppSelector((state) => state.loading.isLoading);
 	const error = useAppSelector((state) => state.loading.error);
 
+	// const { registUser } = useRegistUser();
+
 	useEffect(() => {
-		auth.onAuthStateChanged(async (loginUser) => {
+		const unsubscribe = auth.onAuthStateChanged(async (loginUser) => {
 			if (loginUser) {
 				//firebaseから管理者情報を取得
 				const userDoc = await getDoc(doc(db, "admins", loginUser.uid));
@@ -36,18 +39,28 @@ function App() {
 					login({
 						user: {
 							uid: loginUser.uid,
-							photo: loginUser.photoURL,
+							photoURL: loginUser.photoURL,
 							email: loginUser.email,
 							displayName: loginUser.displayName,
 						},
 						isAdmin: isAdmin,
 					})
 				);
-				fetchFavorites(loginUser.uid);
+
+				// // ユーザー情報が既に存在するか確認
+				// const userInfoDoc = await getDoc(
+				// 	doc(db, "users", loginUser.uid, "userInfo", loginUser.uid)
+				// );
+				// if (!userInfoDoc.exists()) {
+				// 	await registUser(loginUser.uid); // 初回ログイン時のみ呼び出し
+				// }
+
+				await fetchFavorites(loginUser.uid);
 			} else {
 				dispatch(logout());
 			}
 		});
+		return () => unsubscribe(); // クリーンアップ関数でリスナーを解除
 	}, [dispatch]);
 
 	return (

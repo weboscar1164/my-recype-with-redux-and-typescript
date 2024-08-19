@@ -22,10 +22,10 @@ export const recipeSlice = createSlice({
 			// console.log(action.payload);
 			return state.filter((favorite) => favorite.recipeId !== action.payload);
 		},
-		crearFavorites: () => initialState,
+		clearFavorites: () => initialState,
 	},
 });
 
-export const { setFavorites, addFavorite, removeFavorite, crearFavorites } =
+export const { setFavorites, addFavorite, removeFavorite, clearFavorites } =
 	recipeSlice.actions;
 export default recipeSlice.reducer;

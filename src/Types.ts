@@ -8,7 +8,7 @@ export interface InitialUserState {
 
 export interface User {
 	uid: string;
-	photo: string;
+	photoURL: string;
 	email: string;
 	displayName: string;
 }
