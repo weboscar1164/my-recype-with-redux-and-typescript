@@ -10,6 +10,7 @@ import {
 	useGetRecipeList,
 	useAddFavorite,
 	useDeleteFavorite,
+	useFetchAdminsAndIgnores,
 } from "../../app/hooks/hooks";
 import { InitialRecipeState, RecipeListItem } from "../../Types";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +27,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
+	const [ignoreIdList, setIgnoreIdList] = useState<string[]>([]);
 	const recipesPerPage = 10;
 
 	const favorites = useAppSelector((state) => state.favorites);
@@ -35,16 +37,20 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	const { addFavoriteAsync } = useAddFavorite();
 	const { deleteFavoriteAsync } = useDeleteFavorite();
 	const { getRecipeList } = useGetRecipeList();
+	const { fetchAdminsAndIgnores } = useFetchAdminsAndIgnores();
 
 	// 初回レンダリング時にrecipeList取得
 	useEffect(() => {
-		const fetchRecipeList = async () => {
+		const fetchLists = async () => {
 			const recipes = await getRecipeList();
 			if (recipes) {
 				setRecipeList(recipes);
 			}
+
+			const ignores = await fetchAdminsAndIgnores("ignores");
+			ignores && setIgnoreIdList(ignores);
 		};
-		fetchRecipeList();
+		fetchLists();
 	}, []);
 
 	// recipeクリック時詳細ページにジャンプ
@@ -129,7 +135,12 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		const isPublicCheck = user
 			? recipe.isPublic == 1 || recipe.user === user.uid
 			: recipe.isPublic == 1;
-		return matchesSerch && matchesFavorites && isPublicCheck;
+
+		const isNotIgnores =
+			ignoreIdList.length !== 0
+				? ignoreIdList.some((ignoreId) => ignoreId !== recipe.user)
+				: true;
+		return matchesSerch && matchesFavorites && isPublicCheck && isNotIgnores;
 	});
 
 	//ページネーションのためのインデックス計算

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import "./App.scss";
@@ -11,22 +11,26 @@ import Confirm from "./components/contents/Confirm";
 import Error from "./components/Error";
 import { login, logout } from "./features/userSlice";
 import { auth, db } from "./firebase";
-import { useAppDispatch, useAppSelector } from "./app/hooks/hooks";
-import { useFavorites } from "./app/hooks/hooks";
+import {
+	useAppDispatch,
+	useAppSelector,
+	useFetchFavorites,
+} from "./app/hooks/hooks";
 import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPanel from "./components/contents/admin/AdminPanel";
 import { doc, getDoc } from "firebase/firestore";
-import { useRegistUser } from "./app/hooks/useRegistUser";
+import { setError } from "./features/loadingSlice";
 
 function App() {
 	const dispatch = useAppDispatch();
-	const { fetchFavorites } = useFavorites();
+
+	const [isIgnore, setIsIgnore] = useState(false);
+
+	const { fetchFavorites } = useFetchFavorites();
 
 	const isLoading = useAppSelector((state) => state.loading.isLoading);
 	const error = useAppSelector((state) => state.loading.error);
-
-	// const { registUser } = useRegistUser();
 
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async (loginUser) => {
@@ -34,6 +38,16 @@ function App() {
 				//firebaseから管理者情報を取得
 				const userDoc = await getDoc(doc(db, "admins", loginUser.uid));
 				const isAdmin = userDoc.exists();
+
+				//firebaseからignores取得
+				const ignoreDoc = await getDoc(doc(db, "ignores", loginUser.uid));
+				if (ignoreDoc.exists()) {
+					setIsIgnore(true);
+					dispatch(setError("ログイン権限がありません。"));
+				} else {
+					setIsIgnore(false);
+					dispatch(setError(null));
+				}
 
 				dispatch(
 					login({
@@ -47,14 +61,6 @@ function App() {
 					})
 				);
 
-				// // ユーザー情報が既に存在するか確認
-				// const userInfoDoc = await getDoc(
-				// 	doc(db, "users", loginUser.uid, "userInfo", loginUser.uid)
-				// );
-				// if (!userInfoDoc.exists()) {
-				// 	await registUser(loginUser.uid); // 初回ログイン時のみ呼び出し
-				// }
-
 				await fetchFavorites(loginUser.uid);
 			} else {
 				dispatch(logout());
@@ -67,7 +73,7 @@ function App() {
 		<div className="app">
 			<Router>
 				<Header></Header>
-				<Navbar></Navbar>
+				{!isIgnore && <Navbar></Navbar>}
 				<div className="contents">
 					{!error ? (
 						<Routes>

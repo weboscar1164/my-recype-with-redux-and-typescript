@@ -5,7 +5,7 @@ import { setFavorites } from "../../features/favoritesSlice";
 import { FavoriteState } from "../../Types";
 import { setError, setLoading } from "../../features/loadingSlice";
 
-export const useFavorites = () => {
+export const useFetchFavorites = () => {
 	const dispatch = useAppDispatch();
 
 	const fetchFavorites = async (userId: string) => {

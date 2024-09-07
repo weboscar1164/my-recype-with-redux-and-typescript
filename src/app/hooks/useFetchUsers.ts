@@ -13,7 +13,6 @@ export const useFetchUsers = () => {
 		try {
 			const userSnapshot = await getDocs(collection(db, "users"));
 
-			console.log(userSnapshot.size);
 			const userInfoCollectionPromises = userSnapshot.docs.map(
 				async (userDoc) => {
 					const userInfoCollectionRef = collection(

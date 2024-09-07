@@ -1,11 +1,11 @@
 import "./AdminPanel.scss";
-import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import UserManagement from "./UserManagement";
 import RecipeManagement from "./RecipeManagement";
 
 const AdminPanel = () => {
-	const [selectedSection, setSelectedSection] = useState<string>();
+	const [selectedSection, setSelectedSection] =
+		useState<string>("userManagement");
 	const renderSection = () => {
 		switch (selectedSection) {
 			case "userManagement":
@@ -23,10 +23,24 @@ const AdminPanel = () => {
 				<h1>管理者パネル</h1>
 				<nav className="adminNav">
 					<ul className="adminNavList">
-						<li onClick={() => setSelectedSection("userManagement")}>
+						<li
+							className={
+								selectedSection && selectedSection === "userManagement"
+									? "adminNavActive"
+									: ""
+							}
+							onClick={() => setSelectedSection("userManagement")}
+						>
 							ユーザー管理
 						</li>
-						<li onClick={() => setSelectedSection("recipeManagement")}>
+						<li
+							className={
+								selectedSection && selectedSection === "recipeManagement"
+									? "adminNavActive"
+									: ""
+							}
+							onClick={() => setSelectedSection("recipeManagement")}
+						>
 							レシピ管理
 						</li>
 					</ul>
