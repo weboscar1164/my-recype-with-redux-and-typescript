@@ -4,6 +4,7 @@ import recipeReducer from "../features/recipeSlice";
 import favoritesReducer from "../features/favoritesSlice";
 import loadingReducer from "../features/loadingSlice";
 import searchWordReducer from "../features/searchWordSlice";
+import modalReducer from "../features/modalSlice";
 
 export const store = configureStore({
 	reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
 		favorites: favoritesReducer,
 		loading: loadingReducer,
 		searchWord: searchWordReducer,
+		modal: modalReducer,
 	},
 });
 

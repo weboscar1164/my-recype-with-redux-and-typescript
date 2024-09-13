@@ -11,10 +11,13 @@ import { useNavigate } from "react-router-dom";
 import { useRegistUser } from "../../app/hooks/useRegistUser";
 import { User } from "../../Types";
 import { doc, getDoc } from "firebase/firestore";
+import { openModal, resetModal } from "../../features/modalSlice";
+import { useEffect } from "react";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
 	const isAdmin = useAppSelector((state) => state.user.isAdmin);
+	const modalState = useAppSelector((state) => state.modal);
 	const { registUser } = useRegistUser();
 
 	const dispatch = useAppDispatch();
@@ -54,12 +57,26 @@ const Header = () => {
 	};
 
 	const signOutConfirm = () => {
-		if (confirm("ログアウトしますか？")) {
-			auth.signOut();
-			dispatch(clearFavorites());
-			navigate("/");
-		}
+		const confirmMessage = "ログアウトしますか？";
+
+		dispatch(
+			openModal({
+				message: confirmMessage,
+				action: "logout",
+			})
+		);
 	};
+
+	useEffect(() => {
+		if (modalState.confirmed !== null && modalState.action) {
+			if (modalState.confirmed) {
+				auth.signOut();
+				dispatch(clearFavorites());
+				navigate("/");
+			}
+		}
+		dispatch(resetModal());
+	}, [modalState.confirmed]);
 
 	return (
 		<div className="header">

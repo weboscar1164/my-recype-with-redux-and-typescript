@@ -53,3 +53,11 @@ export interface RecipeListItem {
 	isPublic: number;
 	user: string;
 }
+
+//Modal
+export interface ConfirmModal {
+	message: string;
+	isOpen: boolean;
+	action: "admins" | "ignores" | "logout" | "";
+	confirmed: boolean | null;
+}

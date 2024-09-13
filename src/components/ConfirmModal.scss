@@ -1,0 +1,44 @@
+.modal {
+	&Overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 999;
+		background: rgba(#fff, 0.6);
+	}
+	&Content {
+		position: absolute;
+		top: 80px;
+		left: 50%;
+		transform: (translateX(-50%));
+		padding: 20px 30px;
+		min-width: 250px;
+		border-radius: 8px;
+		background: darken(#f3ede6, 10);
+
+		p {
+			margin-bottom: 20px;
+		}
+	}
+
+	&Buttons {
+		display: flex;
+		justify-content: space-between;
+		button {
+			border: none;
+			background: #59340a;
+			height: 40px;
+			color: #fff;
+			padding: 10px 20px;
+			border-radius: 10px;
+			transition: background-color 0.3s;
+			cursor: pointer;
+
+			&:hover {
+				background: lighten(#59340a, 10);
+			}
+		}
+	}
+}

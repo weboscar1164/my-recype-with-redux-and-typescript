@@ -6,6 +6,8 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { Tooltip } from "@mui/material";
 
 import "./UserManagement.scss";
@@ -15,24 +17,30 @@ import {
 	useDeleteAdminAndIgnore,
 	useFetchAdminsAndIgnores,
 } from "../../../app/hooks/hooks";
+import { useDispatch } from "react-redux";
+import { openModal, resetModal } from "../../../features/modalSlice";
 
 const UserManagement: React.FC = () => {
 	const { fetchUsers } = useFetchUsers();
-	const [users, setUsers] = useState<User[]>([]);
-	const [adminUIDs, setAdminUIDs] = useState<string[]>([]);
-	const [ignoreUIDs, setIgnoreUIDs] = useState<string[]>([]);
-	const [animationAdminIcon, setAnimationAdminIcon] = useState<string | null>(
-		null
-	);
-	const [animationIgnoreIcon, setAnimationIgnoreIcon] = useState<string | null>(
-		null
-	);
-
-	const searchWord = useAppSelector((state) => state.searchWord);
-	const currentUser = useAppSelector((state) => state.user.user);
 	const { fetchAdminsAndIgnores } = useFetchAdminsAndIgnores();
 	const { addAdminAndIgnore } = useAddAdminAndIgnore();
 	const { deleteAdminAndIgnore } = useDeleteAdminAndIgnore();
+
+	const dispatch = useDispatch();
+
+	const [users, setUsers] = useState<User[]>([]);
+	const [adminUIDs, setAdminUIDs] = useState<string[]>([]);
+	const [ignoreUIDs, setIgnoreUIDs] = useState<string[]>([]);
+	const [selectedUID, setSelectedUID] = useState<string>("");
+
+	const [animationIcon, setAnimationIcon] = useState<{
+		admins: string | null;
+		ignores: string | null;
+	}>({ admins: null, ignores: null });
+
+	const searchWord = useAppSelector((state) => state.searchWord);
+	const currentUser = useAppSelector((state) => state.user.user);
+	const modalState = useAppSelector((state) => state.modal);
 
 	useEffect(() => {
 		const getUsers = async () => {
@@ -64,54 +72,49 @@ const UserManagement: React.FC = () => {
 
 		return matchesSerch && invisibleCurrentUser;
 	});
+	const isUserInList = (uid: string, list: string[]) => list.includes(uid);
 
 	const changeUserStatus = (uid: string, action: "admins" | "ignores") => {
-		const isUserInList = action === "admins" ? isAdminUser : isIgnoreUser;
-		const setUIDs = action === "admins" ? setAdminUIDs : setIgnoreUIDs;
-		const currentUIDs = action === "admins" ? adminUIDs : ignoreUIDs;
-		const setAnimationIcon =
-			action === "admins" ? setAnimationAdminIcon : setAnimationIgnoreIcon;
+		setSelectedUID(uid);
 
+		const isInList = isUserInList(
+			uid,
+			action === "admins" ? adminUIDs : ignoreUIDs
+		);
 		const listName = action === "admins" ? "管理者リスト" : "使用制限リスト";
-		const actionText = isUserInList(uid) ? "から削除" : "に追加";
+		const actionText = isInList ? "から削除" : "に追加";
 		const confirmMessage = `${listName}${actionText}しますか？ `;
 
-		if (window.confirm(confirmMessage)) {
-			if (!isUserInList(uid)) {
-				addAdminAndIgnore(uid, action);
-				setUIDs([...currentUIDs, uid]);
-			} else {
-				deleteAdminAndIgnore(uid, action);
-				setUIDs(currentUIDs.filter((userUID) => userUID !== uid));
-			}
-
-			setAnimationIcon(uid);
-			setTimeout(() => setAnimationIcon(null), 300);
-		}
-		// if (action === "admins") {
-		// 	if (!isAdminUser(uid)) {
-		// 		addAdminAndIgnore(uid, action);
-		// 		setAdminUIDs([...adminUIDs, uid]);
-		// 	} else {
-		// 		deleteAdminAndIgnore(uid, action);
-		// 		setAdminUIDs(adminUIDs.filter((adminUID) => adminUID !== uid));
-		// 	}
-		// 	setAnimationAdminIcon(uid);
-
-		// 	setTimeout(() => setAnimationAdminIcon(null), 300);
-		// } else if (action === "ignores") {
-		// 	if (!isIgnoreUser(uid)) {
-		// 		addAdminAndIgnore(uid, action);
-		// 		setIgnoreUIDs([...ignoreUIDs, uid]);
-		// 	} else {
-		// 		deleteAdminAndIgnore(uid, action);
-		// 		setIgnoreUIDs(ignoreUIDs.filter((ignoreUID) => ignoreUID !== uid));
-		// 	}
-		// 	setAnimationIgnoreIcon(uid);
-
-		// 	setTimeout(() => setAnimationIgnoreIcon(null), 300);
-		// }
+		dispatch(openModal({ message: confirmMessage, action }));
 	};
+
+	useEffect(() => {
+		if (modalState.confirmed !== null && modalState.action) {
+			const action = modalState.action;
+			const isInList = isUserInList(
+				selectedUID,
+				action === "admins" ? adminUIDs : ignoreUIDs
+			);
+			const currentUIDs = action === "admins" ? adminUIDs : ignoreUIDs;
+			const setUIDs = action === "admins" ? setAdminUIDs : setIgnoreUIDs;
+
+			if (modalState.confirmed) {
+				if (!isInList) {
+					addAdminAndIgnore(selectedUID, action);
+					setUIDs([...currentUIDs, selectedUID]);
+				} else {
+					deleteAdminAndIgnore(selectedUID, action);
+					setUIDs(currentUIDs.filter((userUID) => userUID !== selectedUID));
+				}
+				setAnimationIcon((prev) => ({ ...prev, [action]: selectedUID }));
+				setTimeout(
+					() => setAnimationIcon((prev) => ({ ...prev, [action]: null })),
+					300
+				);
+			}
+		}
+		dispatch(resetModal());
+	}, [modalState.confirmed]);
 
 	const isAdminUser = (uid: string) => {
 		return adminUIDs.some((adminUID) => adminUID === uid);
@@ -137,35 +140,52 @@ const UserManagement: React.FC = () => {
 
 								<h3 className="userListDisplayName">{user.displayName}</h3>
 								{isAdminUser(user.uid) && (
-									<div className="userListAdmin">admin</div>
+									<div className="userListAdmin">
+										<Tooltip title="管理者">
+											<LockOpenIcon />
+										</Tooltip>
+									</div>
+								)}
+								{isIgnoreUser(user.uid) && (
+									<div className="userListIgnore">
+										<Tooltip title="使用制限中">
+											<ReportProblemIcon />
+										</Tooltip>
+									</div>
 								)}
 							</div>
 							<div className="userListRight">
 								<div className="userListUid">{user.uid.substring(0, 10)}</div>
 								<div className="userListIcon">
 									<Tooltip title="メール送信">
-										<EmailIcon />
+										<a href={`mailto:${user.email}`}>
+											<EmailIcon />
+										</a>
 									</Tooltip>
 								</div>
 								<div
 									className={`userListIcon ${
-										animationAdminIcon === user.uid && "animationIcon"
+										animationIcon.admins === user.uid && "animationIcon"
 									}`}
 									onClick={() => changeUserStatus(user.uid, "admins")}
 								>
-									{!isAdminUser(user.uid) ? (
-										<Tooltip title="管理者リストに追加">
+									<Tooltip
+										title={
+											!isAdminUser(user.uid)
+												? "管理者リストに追加"
+												: "管理者リストから削除"
+										}
+									>
+										{!isAdminUser(user.uid) ? (
 											<PersonAddIcon />
-										</Tooltip>
-									) : (
-										<Tooltip title="管理者リストから削除">
+										) : (
 											<PersonRemoveIcon />
-										</Tooltip>
-									)}
+										)}
+									</Tooltip>
 								</div>
 								<div
 									className={`userListIcon ${
-										animationIgnoreIcon === user.uid && "animationIcon"
+										animationIcon.ignores === user.uid && "animationIcon"
 									}`}
 									onClick={() => changeUserStatus(user.uid, "ignores")}
 								>
