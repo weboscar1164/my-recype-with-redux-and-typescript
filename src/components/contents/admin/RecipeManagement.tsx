@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../RecipeList.scss";
+import "./RecipeManagement.scss";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { doc, getDoc } from "firebase/firestore";
@@ -241,7 +242,7 @@ const RecipeManagement = () => {
 
 	return (
 		<div className="recipeList recipeListAdmin">
-			<div className="recipeListAdminContainer">
+			<div className="recipeListContainer recipeListAdminContainer">
 				<h2>レシピ管理画面</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				{currentRecipes.length !== 0 ? (

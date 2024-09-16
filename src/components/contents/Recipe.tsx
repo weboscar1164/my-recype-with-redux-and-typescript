@@ -5,7 +5,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FavoriteState } from "../../Types";
 import {
 	useAppSelector,
@@ -16,6 +16,10 @@ import {
 
 const Recipe = () => {
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<boolean>(false);
+
+	// URLから所在ページを取得
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [currentPage, setCurrentPage] = useState<string>("");
 
 	const user = useAppSelector((state) => state.user.user);
 	const currentRecipe = useAppSelector((state) => state.recipe);
@@ -32,6 +36,7 @@ const Recipe = () => {
 		if (!currentRecipe.recipeId) {
 			navigate("/");
 		}
+		setCurrentPage(searchParams.get("page") || "");
 	}, []);
 
 	// お気に入り制御
@@ -73,7 +78,13 @@ const Recipe = () => {
 
 	// 前のページに戻る
 	const handleBack = () => {
-		navigate(-1);
+		if (currentPage) {
+			// currentPage をクエリパラメータに追加して指定ページに戻る
+			navigate(`/?page=${currentPage}`);
+		} else {
+			// currentPage が無い場合は通常の前ページに戻る動作
+			navigate(-1);
+		}
 	};
 
 	// レシピ削除

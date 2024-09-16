@@ -5,7 +5,7 @@ import RecipeManagement from "./RecipeManagement";
 
 const AdminPanel = () => {
 	const [selectedSection, setSelectedSection] =
-		useState<string>("userManagement");
+		useState<string>("recipeManagement");
 	const renderSection = () => {
 		switch (selectedSection) {
 			case "userManagement":
@@ -25,16 +25,6 @@ const AdminPanel = () => {
 					<ul className="adminNavList">
 						<li
 							className={
-								selectedSection && selectedSection === "userManagement"
-									? "adminNavActive"
-									: ""
-							}
-							onClick={() => setSelectedSection("userManagement")}
-						>
-							ユーザー管理
-						</li>
-						<li
-							className={
 								selectedSection && selectedSection === "recipeManagement"
 									? "adminNavActive"
 									: ""
@@ -42,6 +32,16 @@ const AdminPanel = () => {
 							onClick={() => setSelectedSection("recipeManagement")}
 						>
 							レシピ管理
+						</li>
+						<li
+							className={
+								selectedSection && selectedSection === "userManagement"
+									? "adminNavActive"
+									: ""
+							}
+							onClick={() => setSelectedSection("userManagement")}
+						>
+							ユーザー管理
 						</li>
 					</ul>
 				</nav>

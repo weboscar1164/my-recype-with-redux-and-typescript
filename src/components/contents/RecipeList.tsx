@@ -13,7 +13,7 @@ import {
 	useFetchAdminsAndIgnores,
 } from "../../app/hooks/hooks";
 import { InitialRecipeState, RecipeListItem } from "../../Types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import RecipeImage from "./RecipeImage";
 
@@ -23,11 +23,14 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
-	const [currentPage, setCurrentPage] = useState(1);
 	const [ignoreIdList, setIgnoreIdList] = useState<string[]>([]);
+
+	const initialPage = Number(searchParams.get("page")) || 1;
+	const [currentPage, setCurrentPage] = useState(initialPage);
 	const recipesPerPage = 10;
 
 	const favorites = useAppSelector((state) => state.favorites);
@@ -53,13 +56,22 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		fetchLists();
 	}, []);
 
+	// ページ番号を変更したときにクエリパラメータを変更
+	useEffect(() => {
+		const currentPageFromParams = Number(searchParams.get("page"));
+		if (currentPageFromParams !== currentPage) {
+			setSearchParams({
+				page: String(currentPage),
+			});
+		}
+	}, [currentPage, setSearchParams, searchParams]);
+
 	// recipeクリック時詳細ページにジャンプ
 	const handleClickRecipe = async (recipeId: string) => {
 		const docRef = doc(db, "recipes", recipeId);
 		const docSnap = await getDoc(docRef);
 
 		if (docSnap.exists()) {
-			// console.log("DocumentData: ", docSnap.data());
 			const currentRecipe = docSnap.data();
 			const newRecipe: InitialRecipeState = {
 				isPublic: currentRecipe.isPublic,
@@ -78,7 +90,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 			console.log("newRecipe: ", newRecipe);
 			// console.log(newRecipe);
 			dispatch(setRecipeInfo(newRecipe));
-			navigate("/recipe");
+			navigate(`/recipe?currentPage=${currentPage}`);
 		} else {
 			console.log("no sutch document!");
 		}
