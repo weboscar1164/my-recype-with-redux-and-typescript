@@ -68,7 +68,7 @@ const Header = () => {
 	};
 
 	useEffect(() => {
-		if (modalState.confirmed !== null && modalState.action) {
+		if (modalState.confirmed !== null && modalState.action === "logout") {
 			if (modalState.confirmed) {
 				auth.signOut();
 				dispatch(clearFavorites());

@@ -12,7 +12,6 @@ export const useFetchAdminsAndIgnores = () => {
 			const actionRef = collection(db, action);
 			const snapshot = await getDocs(actionRef);
 			const actionsUIDs = snapshot.docs.map((doc) => doc.id);
-			console.log(actionsUIDs);
 			return actionsUIDs;
 		} catch (e: any) {
 			dispatch(setError("管理者権限取得時にエラーが発生しました。"));

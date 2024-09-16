@@ -1,28 +1,43 @@
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../app/store";
+import { useDispatch } from "react-redux";
 import { cancelModal, confirmModal } from "../features/modalSlice";
 import "./ConfirmModal.scss";
 import { useAppSelector } from "../app/hooks/hooks";
+import { useEffect, useState } from "react";
 
 const ConfirmModal = () => {
 	const modalState = useAppSelector((state) => state.modal);
+	const [isActive, setIsActive] = useState<boolean>(false);
 
 	const dispatch = useDispatch();
+
+	useEffect(() => {
+		if (modalState.isOpen) {
+			setIsActive(true);
+		} else {
+			setIsActive(false);
+		}
+	}, [modalState.isOpen]);
+
+	const handleConfirm = () => {
+		setIsActive(false);
+		setTimeout(() => {
+			dispatch(confirmModal());
+		}, 300);
+	};
+
+	const handleCancel = () => {
+		setIsActive(false);
+		setTimeout(() => {
+			dispatch(cancelModal());
+		}, 300);
+	};
 
 	if (!modalState.isOpen) {
 		return null;
 	}
-
-	const handleConfirm = () => {
-		dispatch(confirmModal());
-	};
-
-	const handleCancel = () => {
-		dispatch(cancelModal());
-	};
 	return (
-		<div className="modalOverlay">
-			<div className="modalContent">
+		<div className={`modalOverlay ${isActive ? "modalOverlayActive" : ""}`}>
+			<div className={`modalContent ${isActive ? "modalContentActive" : ""}`}>
 				<p>{modalState.message}</p>
 				<div className="modalButtons">
 					<button onClick={handleConfirm}>OK</button>
