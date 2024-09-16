@@ -18,12 +18,12 @@
 		position: absolute;
 		top: 80px;
 		left: 50%;
-		transform: (translate(-50%, 100px));
+		transform: (translate(-50%, 50px));
 		padding: 20px 30px;
 		min-width: 250px;
 		border-radius: 8px;
 		background: darken(#f3ede6, 10);
-		transition: transform 0.5s, opacity 0.3s;
+		transition: transform 0.3s, opacity 0.3s;
 
 		p {
 			margin-bottom: 20px;
