@@ -22,7 +22,6 @@ import AdminPanel from "./components/contents/admin/AdminPanel";
 import { doc, getDoc } from "firebase/firestore";
 import { setError } from "./features/loadingSlice";
 import ConfirmModal from "./components/ConfirmModal";
-import { closeModal, confirmModal } from "./features/modalSlice";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -33,7 +32,6 @@ function App() {
 
 	const isLoading = useAppSelector((state) => state.loading.isLoading);
 	const error = useAppSelector((state) => state.loading.error);
-	const modalState = useAppSelector((state) => state.modal);
 
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async (loginUser) => {
@@ -97,15 +95,23 @@ function App() {
 								}
 							/>
 							<Route path="/Recipe" element={<Recipe />} />
+							<Route path="/" element={<RecipeList listMode={""} />} />
 							<Route
 								path="/favorites"
 								element={
 									<ProtectedRoute condition="isAuthenticated">
-										<RecipeList showFavorites={true} />
+										<RecipeList listMode={"favorites"} />
 									</ProtectedRoute>
 								}
 							/>
-							<Route path="/" element={<RecipeList showFavorites={false} />} />
+							<Route
+								path="/myRecipe"
+								element={
+									<ProtectedRoute condition="isAuthenticated">
+										<RecipeList listMode={"myRecipe"} />
+									</ProtectedRoute>
+								}
+							/>
 							<Route
 								path="/admin"
 								element={

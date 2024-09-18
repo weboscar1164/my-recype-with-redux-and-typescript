@@ -6,7 +6,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { FavoriteState } from "../../Types";
+import { FavoriteState, MaterialState } from "../../Types";
 import {
 	useAppSelector,
 	useAddFavorite,
@@ -36,6 +36,7 @@ const Recipe = () => {
 		if (!currentRecipe.recipeId) {
 			navigate("/");
 		}
+		// URLからページ番号を取得
 		setCurrentPage(searchParams.get("page") || "");
 	}, []);
 
@@ -192,19 +193,21 @@ const Recipe = () => {
 					<h3>材料{currentRecipe.serves}人分</h3>
 					<ul>
 						{currentRecipe.materials &&
-							currentRecipe.materials.map((material, index) => (
-								<li key={`material-${index}`}>
-									<div className="recipeMaterialGroup">
-										{getGroupIcon(material.group)}
-									</div>
-									<div className="recipeMaterialContents">
-										<div className="recipeMaterialName">{material.name}</div>
-										<div className="recipeMaterialQuantity">
-											{material.quantity}
+							currentRecipe.materials.map(
+								(material: MaterialState, index: number) => (
+									<li key={`material-${index}`}>
+										<div className="recipeMaterialGroup">
+											{getGroupIcon(material.group)}
 										</div>
-									</div>
-								</li>
-							))}
+										<div className="recipeMaterialContents">
+											<div className="recipeMaterialName">{material.name}</div>
+											<div className="recipeMaterialQuantity">
+												{material.quantity}
+											</div>
+										</div>
+									</li>
+								)
+							)}
 					</ul>
 				</section>
 
@@ -212,9 +215,11 @@ const Recipe = () => {
 					<h3>作り方</h3>
 					<ol>
 						{currentRecipe.procedures &&
-							currentRecipe.procedures.map((procedure, index) => (
-								<li key={index}>{procedure}</li>
-							))}
+							currentRecipe.procedures.map(
+								(procedure: string, index: number) => (
+									<li key={index}>{procedure}</li>
+								)
+							)}
 					</ol>
 				</section>
 				<div className="recipeSubmit">

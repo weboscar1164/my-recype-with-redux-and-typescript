@@ -12,7 +12,11 @@ import {
 	useAddFavorite,
 	useDeleteFavorite,
 } from "../../../app/hooks/hooks";
-import { InitialRecipeState, RecipeListItem } from "../../../Types";
+import {
+	FavoriteState,
+	InitialRecipeState,
+	RecipeListItem,
+} from "../../../Types";
 import { useNavigate } from "react-router-dom";
 import { setRecipeInfo } from "../../../features/recipeSlice";
 import RecipeImage from "../RecipeImage";
@@ -87,7 +91,7 @@ const RecipeManagement = () => {
 	) => {
 		if (userId) {
 			const isFavorite = favorites.some(
-				(favorite) => favorite.recipeId === recipeId
+				(favorite: FavoriteState) => favorite.recipeId === recipeId
 			);
 			if (recipeId && isFavorite) {
 				await deleteFavoriteAsync(userId, recipeId);
@@ -278,7 +282,8 @@ const RecipeManagement = () => {
 									>
 										{item.recipeId &&
 										favorites.some(
-											(favorite) => favorite.recipeId === item.recipeId
+											(favorite: FavoriteState) =>
+												favorite.recipeId === item.recipeId
 										) ? (
 											<FavoriteIcon
 												className={`recipeHeaderFavIcon ${

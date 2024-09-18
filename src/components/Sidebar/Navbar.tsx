@@ -64,6 +64,15 @@ const Navbar = () => {
 										お気に入り
 									</Link>
 								</li>
+								<li>
+									<Link
+										className="navItem"
+										to={"/myRecipe"}
+										onClick={onClickLink}
+									>
+										マイレシピ
+									</Link>
+								</li>
 								{isAdmin && (
 									<li>
 										<Link

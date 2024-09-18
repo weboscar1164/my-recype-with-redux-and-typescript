@@ -12,7 +12,7 @@ import {
 	useDeleteFavorite,
 	useFetchAdminsAndIgnores,
 } from "../../app/hooks/hooks";
-import { InitialRecipeState, RecipeListItem } from "../../Types";
+import { FavoriteState, InitialRecipeState, RecipeListItem } from "../../Types";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import RecipeImage from "./RecipeImage";
@@ -20,7 +20,7 @@ import RecipeImage from "./RecipeImage";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
+const recipeList = ({ listMode }: { listMode: string }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -104,7 +104,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	) => {
 		if (userId) {
 			const isFavorite = favorites.some(
-				(favorite) => favorite.recipeId === recipeId
+				(favorite: FavoriteState) => favorite.recipeId === recipeId
 			);
 			if (recipeId && isFavorite) {
 				await deleteFavoriteAsync(userId, recipeId);
@@ -138,22 +138,48 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 		const matchesSerch = searchWord
 			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase())
 			: true;
-		//　お気に入りリストとの一致
-		const matchesFavorites = showFavorites
-			? favorites.some((favorites) => favorites.recipeId === recipe.recipeId)
-			: true;
+		//　お気に入りモード時におけるお気に入りリストとの一致
+		const matchesFavorites =
+			listMode === "favorites"
+				? favorites.some(
+						(favorites: FavoriteState) => favorites.recipeId === recipe.recipeId
+				  )
+				: true;
+
+		// マイレシピモード時におけるユーザーとの一致
+		const matchesCurrentUser =
+			listMode === "myRecipe" ? recipe.user === user.uid : true;
 
 		// 公開状態のチェック
 		const isPublicCheck = user
 			? recipe.isPublic == 1 || recipe.user === user.uid
 			: recipe.isPublic == 1;
 
+		// user状態のチェック
 		const isNotIgnores =
 			ignoreIdList.length !== 0
 				? ignoreIdList.some((ignoreId) => ignoreId !== recipe.user)
 				: true;
-		return matchesSerch && matchesFavorites && isPublicCheck && isNotIgnores;
+
+		return (
+			matchesSerch &&
+			matchesFavorites &&
+			isPublicCheck &&
+			isNotIgnores &&
+			matchesCurrentUser
+		);
 	});
+
+	const handleRenderTitle = (listMode: string) => {
+		switch (listMode) {
+			case "favorites":
+				return "お気に入り一覧";
+			case "myRecipe":
+				return "マイレシピ";
+			default:
+				return "レシピ一覧";
+		}
+	};
 
 	//ページネーションのためのインデックス計算
 	const indexOfLastRecipe = currentPage * recipesPerPage;
@@ -269,7 +295,7 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 	return (
 		<div className="recipeList">
 			<div className="recipeListContainer">
-				<h2>{showFavorites ? "お気に入り一覧" : "レシピ一覧"}</h2>
+				<h2>{handleRenderTitle(listMode)}</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				{currentRecipes.length !== 0 ? (
 					<ul>
@@ -304,7 +330,8 @@ const recipeList = ({ showFavorites }: { showFavorites: boolean }) => {
 									>
 										{item.recipeId &&
 										favorites.some(
-											(favorite) => favorite.recipeId === item.recipeId
+											(favorite: FavoriteState) =>
+												favorite.recipeId === item.recipeId
 										) ? (
 											<FavoriteIcon
 												className={`recipeHeaderFavIcon ${

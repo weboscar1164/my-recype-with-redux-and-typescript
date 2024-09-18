@@ -1,4 +1,6 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import storage from "redux-persist/lib/storage";
+import { persistReducer, persistStore } from "redux-persist";
 import userReducer from "../features/userSlice";
 import recipeReducer from "../features/recipeSlice";
 import favoritesReducer from "../features/favoritesSlice";
@@ -6,17 +8,26 @@ import loadingReducer from "../features/loadingSlice";
 import searchWordReducer from "../features/searchWordSlice";
 import modalReducer from "../features/modalSlice";
 
-export const store = configureStore({
-	reducer: {
-		user: userReducer,
-		recipe: recipeReducer,
-		favorites: favoritesReducer,
-		loading: loadingReducer,
-		searchWord: searchWordReducer,
-		modal: modalReducer,
-	},
+const persistConfig = {
+	key: "root",
+	storage,
+	whitelist: ["user", "recipe"],
+};
+
+const rootReducer = combineReducers({
+	user: userReducer,
+	recipe: recipeReducer,
+	favorites: favoritesReducer,
+	loading: loadingReducer,
+	searchWord: searchWordReducer,
+	modal: modalReducer,
 });
 
-export type Appdispatch = typeof store.dispatch;
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export type RootState = ReturnType<typeof store.getState>;
+const store = configureStore({
+	reducer: persistedReducer,
+});
+
+export const persistor = persistStore(store);
+export default store;
