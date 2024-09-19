@@ -16,9 +16,7 @@ import { FavoriteState, InitialRecipeState, RecipeListItem } from "../../Types";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import RecipeImage from "./RecipeImage";
-
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import Pagination from "../Pagination";
 
 const recipeList = ({ listMode }: { listMode: string }) => {
 	const dispatch = useAppDispatch();
@@ -170,6 +168,8 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		);
 	});
 
+	const totalPages = Math.ceil(sortedRecipes.length / recipesPerPage);
+
 	const handleRenderTitle = (listMode: string) => {
 		switch (listMode) {
 			case "favorites":
@@ -298,90 +298,75 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 				<h2>{handleRenderTitle(listMode)}</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				{currentRecipes.length !== 0 ? (
-					<ul>
-						{currentRecipes.map((item: RecipeListItem) => (
-							<li key={item.recipeId}>
-								<div
-									className="recipeListItemLeft"
-									onClick={() => handleClickRecipe(item.recipeId)}
-								>
-									<div className="recipeListImg">
-										<RecipeImage
-											src={
-												item.recipeImageUrl
-													? item.recipeImageUrl
-													: "noimage.jpg"
-											}
-											alt={item.recipeName}
-										/>
-									</div>
-									<h3>{item.recipeName}</h3>
-								</div>
-								{item.isPublic == 1 ? (
+					<>
+						<ul>
+							{currentRecipes.map((item: RecipeListItem) => (
+								<li key={item.recipeId}>
 									<div
-										className="recipeListFav"
-										onClick={() =>
-											handleClickFavorite(
-												user?.uid,
-												item.recipeId,
-												item.recipeName
-											)
-										}
+										className="recipeListItemLeft"
+										onClick={() => handleClickRecipe(item.recipeId)}
 									>
-										{item.recipeId &&
-										favorites.some(
-											(favorite: FavoriteState) =>
-												favorite.recipeId === item.recipeId
-										) ? (
-											<FavoriteIcon
-												className={`recipeHeaderFavIcon ${
-													animatingFavIcon === item.recipeId &&
-													"recipeHeaderFavIconAnimation"
-												}`}
+										<div className="recipeListImg">
+											<RecipeImage
+												src={
+													item.recipeImageUrl
+														? item.recipeImageUrl
+														: "noimage.jpg"
+												}
+												alt={item.recipeName}
 											/>
-										) : (
-											<FavoriteBorderIcon
-												className={`recipeHeaderFavIcon ${
-													animatingFavIcon === item.recipeId &&
-													"recipeHeaderFavIconAnimation"
-												}`}
-											/>
-										)}
-										<span className="recipeHeaderFavCount">
-											{item.favoriteCount}
-										</span>
+										</div>
+										<h3>{item.recipeName}</h3>
 									</div>
-								) : (
-									<div className="recipeHeaderPrivate">非公開</div>
-								)}
-							</li>
-						))}
-					</ul>
+									{item.isPublic == 1 ? (
+										<div
+											className="recipeListFav"
+											onClick={() =>
+												handleClickFavorite(
+													user?.uid,
+													item.recipeId,
+													item.recipeName
+												)
+											}
+										>
+											{item.recipeId &&
+											favorites.some(
+												(favorite: FavoriteState) =>
+													favorite.recipeId === item.recipeId
+											) ? (
+												<FavoriteIcon
+													className={`recipeHeaderFavIcon ${
+														animatingFavIcon === item.recipeId &&
+														"recipeHeaderFavIconAnimation"
+													}`}
+												/>
+											) : (
+												<FavoriteBorderIcon
+													className={`recipeHeaderFavIcon ${
+														animatingFavIcon === item.recipeId &&
+														"recipeHeaderFavIconAnimation"
+													}`}
+												/>
+											)}
+											<span className="recipeHeaderFavCount">
+												{item.favoriteCount}
+											</span>
+										</div>
+									) : (
+										<div className="recipeHeaderPrivate">非公開</div>
+									)}
+								</li>
+							))}
+						</ul>
+						<Pagination
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={handlePageChange}
+						/>
+					</>
 				) : (
 					<p>レシピがありません。</p>
 				)}
-				<div className="pagination">
-					<div
-						className={`paginationChangepage ${
-							currentPage !== 1 ? "paginationChangepageActive" : ""
-						}`}
-						onClick={handlePrevPage}
-					>
-						<ArrowBackIosNewIcon />
-					</div>
-					{renderPageNumbers()}
-
-					<div
-						className={`paginationChangepage ${
-							currentPage !== pageNumbers.length
-								? "paginationChangepageActive"
-								: ""
-						}`}
-						onClick={handleNextPage}
-					>
-						<ArrowForwardIosIcon />
-					</div>
-				</div>
 			</div>
 		</div>
 	);

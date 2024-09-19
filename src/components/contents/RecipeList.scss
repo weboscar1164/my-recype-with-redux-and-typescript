@@ -8,22 +8,20 @@
 	&Container {
 		max-width: 700px;
 		width: 90%;
-	}
-
-	ul {
-		list-style: none;
-		padding: 0;
-
-		li {
-			display: flex;
-			gap: 20px;
-			align-items: center;
-			justify-content: space-between;
-			padding: 10px;
-			margin-top: 15px;
-			padding: 15px;
-			background: darken(#f3ede6, 10);
-			border-radius: 8px;
+		ul {
+			list-style: none;
+			padding: 0;
+			li {
+				display: flex;
+				gap: 20px;
+				align-items: center;
+				justify-content: space-between;
+				padding: 10px;
+				margin-top: 15px;
+				padding: 15px;
+				background: darken(#f3ede6, 10);
+				border-radius: 8px;
+			}
 		}
 	}
 
@@ -81,40 +79,6 @@
 		align-items: center;
 		gap: 6px;
 		cursor: pointer;
-	}
-}
-
-.pagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 8px;
-	margin-top: 20px;
-	&Button {
-		background: none;
-		border: none;
-		font-size: 18px;
-		color: #59340a;
-	}
-
-	&Active {
-		color: #9d9d9d;
-	}
-
-	&Inactive {
-		cursor: pointer;
-		text-decoration: underline;
-	}
-
-	&Changepage {
-		width: 23px;
-		height: 23px;
-		color: #9d9d9d;
-
-		&Active {
-			cursor: pointer;
-			color: #59340a;
-		}
 	}
 }
 
