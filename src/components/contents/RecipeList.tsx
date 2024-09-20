@@ -99,8 +99,6 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		indexOfLastRecipe
 	);
 
-	console.log(currentRecipes);
-
 	const handlePageChange = (pageNumber: number) => {
 		setCurrentPage(pageNumber);
 	};

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FavoriteState, InitialRecipeState, RecipeListItem } from "../Types";
 import RecipeImage from "./contents/RecipeImage";
 import { setRecipeInfo } from "../features/recipeSlice";
@@ -24,8 +24,8 @@ const RecipeItem = ({
 }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const [recipeList, setRecipeList] = useState(currentRecipes);
 
+	const [recipeList, setRecipeList] = useState(currentRecipes);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
 
 	const favorites = useAppSelector((state) => state.favorites);
@@ -34,6 +34,11 @@ const RecipeItem = ({
 	const { addFavoriteAsync } = useAddFavorite();
 	const { deleteFavoriteAsync } = useDeleteFavorite();
 
+	useEffect(() => {
+		setRecipeList(currentRecipes);
+	}, [currentRecipes]);
+
+	// レシピクリック時の挙動
 	const handleClickRecipe = async (recipeId: string) => {
 		const docRef = doc(db, "recipes", recipeId);
 		const docSnap = await getDoc(docRef);
@@ -55,7 +60,6 @@ const RecipeItem = ({
 			};
 
 			console.log("newRecipe: ", newRecipe);
-			// console.log(newRecipe);
 			dispatch(setRecipeInfo(newRecipe));
 			navigate(`/recipe?currentPage=${currentPage}`);
 		} else {
@@ -98,6 +102,7 @@ const RecipeItem = ({
 			)
 		);
 	};
+
 	return (
 		<ul>
 			{recipeList.map((item: RecipeListItem) => (

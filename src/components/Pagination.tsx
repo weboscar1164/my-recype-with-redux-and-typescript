@@ -35,6 +35,7 @@ const Pagination = ({
 		if (totalPages <= maxPageNumberToShow) {
 			return pageNumbers.map((number) => (
 				<button
+					key={number}
 					className={`paginationButton ${
 						number === currentPage ? "paginationActive" : "paginationInactive"
 					}`}
