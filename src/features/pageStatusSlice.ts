@@ -10,7 +10,7 @@ const initialState: LoadingState = {
 	error: null,
 };
 
-const loadingSlice = createSlice({
+const pageStatusSlice = createSlice({
 	name: "loading",
 	initialState,
 	reducers: {
@@ -23,5 +23,5 @@ const loadingSlice = createSlice({
 	},
 });
 
-export const { setLoading, setError } = loadingSlice.actions;
-export default loadingSlice.reducer;
+export const { setLoading, setError } = pageStatusSlice.actions;
+export default pageStatusSlice.reducer;

@@ -20,7 +20,7 @@ import Loading from "./components/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPanel from "./components/contents/admin/AdminPanel";
 import { doc, getDoc } from "firebase/firestore";
-import { setError } from "./features/loadingSlice";
+import { setError } from "./features/pageStatusSlice";
 import ConfirmModal from "./components/ConfirmModal";
 
 function App() {
@@ -30,8 +30,8 @@ function App() {
 
 	const { fetchFavorites } = useFetchFavorites();
 
-	const isLoading = useAppSelector((state) => state.loading.isLoading);
-	const error = useAppSelector((state) => state.loading.error);
+	const isLoading = useAppSelector((state) => state.pageStatus.isLoading);
+	const error = useAppSelector((state) => state.pageStatus.error);
 
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async (loginUser) => {

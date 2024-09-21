@@ -1,7 +1,7 @@
 import { db } from "../../firebase";
 import { deleteDoc, doc } from "firebase/firestore";
 import { useAppDispatch } from "./hooks";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError, setLoading } from "../../features/pageStatusSlice";
 
 export const useDeleteAdminAndIgnore = () => {
 	const dispatch = useAppDispatch();

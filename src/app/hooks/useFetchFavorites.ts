@@ -3,7 +3,7 @@ import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { setFavorites } from "../../features/favoritesSlice";
 import { FavoriteState } from "../../Types";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError, setLoading } from "../../features/pageStatusSlice";
 
 export const useFetchFavorites = () => {
 	const dispatch = useAppDispatch();

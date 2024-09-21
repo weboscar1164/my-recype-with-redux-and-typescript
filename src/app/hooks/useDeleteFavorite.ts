@@ -13,7 +13,7 @@ import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { removeFavorite } from "../../features/favoritesSlice";
 import { setFavoriteCount } from "../../features/recipeSlice";
-import { setError } from "../../features/loadingSlice";
+import { setError } from "../../features/pageStatusSlice";
 
 export const useDeleteFavorite = () => {
 	const dispatch = useAppDispatch();

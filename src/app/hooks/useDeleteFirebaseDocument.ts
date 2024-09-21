@@ -2,7 +2,7 @@ import { db, storage } from "../../firebase";
 import { deleteDoc, doc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { useAppDispatch } from "./hooks";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError, setLoading } from "../../features/pageStatusSlice";
 
 export const useDeleteFirebaseDocument = () => {
 	const dispatch = useAppDispatch();

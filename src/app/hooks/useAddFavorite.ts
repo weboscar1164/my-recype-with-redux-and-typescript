@@ -11,7 +11,7 @@ import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { addFavorite } from "../../features/favoritesSlice";
 import { setFavoriteCount } from "../../features/recipeSlice";
-import { setError } from "../../features/loadingSlice";
+import { setError } from "../../features/pageStatusSlice";
 
 export const useAddFavorite = () => {
 	const dispatch = useAppDispatch();

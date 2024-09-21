@@ -1,7 +1,7 @@
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
-import { setError } from "../../features/loadingSlice";
+import { setError } from "../../features/pageStatusSlice";
 
 export const useAddAdminAndIgnore = () => {
 	const dispatch = useAppDispatch();

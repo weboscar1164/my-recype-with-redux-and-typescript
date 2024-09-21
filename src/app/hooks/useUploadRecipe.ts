@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "./hooks";
 import { InitialRecipeState } from "../../Types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { resetRecipeInfo } from "../../features/recipeSlice";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError, setLoading } from "../../features/pageStatusSlice";
 import { useNavigate } from "react-router-dom";
 
 export const useUploadRecipe = () => {

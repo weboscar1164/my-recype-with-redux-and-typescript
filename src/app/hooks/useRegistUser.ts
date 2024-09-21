@@ -2,7 +2,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { User } from "../../Types";
-import { setLoading } from "../../features/loadingSlice";
+import { setLoading } from "../../features/pageStatusSlice";
 
 export const useRegistUser = () => {
 	const dispatch = useAppDispatch();

@@ -2,7 +2,7 @@ import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
 import { RecipeListItem } from "../../Types";
 import { useAppDispatch } from "./hooks";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError, setLoading } from "../../features/pageStatusSlice";
 
 export const useGetRecipeList = () => {
 	const dispatch = useAppDispatch();

@@ -2,7 +2,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { User } from "../../Types";
-import { setError, setLoading } from "../../features/loadingSlice";
+import { setError, setLoading } from "../../features/pageStatusSlice";
 
 export const useFetchUsers = () => {
 	const dispatch = useAppDispatch();
