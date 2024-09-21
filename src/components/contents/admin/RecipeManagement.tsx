@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import "../RecipeList.scss";
 import "./RecipeManagement.scss";
-import { useAppSelector, useGetRecipeList } from "../../../app/hooks/hooks";
+import {
+	useAppSelector,
+	useGetRecipeList,
+	usePagination,
+} from "../../../app/hooks/hooks";
 import { RecipeListItem } from "../../../Types";
 import Pagination from "../../Pagination";
 import RecipeItem from "../../RecipeItem";
 
 const RecipeManagement = () => {
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
-	const [currentPage, setCurrentPage] = useState(1);
 	const recipesPerPage = 10;
 
 	const user = useAppSelector((state) => state.user.user);
@@ -41,19 +44,13 @@ const RecipeManagement = () => {
 		return matchesSerch && isPublicCheck;
 	});
 
-	//ページネーションのためのインデックス計算
-	const indexOfLastRecipe = currentPage * recipesPerPage;
-	const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
-	const currentRecipes = sortedRecipes.slice(
-		indexOfFirstRecipe,
-		indexOfLastRecipe
-	);
-
-	const handlePageChange = (pageNumber: number) => {
-		setCurrentPage(pageNumber);
-	};
-
-	const totalPages = Math.ceil(sortedRecipes.length / recipesPerPage);
+	//paginationフックを用いてページネーション用変数を準備
+	const {
+		currentItems: currentRecipes,
+		totalPages,
+		currentPage,
+		handlePageChange,
+	} = usePagination(sortedRecipes, recipesPerPage);
 
 	return (
 		<div className="recipeList recipeListAdmin">

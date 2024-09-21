@@ -9,6 +9,7 @@ import { FavoriteState, RecipeListItem } from "../../Types";
 import { useSearchParams } from "react-router-dom";
 import Pagination from "../Pagination";
 import RecipeItem from "../RecipeItem";
+import { usePagination } from "../../app/hooks/hooks";
 
 const recipeList = ({ listMode }: { listMode: string }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -16,8 +17,6 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
 	const [ignoreIdList, setIgnoreIdList] = useState<string[]>([]);
 
-	const initialPage = Number(searchParams.get("page")) || 1;
-	const [currentPage, setCurrentPage] = useState(initialPage);
 	const recipesPerPage = 10;
 
 	const favorites = useAppSelector((state) => state.favorites);
@@ -49,7 +48,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 				page: String(currentPage),
 			});
 		}
-	}, [currentPage, setSearchParams, searchParams]);
+	}, [setSearchParams, searchParams]);
 
 	// 表示するリストのソート
 	const sortedRecipes = recipeList.filter((recipe) => {
@@ -67,7 +66,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 
 		// マイレシピモード時におけるユーザーとの一致
 		const matchesCurrentUser =
-			listMode === "myRecipe" ? recipe.user === user.uid : true;
+			listMode === "myRecipe" && user ? recipe.user === user.uid : true;
 
 		// 公開状態のチェック
 		const isPublicCheck = user
@@ -89,19 +88,13 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		);
 	});
 
-	const totalPages = Math.ceil(sortedRecipes.length / recipesPerPage);
-
-	//ページネーションのためのインデックス計算
-	const indexOfLastRecipe = currentPage * recipesPerPage;
-	const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
-	const currentRecipes = sortedRecipes.slice(
-		indexOfFirstRecipe,
-		indexOfLastRecipe
-	);
-
-	const handlePageChange = (pageNumber: number) => {
-		setCurrentPage(pageNumber);
-	};
+	//paginationフックを用いてページネーション用変数を準備
+	const {
+		currentItems: currentRecipes,
+		totalPages,
+		currentPage,
+		handlePageChange,
+	} = usePagination(sortedRecipes, recipesPerPage);
 
 	const handleRenderTitle = (listMode: string) => {
 		switch (listMode) {

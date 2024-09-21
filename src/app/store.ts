@@ -35,5 +35,11 @@ const store = configureStore({
 		}),
 });
 
+// RootState 型を定義
+export type RootState = ReturnType<typeof store.getState>;
+
+// AppDispatch 型も定義
+export type AppDispatch = typeof store.dispatch;
+
 export const persistor = persistStore(store);
 export default store;

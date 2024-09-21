@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useFetchUsers } from "../../../app/hooks/useFetchUsers";
+import { useFetchUsers, usePagination } from "../../../app/hooks/hooks";
 import { User } from "../../../Types";
 import EmailIcon from "@mui/icons-material/Email";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -19,6 +19,7 @@ import {
 } from "../../../app/hooks/hooks";
 import { useDispatch } from "react-redux";
 import { openModal, resetModal } from "../../../features/modalSlice";
+import Pagination from "../../Pagination";
 
 const UserManagement: React.FC = () => {
 	const { fetchUsers } = useFetchUsers();
@@ -41,6 +42,7 @@ const UserManagement: React.FC = () => {
 	const searchWord = useAppSelector((state) => state.searchWord);
 	const currentUser = useAppSelector((state) => state.user.user);
 	const modalState = useAppSelector((state) => state.modal);
+	const itemsPerPage = 10;
 
 	useEffect(() => {
 		const getUsers = async () => {
@@ -124,6 +126,14 @@ const UserManagement: React.FC = () => {
 		return ignoreUIDs.some((ignoreUID) => ignoreUID === uid);
 	};
 
+	//paginationフックを用いてページネーション用変数を準備
+	const {
+		currentItems: currentItems,
+		totalPages,
+		currentPage,
+		handlePageChange,
+	} = usePagination(sortedUsers, itemsPerPage);
+
 	return (
 		<div className="userList">
 			<div className="userListContainer">
@@ -131,7 +141,7 @@ const UserManagement: React.FC = () => {
 					<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				</div>
 				<ul>
-					{sortedUsers.map((user) => (
+					{currentItems.map((user) => (
 						<li id={user.uid} key={user.uid}>
 							<div className="userListLeft">
 								<div className="userListImg">
@@ -203,6 +213,11 @@ const UserManagement: React.FC = () => {
 						</li>
 					))}
 				</ul>
+				<Pagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					onPageChange={handlePageChange}
+				/>
 			</div>
 		</div>
 	);
