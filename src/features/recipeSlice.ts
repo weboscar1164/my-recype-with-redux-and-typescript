@@ -11,7 +11,7 @@ const initialState: InitialRecipeState = {
 	procedures: null,
 	recipeId: "",
 	user: "",
-	userDisprayName: "",
+	userDisplayName: "",
 	favoriteCount: 0,
 };
 const sortMaterialsByGroup = (materials: MaterialState[]) => {
@@ -34,7 +34,7 @@ export const recipeSlice = createSlice({
 			state.recipeId = action.payload.recipeId;
 			state.favoriteCount = action.payload.favoriteCount;
 			state.user = action.payload.user;
-			state.userDisprayName = action.payload.userDisprayName;
+			state.userDisplayName = action.payload.userDisplayName;
 		},
 
 		setFavoriteCount: (state, action) => {

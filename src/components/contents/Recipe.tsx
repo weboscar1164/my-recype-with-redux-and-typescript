@@ -41,6 +41,7 @@ const Recipe = () => {
 		}
 		// URLからページ番号を取得
 		setCurrentPage(searchParams.get("page") || "");
+		console.log("render:", currentRecipe.user === user?.uid);
 	}, []);
 
 	// お気に入り制御
@@ -121,7 +122,7 @@ const Recipe = () => {
 				</div>
 				<div className="recipeHeader">
 					<div className="recipeHeaderAuther">
-						by: {currentRecipe.userDisprayName}
+						by: {currentRecipe.userDisplayName}
 					</div>
 					{currentRecipe.isPublic == 1 ? (
 						<Tooltip title="お気に入り">

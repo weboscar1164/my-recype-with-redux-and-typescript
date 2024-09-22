@@ -55,7 +55,7 @@ const RecipeItem = ({
 				procedures: currentRecipe.procedures,
 				recipeId: recipeId,
 				user: currentRecipe.user,
-				userDisprayName: currentRecipe.userDisprayName,
+				userDisplayName: currentRecipe.userDisplayName,
 				favoriteCount: currentRecipe.favoriteCount,
 			};
 

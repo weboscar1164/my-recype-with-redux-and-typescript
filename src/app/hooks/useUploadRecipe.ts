@@ -12,11 +12,8 @@ import { InitialRecipeState } from "../../Types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { resetRecipeInfo } from "../../features/recipeSlice";
 import { setError, setLoading } from "../../features/pageStatusSlice";
-import { useNavigate } from "react-router-dom";
 
 export const useUploadRecipe = () => {
-	const navigate = useNavigate();
-
 	const user = useAppSelector((state) => state.user.user);
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
@@ -29,7 +26,6 @@ export const useUploadRecipe = () => {
 			const imageUrl = await handleImageUpload(recipeInfo.recipeImageUrl);
 			const response = await saveRecipeToFirestore(imageUrl);
 
-			// navigate("/");
 			dispatch(resetRecipeInfo());
 			return response;
 		} catch (error) {
@@ -82,8 +78,7 @@ export const useUploadRecipe = () => {
 			isPublic: recipeInfo.isPublic,
 			recipeName: recipeInfo.recipeName,
 			comment: recipeInfo.comment,
-			user: user.uid,
-			userDisplayName: user.displayName,
+			updateUser: user.uid,
 			recipeImageUrl: imageUrl,
 			serves: recipeInfo.serves,
 			materials: recipeInfo.materials,
@@ -95,6 +90,8 @@ export const useUploadRecipe = () => {
 			Object.assign(recipeData, {
 				favoriteCount: 0,
 				createdAt: serverTimestamp(),
+				user: user.uid,
+				userDisplayName: user.displayName,
 			});
 		}
 

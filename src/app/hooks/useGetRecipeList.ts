@@ -20,6 +20,7 @@ export const useGetRecipeList = () => {
 				favoriteCount: doc.data().favoriteCount,
 				isPublic: doc.data().isPublic,
 				user: doc.data().user,
+				userDisplayName: doc.data().userDisplayName,
 			}));
 
 			return recipes;

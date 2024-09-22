@@ -25,7 +25,7 @@ export interface InitialRecipeState {
 	favoriteCount?: number;
 	recipeId?: string;
 	user?: string;
-	userDisprayName?: string;
+	userDisplayName?: string;
 	createdAt?: Timestamp | null;
 	updatedAt?: Timestamp;
 }
