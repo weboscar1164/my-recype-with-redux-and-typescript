@@ -58,6 +58,6 @@ export interface RecipeListItem {
 export interface ConfirmModal {
 	message: string;
 	isOpen: boolean;
-	action: "admins" | "ignores" | "logout" | "";
+	action: "admins" | "ignores" | "logout" | "deleteRecipe" | "";
 	confirmed: boolean | null;
 }

@@ -12,9 +12,13 @@ import {
 	useAddFavorite,
 	useDeleteFavorite,
 	useDeleteFirebaseDocument,
+	useAppDispatch,
 } from "../../app/hooks/hooks";
+import { openModal, resetModal } from "../../features/modalSlice";
 
 const Recipe = () => {
+	const dispatch = useAppDispatch();
+
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<boolean>(false);
 
 	// URLから所在ページを取得
@@ -32,6 +36,8 @@ const Recipe = () => {
 	const { addFavoriteAsync } = useAddFavorite();
 	const { deleteFavoriteAsync } = useDeleteFavorite();
 	const { deleteFirebaseDocument } = useDeleteFirebaseDocument();
+
+	const modalState = useAppSelector((state) => state.modal);
 
 	useEffect(() => {
 		console.log("searchParams:", searchParams);
@@ -94,24 +100,48 @@ const Recipe = () => {
 
 	// レシピ削除
 	const handleDeleteRecipe = async () => {
-		if (window.confirm("削除しますか？")) {
-			if (currentRecipe.recipeId) {
-				try {
-					await deleteFirebaseDocument(
-						currentRecipe.recipeId,
-						currentRecipe.recipeImageUrl
-					);
-					if (isAdminMode) {
-						navigate("/admin");
-					} else {
-						navigate("/");
+		let confirmMessage;
+		if (currentRecipe.user !== user?.uid) {
+			confirmMessage = "別のユーザーが作成したレシピです。 \n 削除しますか？";
+		} else {
+			confirmMessage = "削除しますか？";
+		}
+		dispatch(
+			openModal({
+				message: confirmMessage,
+				action: "deleteRecipe",
+			})
+		);
+	};
+
+	useEffect(() => {
+		const deleteRecipe = async () => {
+			if (
+				modalState.confirmed !== null &&
+				modalState.action === "deleteRecipe"
+			) {
+				if (modalState.confirmed) {
+					if (currentRecipe.recipeId) {
+						try {
+							await deleteFirebaseDocument(
+								currentRecipe.recipeId,
+								currentRecipe.recipeImageUrl
+							);
+							if (isAdminMode) {
+								navigate("/admin");
+							} else {
+								navigate("/");
+							}
+						} catch (error) {
+							console.error("レシピ削除時にエラーが発生しました: ", error);
+						}
 					}
-				} catch (error) {
-					console.error("レシピ削除時にエラーが発生しました: ", error);
 				}
 			}
-		}
-	};
+			dispatch(resetModal());
+		};
+		deleteRecipe();
+	}, [modalState.confirmed]);
 
 	return (
 		<div className="recipe">
