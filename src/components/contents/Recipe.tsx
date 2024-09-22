@@ -18,12 +18,14 @@ const Recipe = () => {
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<boolean>(false);
 
 	// URLから所在ページを取得
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
+
 	const [currentPage, setCurrentPage] = useState<string>("");
 
 	const user = useAppSelector((state) => state.user.user);
 	const currentRecipe = useAppSelector((state) => state.recipe);
 	const favorites = useAppSelector((state) => state.favorites);
+	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
 
 	const navigate = useNavigate();
 
@@ -32,6 +34,7 @@ const Recipe = () => {
 	const { deleteFirebaseDocument } = useDeleteFirebaseDocument();
 
 	useEffect(() => {
+		console.log("searchParams:", searchParams);
 		// レシピデータが入っていない場合は一覧にリダイレクトする
 		if (!currentRecipe.recipeId) {
 			navigate("/");
@@ -97,7 +100,11 @@ const Recipe = () => {
 						currentRecipe.recipeId,
 						currentRecipe.recipeImageUrl
 					);
-					navigate("/");
+					if (isAdminMode) {
+						navigate("/admin");
+					} else {
+						navigate("/");
+					}
 				} catch (error) {
 					console.error("レシピ削除時にエラーが発生しました: ", error);
 				}
@@ -108,7 +115,10 @@ const Recipe = () => {
 	return (
 		<div className="recipe">
 			<div className="recipeContainer">
-				<h2>{currentRecipe.recipeName}</h2>
+				<div className="recipeTitle">
+					<h2>{currentRecipe.recipeName}</h2>
+					{isAdminMode && <div className="recipeTitleAdmin">管理者モード</div>}
+				</div>
 				<div className="recipeHeader">
 					<div className="recipeHeaderAuther">
 						by: {currentRecipe.userDisprayName}
@@ -156,7 +166,7 @@ const Recipe = () => {
 							<div className="recipeHeaderPrivate">非公開</div>
 						</Tooltip>
 					)}
-					{currentRecipe.user === user?.uid && (
+					{(currentRecipe.user === user?.uid || isAdminMode) && (
 						<>
 							<Tooltip title="編集">
 								<div className="recipeHeaderEdit" onClick={handleToEditRecipe}>

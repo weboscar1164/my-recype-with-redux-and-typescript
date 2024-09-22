@@ -1,23 +1,23 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAppSelector } from "../app/hooks/hooks";
+import { User } from "../Types";
 
 interface ProtectedRouteProps {
 	children: React.ReactNode;
-	condition: string;
+	condition: "isAuthenticated" | "isAdmin";
 }
 
 const checkCondition = (
-	condition: string,
-	user: any,
+	condition: "isAuthenticated" | "isAdmin",
+	user: User | null,
 	isAdmin: boolean
 ): boolean => {
-	// console.log(user, isAdmin);
 	switch (condition) {
 		case "isAuthenticated":
 			return !!user;
 		case "isAdmin":
-			return !!isAdmin;
+			return !!user && isAdmin;
 		default:
 			return false;
 	}

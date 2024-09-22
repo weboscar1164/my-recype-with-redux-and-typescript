@@ -1,11 +1,18 @@
 import "./AdminPanel.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserManagement from "./UserManagement";
 import RecipeManagement from "./RecipeManagement";
+import { useAppDispatch } from "../../../app/hooks/hooks";
+import { setAdmin } from "../../../features/pageStatusSlice";
 
 const AdminPanel = () => {
+	const dispatch = useAppDispatch();
 	const [selectedSection, setSelectedSection] =
 		useState<string>("recipeManagement");
+
+	useEffect(() => {
+		dispatch(setAdmin(true));
+	}, []);
 	const renderSection = () => {
 		switch (selectedSection) {
 			case "userManagement":

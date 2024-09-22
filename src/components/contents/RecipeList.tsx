@@ -4,14 +4,18 @@ import {
 	useAppSelector,
 	useGetRecipeList,
 	useFetchAdminsAndIgnores,
+	useAppDispatch,
 } from "../../app/hooks/hooks";
 import { FavoriteState, RecipeListItem } from "../../Types";
 import { useSearchParams } from "react-router-dom";
 import Pagination from "../Pagination";
 import RecipeItem from "../RecipeItem";
 import { usePagination } from "../../app/hooks/hooks";
+import { setAdmin } from "../../features/pageStatusSlice";
 
 const recipeList = ({ listMode }: { listMode: string }) => {
+	const dispatch = useAppDispatch();
+
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
@@ -36,6 +40,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 
 			const ignores = await fetchAdminsAndIgnores("ignores");
 			ignores && setIgnoreIdList(ignores);
+			dispatch(setAdmin(false));
 		};
 		fetchLists();
 	}, []);

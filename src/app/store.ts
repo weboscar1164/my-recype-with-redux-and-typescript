@@ -11,7 +11,7 @@ import modalReducer from "../features/modalSlice";
 const persistConfig = {
 	key: "root",
 	storage,
-	whitelist: ["user", "recipe"],
+	whitelist: ["user", "recipe", "pageStatus"],
 };
 
 const rootReducer = combineReducers({

@@ -10,6 +10,19 @@
 		width: 90%;
 	}
 
+	&Title {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		&Admin {
+			padding: 5px 8px;
+			background: #59340a;
+			color: #fff;
+			border-radius: 8px;
+			font-size: 12px;
+		}
+	}
+
 	&Header {
 		margin-top: 20px;
 		display: flex;

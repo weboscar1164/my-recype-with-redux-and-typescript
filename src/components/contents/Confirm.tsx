@@ -11,6 +11,7 @@ const Confirm = () => {
 	const recipeInfo: InitialRecipeState = useAppSelector(
 		(state) => state.recipe
 	);
+	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
 
 	const initialStateCheck = isInitialState(recipeInfo);
 
@@ -48,7 +49,11 @@ const Confirm = () => {
 		e.preventDefault();
 
 		uploadRecipeToFirestore();
-		navigate("/");
+		if (isAdminMode) {
+			navigate("/admin");
+		} else {
+			navigate("/");
+		}
 	};
 
 	return (

@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface LoadingState {
 	isLoading: boolean;
 	error: string | null;
+	isAdminMode: boolean;
 }
 
 const initialState: LoadingState = {
 	isLoading: false,
 	error: null,
+	isAdminMode: false,
 };
 
 const pageStatusSlice = createSlice({
@@ -20,8 +22,11 @@ const pageStatusSlice = createSlice({
 		setError: (state, action: PayloadAction<string | null>) => {
 			state.error = action.payload;
 		},
+		setAdmin: (state, action: PayloadAction<boolean>) => {
+			state.isAdminMode = action.payload;
+		},
 	},
 });
 
-export const { setLoading, setError } = pageStatusSlice.actions;
+export const { setLoading, setError, setAdmin } = pageStatusSlice.actions;
 export default pageStatusSlice.reducer;

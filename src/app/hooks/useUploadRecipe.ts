@@ -29,7 +29,7 @@ export const useUploadRecipe = () => {
 			const imageUrl = await handleImageUpload(recipeInfo.recipeImageUrl);
 			const response = await saveRecipeToFirestore(imageUrl);
 
-			navigate("/");
+			// navigate("/");
 			dispatch(resetRecipeInfo());
 			return response;
 		} catch (error) {
