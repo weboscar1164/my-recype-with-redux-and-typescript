@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
+import { openPopup } from "../../features/popupSlice";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -273,19 +274,25 @@ const EditRecipe = () => {
 		setProcedures(newProcedures);
 	};
 
-	//setRecipeSlice
+	// 「確認画面に行く」ボタンを押してバリデーションを実行
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setVaridateOnSubmit(true);
 		if (validateForm()) {
 			handleSetRecipeSlice();
+		} else {
+			dispatch(
+				openPopup({ message: "入力内容を確認してください。", action: "notice" })
+			);
 		}
 	};
 
+	// 前のページに戻る
 	const handleBackPage = () => {
 		navigate(-1);
 	};
 
+	// recipesliceに登録して確認画面に行く
 	const handleSetRecipeSlice = () => {
 		const newRecipe: InitialRecipeState = {
 			recipeId: recipe.recipeId,

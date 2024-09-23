@@ -15,6 +15,7 @@ const initialState: InitialRecipeState = {
 	favoriteCount: 0,
 };
 const sortMaterialsByGroup = (materials: MaterialState[]) => {
+	// 材料をグループごとにまとめる
 	return [...materials].sort((a, b) => a.group - b.group);
 };
 

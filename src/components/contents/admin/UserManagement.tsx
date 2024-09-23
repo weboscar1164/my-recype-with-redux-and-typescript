@@ -20,6 +20,7 @@ import {
 import { useDispatch } from "react-redux";
 import { openModal, resetModal } from "../../../features/modalSlice";
 import Pagination from "../../Pagination";
+import { openPopup } from "../../../features/popupSlice";
 
 const UserManagement: React.FC = () => {
 	const { fetchUsers } = useFetchUsers();
@@ -99,14 +100,27 @@ const UserManagement: React.FC = () => {
 			);
 			const currentUIDs = action === "admins" ? adminUIDs : ignoreUIDs;
 			const setUIDs = action === "admins" ? setAdminUIDs : setIgnoreUIDs;
+			const listName = action === "admins" ? "管理者リスト" : "使用制限リスト";
 
 			if (modalState.confirmed) {
 				if (!isInList) {
 					addAdminAndIgnore(selectedUID, action);
 					setUIDs([...currentUIDs, selectedUID]);
+					dispatch(
+						openPopup({
+							message: `${listName}に追加しました。`,
+							action: "success",
+						})
+					);
 				} else {
 					deleteAdminAndIgnore(selectedUID, action);
 					setUIDs(currentUIDs.filter((userUID) => userUID !== selectedUID));
+					dispatch(
+						openPopup({
+							message: `${listName}から削除しました。`,
+							action: "success",
+						})
+					);
 				}
 				setAnimationIcon((prev) => ({ ...prev, [action]: selectedUID }));
 				setTimeout(

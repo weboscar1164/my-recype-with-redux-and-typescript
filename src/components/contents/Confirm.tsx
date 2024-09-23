@@ -1,13 +1,16 @@
 import "./Recipe.scss";
-import { useAppSelector } from "../../app/hooks/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { useNavigate } from "react-router-dom";
 import { InitialRecipeState } from "../../Types";
 import React, { useEffect } from "react";
 import { isInitialState } from "../../features/recipeSlice";
 import { useUploadRecipe } from "../../app/hooks/useUploadRecipe";
+import { openPopup } from "../../features/popupSlice";
 
 const Confirm = () => {
 	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
+
 	const recipeInfo: InitialRecipeState = useAppSelector(
 		(state) => state.recipe
 	);
@@ -47,6 +50,9 @@ const Confirm = () => {
 
 	const handleRecipeSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
+		const popupMessage = !recipeInfo.recipeId
+			? "レシピを作成しました。"
+			: "レシピを更新しました。";
 
 		uploadRecipeToFirestore();
 		if (isAdminMode) {
@@ -54,6 +60,7 @@ const Confirm = () => {
 		} else {
 			navigate("/");
 		}
+		dispatch(openPopup({ message: popupMessage, action: "success" }));
 	};
 
 	return (

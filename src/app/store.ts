@@ -7,6 +7,7 @@ import favoritesReducer from "../features/favoritesSlice";
 import pageStatusReducer from "../features/pageStatusSlice";
 import searchWordReducer from "../features/searchWordSlice";
 import modalReducer from "../features/modalSlice";
+import popupReducer from "../features/popupSlice";
 
 const persistConfig = {
 	key: "root",
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
 	pageStatus: pageStatusReducer,
 	searchWord: searchWordReducer,
 	modal: modalReducer,
+	popup: popupReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -22,6 +22,7 @@ import AdminPanel from "./components/contents/admin/AdminPanel";
 import { doc, getDoc } from "firebase/firestore";
 import { setError } from "./features/pageStatusSlice";
 import ConfirmModal from "./components/ConfirmModal";
+import Popup from "./components/Popup";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -126,6 +127,8 @@ function App() {
 					)}
 				</div>
 				{isLoading && <Loading />}
+				<Popup />
+
 				<ConfirmModal />
 			</Router>
 		</div>

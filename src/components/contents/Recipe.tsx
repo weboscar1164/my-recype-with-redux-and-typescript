@@ -15,6 +15,7 @@ import {
 	useAppDispatch,
 } from "../../app/hooks/hooks";
 import { openModal, resetModal } from "../../features/modalSlice";
+import { openPopup } from "../../features/popupSlice";
 
 const Recipe = () => {
 	const dispatch = useAppDispatch();
@@ -132,6 +133,9 @@ const Recipe = () => {
 							} else {
 								navigate("/");
 							}
+							dispatch(
+								openPopup({ message: "削除しました。", action: "success" })
+							);
 						} catch (error) {
 							console.error("レシピ削除時にエラーが発生しました: ", error);
 						}

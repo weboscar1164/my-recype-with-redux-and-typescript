@@ -13,6 +13,7 @@ import { User } from "../../Types";
 import { doc, getDoc } from "firebase/firestore";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { useEffect } from "react";
+import { openPopup } from "../../features/popupSlice";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
@@ -44,10 +45,13 @@ const Header = () => {
 				const userInfoDoc = await getDoc(
 					doc(db, "users", loginUser.uid, "userInfo", loginUser.uid)
 				);
-				console.log(loginUser);
+				// console.log(loginUser);
 				if (!userInfoDoc.exists()) {
 					await registUser(loginUser);
 				}
+				dispatch(
+					openPopup({ message: "ログインしました。", action: "success" })
+				);
 			} else {
 				throw new Error("No user infomation found after sign-in");
 			}
@@ -72,6 +76,9 @@ const Header = () => {
 			if (modalState.confirmed) {
 				auth.signOut();
 				dispatch(clearFavorites());
+				dispatch(
+					openPopup({ message: "ログアウトしました。", action: "success" })
+				);
 				navigate("/");
 			}
 		}

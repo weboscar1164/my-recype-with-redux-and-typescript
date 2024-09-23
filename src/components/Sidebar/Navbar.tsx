@@ -52,7 +52,7 @@ const Navbar = () => {
 										to={"/editRecipe"}
 										onClick={onClickLink}
 									>
-										投稿
+										レシピ作成
 									</Link>
 								</li>
 								<li>

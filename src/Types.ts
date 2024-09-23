@@ -61,3 +61,10 @@ export interface ConfirmModal {
 	action: "admins" | "ignores" | "logout" | "deleteRecipe" | "";
 	confirmed: boolean | null;
 }
+
+//popup
+export interface Popup {
+	isOpen: boolean;
+	message: string;
+	action: "success" | "notice" | "";
+}
