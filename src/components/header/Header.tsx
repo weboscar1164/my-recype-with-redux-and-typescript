@@ -72,17 +72,20 @@ const Header = () => {
 	};
 
 	useEffect(() => {
-		if (modalState.confirmed !== null && modalState.action === "logout") {
-			if (modalState.confirmed) {
-				auth.signOut();
-				dispatch(clearFavorites());
-				dispatch(
-					openPopup({ message: "ログアウトしました。", action: "success" })
-				);
-				navigate("/");
+		const handleLogout = async () => {
+			if (modalState.confirmed !== null && modalState.action === "logout") {
+				if (modalState.confirmed) {
+					await auth.signOut();
+					dispatch(clearFavorites());
+					dispatch(
+						openPopup({ message: "ログアウトしました。", action: "success" })
+					);
+					navigate("/");
+				}
 			}
-		}
-		dispatch(resetModal());
+			dispatch(resetModal());
+		};
+		handleLogout();
 	}, [modalState.confirmed]);
 
 	return (
