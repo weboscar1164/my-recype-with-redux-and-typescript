@@ -6,24 +6,18 @@ interface PaginationProps {
 	currentPage: number;
 	totalPages: number;
 	onPageChange: (pageNumber: number) => void;
+	maxPageNumberToShow?: number;
 }
+
 const Pagination = ({
 	currentPage,
 	totalPages,
 	onPageChange,
+	maxPageNumberToShow = 5,
 }: PaginationProps) => {
-	const maxPageNumberToShow = 5;
-
-	const handleNextPage = () => {
-		if (currentPage < totalPages) {
-			onPageChange(currentPage + 1);
-		}
-	};
-
-	const handlePrevPage = () => {
-		if (currentPage > 1) {
-			onPageChange(currentPage - 1);
-		}
+	const handlePageChange = (newPage: number) => {
+		const validPage = Math.max(1, Math.min(newPage, totalPages)); // 誤って設定されたページ数以外の数字が入らないように監視
+		onPageChange(validPage);
 	};
 
 	const renderPageNumbers = () => {
@@ -46,20 +40,10 @@ const Pagination = ({
 			));
 		}
 		const pages = [];
-		let startPage, endPage;
+		const startPage = Math.max(1, currentPage - 2);
+		const endPage = Math.min(totalPages, currentPage + 2);
 
-		if (currentPage <= 3) {
-			startPage = 1;
-			endPage = maxPageNumberToShow;
-		} else if (currentPage + 2 >= totalPages) {
-			startPage = totalPages - 4;
-			endPage = totalPages;
-		} else {
-			startPage = currentPage - 2;
-			endPage = currentPage + 2;
-		}
-
-		//最初のページと記号
+		// 必要に応じて最初のページと省略記号を追加
 		if (startPage > 1) {
 			pages.push(
 				<button
@@ -75,7 +59,7 @@ const Pagination = ({
 			}
 		}
 
-		// Add page numbers
+		// ページ番号を追加
 		for (let i = startPage; i <= endPage; i++) {
 			pages.push(
 				<button
@@ -84,13 +68,14 @@ const Pagination = ({
 					className={`paginationButton ${
 						i === currentPage ? "paginationActive" : "paginationInactive"
 					}`}
+					disabled={i === currentPage}
 				>
 					{i}
 				</button>
 			);
 		}
 
-		// Add last page and ellipsis if needed
+		// 必要に応じて最後のページと省略記号を追加
 		if (endPage < totalPages) {
 			if (endPage < totalPages - 1) {
 				pages.push(<span key="end-ellipsis">...</span>);
@@ -115,7 +100,7 @@ const Pagination = ({
 				className={`paginationChangepage ${
 					currentPage !== 1 ? "paginationChangepageActive" : ""
 				}`}
-				onClick={handlePrevPage}
+				onClick={() => handlePageChange(currentPage - 1)}
 			>
 				<ArrowBackIosNewIcon />
 			</div>
@@ -125,7 +110,7 @@ const Pagination = ({
 				className={`paginationChangepage ${
 					currentPage !== totalPages ? "paginationChangepageActive" : ""
 				}`}
-				onClick={handleNextPage}
+				onClick={() => handlePageChange(currentPage + 1)}
 			>
 				<ArrowForwardIosIcon />
 			</div>
