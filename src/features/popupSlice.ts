@@ -25,9 +25,8 @@ export const popupSlice = createSlice({
 
 		closePopup(state) {
 			state.isOpen = false;
-			setTimeout(() => {
-				(state.message = ""), (state.action = "");
-			});
+			state.message = "";
+			state.action = "";
 		},
 	},
 });
