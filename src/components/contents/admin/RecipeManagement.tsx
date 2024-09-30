@@ -54,7 +54,7 @@ const RecipeManagement = () => {
 
 	return (
 		<div className="recipeList recipeListAdmin">
-			<div className="recipeListContainer recipeListAdminContainer">
+			<div className="recipeListContainer">
 				<h2>レシピ管理画面</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				{currentRecipes.length !== 0 ? (

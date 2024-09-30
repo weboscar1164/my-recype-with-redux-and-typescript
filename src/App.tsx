@@ -69,7 +69,7 @@ function App() {
 			}
 		});
 		return () => unsubscribe(); // クリーンアップ関数でリスナーを解除
-	}, [dispatch]);
+	}, []);
 
 	return (
 		<div className="app">

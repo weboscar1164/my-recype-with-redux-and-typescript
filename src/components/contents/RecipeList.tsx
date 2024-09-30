@@ -113,7 +113,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	};
 	return (
 		<div className="recipeList">
-			<div className="recipeListContainer">
+			<div className="container recipeListContainer">
 				<h2>{handleRenderTitle(listMode)}</h2>
 				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
 				{currentRecipes.length !== 0 ? (

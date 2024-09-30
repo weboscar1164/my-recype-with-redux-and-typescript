@@ -65,7 +65,7 @@ const Confirm = () => {
 
 	return (
 		<div className="recipe">
-			<div className="recipeContainer">
+			<div className="container recipeContainer">
 				<h2>確認画面</h2>
 				<h3>{recipeInfo.recipeName}</h3>
 				{/*<div className="recipeTag">
@@ -119,13 +119,16 @@ const Confirm = () => {
 				</section>
 				<div className="recipeSubmit">
 					<button
+						className="button"
 						onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
 							handleRecipeSubmit(e)
 						}
 					>
 						確定
 					</button>
-					<button onClick={(e) => handleReEdit(e)}>再編集</button>
+					<button className="button" onClick={(e) => handleReEdit(e)}>
+						再編集
+					</button>
 				</div>
 			</div>
 		</div>

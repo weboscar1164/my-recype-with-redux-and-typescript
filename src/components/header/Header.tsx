@@ -90,32 +90,40 @@ const Header = () => {
 
 	return (
 		<div className="header">
-			<h1>My Recipe</h1>
-			<Searchbar />
-			{user ? (
-				<div className="userInfo" onClick={signOutConfirm}>
-					<Tooltip title={user?.displayName}>
-						<div className="userIconWrapper">
-							<div className="userIcon">
-								<img className="userIconLoggedin" src={user?.photoURL} alt="" />
+			<div className="headerContainer">
+				<h1>
+					My <br className="brSmActive" /> Recipe
+				</h1>
+				<Searchbar />
+				{user ? (
+					<div className="userInfo" onClick={signOutConfirm}>
+						<Tooltip title={user?.displayName}>
+							<div className="userIconWrapper">
+								<div className="userIcon">
+									<img
+										className="userIconLoggedin"
+										src={user?.photoURL}
+										alt=""
+									/>
+								</div>
+								{isAdmin && <div className="userIconAdmin">admin</div>}
 							</div>
-							{isAdmin && <div className="userIconAdmin">admin</div>}
-						</div>
-					</Tooltip>
-					<Tooltip title="ログアウト">
-						<LogoutIcon className="userActionIcon" />
-					</Tooltip>
-				</div>
-			) : (
-				<Tooltip title="ログイン">
-					<div className="userInfo" onClick={signIn}>
-						<div className="userIcon">
-							<img className="userIconDefault" src="icon_user.svg" alt="" />
-						</div>
-						<LoginIcon className="userActionIcon" />
+						</Tooltip>
+						<Tooltip title="ログアウト">
+							<LogoutIcon className="userActionIcon" />
+						</Tooltip>
 					</div>
-				</Tooltip>
-			)}
+				) : (
+					<Tooltip title="ログイン">
+						<div className="userInfo" onClick={signIn}>
+							<div className="userIcon">
+								<img className="userIconDefault" src="icon_user.svg" alt="" />
+							</div>
+							<LoginIcon className="userActionIcon" />
+						</div>
+					</Tooltip>
+				)}
+			</div>
 		</div>
 	);
 };

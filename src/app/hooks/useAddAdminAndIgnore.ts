@@ -12,7 +12,7 @@ export const useAddAdminAndIgnore = () => {
 			const adminRef = doc(db, action, uid);
 			await setDoc(adminRef, {});
 			console.log(`${action} added`);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			dispatch(setError("管理者権限追加時にエラーが発生しました。"));
 			console.log(e);
 		} finally {

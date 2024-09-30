@@ -1,3 +1,5 @@
+@import "./variables";
+
 * {
 	margin: 0;
 	box-sizing: border-box;
@@ -8,9 +10,52 @@
 	position: relative;
 	color: #59340a;
 
+	@include respond-to(sm) {
+		font-size: 14px;
+	}
+
 	.contents {
 		height: 100vh;
 		overflow-y: scroll;
 		background: #f3ede6;
+	}
+
+	.container {
+		padding: 90px 0 30px;
+		width: 85%;
+		max-width: 700px;
+		margin: auto;
+
+		@include respond-to(sm) {
+			width: 90%;
+		}
+	}
+
+	.br {
+		&SmActive {
+			display: none;
+			@include respond-to(sm) {
+				display: block;
+			}
+		}
+	}
+
+	.button {
+		border: none;
+		background: #59340a;
+		color: #fff;
+		padding: 10px 30px;
+		border-radius: 10px;
+		transition: background-color 0.3s;
+
+		&:hover {
+			background: lighten(#59340a, 10);
+		}
+	}
+	/* タッチデバイス用のスタイル */
+	@media (hover: none) {
+		.button:hover {
+			background: #59340a; /* 元の背景色に戻す */
+		}
 	}
 }

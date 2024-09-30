@@ -139,7 +139,7 @@ const EditRecipe = () => {
 
 		if (file) {
 			// ファイルタイプが画像であることを確認
-			let newImgErrors: any = {};
+			const newImgErrors: any = {};
 			if (!file.type.startsWith("image/")) {
 				newImgErrors.notImg = "画像ファイルを選択してください。";
 				setImgErrors(newImgErrors);
@@ -373,7 +373,9 @@ const EditRecipe = () => {
 					<h2>{!recipe.recipeId ? "レシピ作成" : "レシピ編集"}</h2>
 					<ul className="editRecipeFormHeader">
 						<li>
-							<label htmlFor="recipeName">レシピ名</label>
+							<label className="editRecipeFormLabel" htmlFor="recipeName">
+								レシピ名
+							</label>
 							<input
 								type="text"
 								id="recipeName"
@@ -400,18 +402,29 @@ const EditRecipe = () => {
 							</select>
 						</li>
 						<li>
-							<label htmlFor="recipeImg">完成画像</label>
+							<label className="editRecipeFormLabel" htmlFor="recipeImg">
+								完成画像
+							</label>
+							<label
+								className="button editRecipeInputImageButton"
+								htmlFor="recipeImg"
+							>
+								ファイルを選択
+							</label>
 							<input
+								className="editRecipeInputImage"
 								type="file"
 								id="recipeImg"
 								name="recipeImg"
 								onChange={(e) => handleImageChange(e)}
 							/>
 						</li>
-						{recipe.recipeImageUrl && (
+						{recipe.recipeImageUrl ? (
 							<div className="editRecipeFormImg">
 								<img src={preview} alt="Recipe Image" />
 							</div>
+						) : (
+							<p>選択されていません</p>
 						)}
 						{imgErrors.notImg && (
 							<span className="validationError">{imgErrors.notImg}</span>
@@ -421,7 +434,9 @@ const EditRecipe = () => {
 						)}
 
 						<li>
-							<label htmlFor="comment">コメント</label>
+							<label className="editRecipeFormLabel" htmlFor="comment">
+								コメント
+							</label>
 
 							<input
 								id="comment"
@@ -604,9 +619,15 @@ const EditRecipe = () => {
 					</div>
 
 					<div className="editRecipeFormSubmit">
-						<button type="submit">確認画面に進む</button>
-						<button type="button" onClick={handleBackPage}>
-							前のページに戻る
+						<button className="button" type="submit">
+							確認画面に
+							<br className="brSmActive" />
+							進む
+						</button>
+						<button className="button" type="button" onClick={handleBackPage}>
+							前のページ
+							<br className="brSmActive" />
+							に戻る
 						</button>
 					</div>
 				</form>

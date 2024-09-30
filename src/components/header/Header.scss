@@ -1,15 +1,27 @@
+@import "../../variables";
 .header {
 	position: fixed;
 	top: 0;
 	left: 0;
-	display: flex;
 	height: 60px;
 	width: 100%;
-	align-items: center;
-	justify-content: space-around;
 	background: #fff;
 	color: #59340a;
 	z-index: 1;
+
+	&Container {
+		margin: auto;
+		width: 85%;
+		max-width: 700px;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		@include respond-to(sm) {
+			width: 90%;
+		}
+	}
 
 	h1 {
 		font-size: 30px;
@@ -61,6 +73,15 @@
 				font-size: 9px;
 				color: #fff;
 			}
+		}
+	}
+}
+
+@include respond-to(sm) {
+	.header {
+		h1 {
+			font-size: 18px;
+			line-height: 1.1;
 		}
 	}
 }

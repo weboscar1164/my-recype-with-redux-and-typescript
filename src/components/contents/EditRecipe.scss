@@ -1,3 +1,5 @@
+@import "../../variables";
+
 .editRecipe {
 	margin-top: 60px;
 	padding-top: 20px;
@@ -8,6 +10,18 @@
 	&Container {
 		width: 85%;
 		max-width: 700px;
+	}
+
+	&InputImage {
+		display: none;
+
+		&Button {
+			font-size: inherit;
+			width: 180px;
+			text-align: center;
+			cursor: pointer;
+			margin-bottom: 5px;
+		}
 	}
 
 	&Form {
@@ -41,9 +55,17 @@
 			}
 		}
 
+		&Label {
+			font-weight: 800;
+			cursor: pointer;
+			font-size: 20px;
+			margin-bottom: 5px;
+		}
+
 		&Img {
 			max-height: 300px;
 			overflow: hidden;
+			border-radius: 10px;
 
 			img {
 				width: 100%;
@@ -100,6 +122,17 @@
 				input {
 					flex-grow: 1;
 				}
+
+				@include respond-to(sm) {
+					flex-direction: column;
+					align-items: start;
+					gap: 3px;
+					margin-top: 4px;
+
+					input {
+						width: 100%;
+					}
+				}
 			}
 
 			&Bottom {
@@ -153,19 +186,6 @@
 			margin-top: 20px;
 			display: flex;
 			justify-content: space-between;
-		}
-
-		button {
-			border: none;
-			background: #59340a;
-			color: #fff;
-			padding: 10px 30px;
-			border-radius: 10px;
-			transition: background-color 0.3s;
-
-			&:hover {
-				background: lighten(#59340a, 10);
-			}
 		}
 	}
 }

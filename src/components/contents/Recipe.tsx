@@ -149,7 +149,7 @@ const Recipe = () => {
 
 	return (
 		<div className="recipe">
-			<div className="recipeContainer">
+			<div className="container recipeContainer">
 				<div className="recipeTitle">
 					<h2>{currentRecipe.recipeName}</h2>
 					{isAdminMode && <div className="recipeTitleAdmin">管理者モード</div>}
@@ -231,7 +231,11 @@ const Recipe = () => {
 				</p>
 				<section className="recipeInfo">
 					<h3>Comment</h3>
-					<p>{currentRecipe.comment}</p>
+					<p>
+						{currentRecipe.comment
+							? currentRecipe.comment
+							: "コメントはありません"}
+					</p>
 				</section>
 
 				<section className="recipeMaterial">
@@ -268,7 +272,9 @@ const Recipe = () => {
 					</ol>
 				</section>
 				<div className="recipeSubmit">
-					<button onClick={handleBack}>前のページに戻る</button>
+					<button className="button" onClick={handleBack}>
+						前のページに戻る
+					</button>
 				</div>
 			</div>
 		</div>
