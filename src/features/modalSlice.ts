@@ -16,7 +16,7 @@ export const modalSlice = createSlice({
 			state,
 			action: PayloadAction<{
 				message: string;
-				action: "admins" | "ignores" | "logout" | "deleteRecipe" | "";
+				action: "admins" | "ignores" | "login" | "logout" | "deleteRecipe" | "";
 			}>
 		) {
 			state.isOpen = true;

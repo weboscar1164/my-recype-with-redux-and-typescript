@@ -8,31 +8,40 @@ import {
 	useAppDispatch,
 	useAppSelector,
 	useDeleteFavorite,
+	useSignIn,
 } from "../app/hooks/hooks";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { openModal, resetModal } from "../features/modalSlice";
 
 const RecipeItem = ({
 	currentRecipes,
 	currentPage,
+	updateRecipeList,
 }: {
 	currentRecipes: RecipeListItem[];
 	currentPage: number;
+	updateRecipeList: (recipeId: string, newFavoriteCount: number) => void;
 }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	const [recipeList, setRecipeList] = useState(currentRecipes);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
+	const [processingFavorites, setIsProcessingFavorites] = useState<
+		string | null
+	>(null);
 
 	const favorites = useAppSelector((state) => state.favorites);
 	const user = useAppSelector((state) => state.user.user);
+	const modalState = useAppSelector((state) => state.modal);
 
 	const { addFavoriteAsync } = useAddFavorite();
 	const { deleteFavoriteAsync } = useDeleteFavorite();
+	const { signIn } = useSignIn();
 
 	useEffect(() => {
 		setRecipeList(currentRecipes);
@@ -41,10 +50,21 @@ const RecipeItem = ({
 	// レシピクリック時の挙動
 	const handleClickRecipe = async (recipeId: string) => {
 		const docRef = doc(db, "recipes", recipeId);
+		const metaDataDocRef = doc(
+			db,
+			"recipes",
+			recipeId,
+			"metaData",
+			"favoriteCount"
+		);
 		const docSnap = await getDoc(docRef);
+		const metaDataDocSnap = await getDoc(metaDataDocRef);
 
 		if (docSnap.exists()) {
 			const currentRecipe = docSnap.data();
+			const currentRecipeFavoriteCount = metaDataDocSnap.exists()
+				? metaDataDocSnap.data()?.count
+				: 0;
 			const newRecipe: InitialRecipeState = {
 				isPublic: currentRecipe.isPublic,
 				recipeName: currentRecipe.recipeName,
@@ -56,10 +76,10 @@ const RecipeItem = ({
 				recipeId: recipeId,
 				user: currentRecipe.user,
 				userDisplayName: currentRecipe.userDisplayName,
-				favoriteCount: currentRecipe.favoriteCount,
+				favoriteCount: currentRecipeFavoriteCount,
 			};
 
-			console.log("newRecipe: ", newRecipe);
+			// console.log("newRecipe: ", newRecipe);
 			dispatch(setRecipeInfo(newRecipe));
 			navigate(`/recipe?currentPage=${currentPage}`);
 		} else {
@@ -67,40 +87,73 @@ const RecipeItem = ({
 		}
 	};
 
+	useEffect(() => {
+		// ログインモーダルの確認処理
+		const handleLogin = async () => {
+			if (modalState.confirmed !== null && modalState.action === "login") {
+				if (modalState.confirmed) {
+					signIn();
+				}
+			}
+			dispatch(resetModal());
+		};
+		handleLogin();
+	}, [modalState.confirmed]);
+
 	// お気に入り切り替え
 	const handleClickFavorite = async (
 		userId: string | undefined,
-		recipeId: string,
-		recipeName: string
+		recipeId: string
 	) => {
-		if (userId) {
-			const isFavorite = favorites.some(
-				(favorite: FavoriteState) => favorite.recipeId === recipeId
-			);
-			if (recipeId && isFavorite) {
-				await deleteFavoriteAsync(userId, recipeId);
-				updateFavoriteCount(recipeId, -1);
-			} else {
-				await addFavoriteAsync(userId, recipeId, recipeName);
-				updateFavoriteCount(recipeId, 1);
-			}
-			setAnimatingFavIcon(recipeId);
+		if (processingFavorites === recipeId) return;
+		setIsProcessingFavorites(recipeId);
 
-			setTimeout(() => setAnimatingFavIcon(null), 300);
-		} else {
-			alert("お気に入り機能を使用するにはログインしてください。");
+		try {
+			if (userId) {
+				// 現在のお気に入り状態を確認
+				const isFavorite = favorites.some(
+					(favorite: FavoriteState) => favorite.recipeId === recipeId
+				);
+
+				// reduxとfirestoreの整合性を保ちながら処理
+				var newCount;
+				if (isFavorite) {
+					newCount = await deleteFavoriteAsync(userId, recipeId);
+				} else {
+					newCount = await addFavoriteAsync(userId, recipeId);
+				}
+				if (newCount !== null) {
+					updateFavoriteCount(recipeId, newCount);
+				} else {
+					throw new Error("お気に入りの更新に失敗しました");
+				}
+
+				// お気に入りアイコンのアニメーション設定
+				setAnimatingFavIcon(recipeId);
+				setTimeout(() => setAnimatingFavIcon(null), 300);
+			} else {
+				dispatch(
+					openModal({
+						message: "ログインが必要です。ログインしますか？",
+						action: "login",
+					})
+				);
+			}
+		} finally {
+			setIsProcessingFavorites(null);
 		}
 	};
 
 	// お気に入りカウンターの操作
-	const updateFavoriteCount = (recipeId: string, increment: number) => {
+	const updateFavoriteCount = (recipeId: string, newCount: number) => {
 		setRecipeList((prevList) =>
 			prevList.map((recipe) =>
 				recipe.recipeId === recipeId
-					? { ...recipe, favoriteCount: recipe.favoriteCount + increment }
+					? { ...recipe, favoriteCount: newCount }
 					: recipe
 			)
 		);
+		updateRecipeList(recipeId, newCount);
 	};
 
 	return (
@@ -122,9 +175,7 @@ const RecipeItem = ({
 					{item.isPublic == 1 ? (
 						<div
 							className="recipeListFav"
-							onClick={() =>
-								handleClickFavorite(user?.uid, item.recipeId, item.recipeName)
-							}
+							onClick={() => handleClickFavorite(user?.uid, item.recipeId)}
 						>
 							{item.recipeId &&
 							favorites.some(

@@ -52,6 +52,20 @@ const RecipeManagement = () => {
 		handlePageChange,
 	} = usePagination(sortedRecipes, recipesPerPage);
 
+	// お気に入り操作時にrecipeListを更新
+	const handleUpdateRecipeList = (
+		recipeId: string,
+		newFavoriteCount: number
+	) => {
+		setRecipeList((prevState) =>
+			prevState.map((recipe) =>
+				recipe.recipeId === recipeId
+					? { ...recipe, favoriteCount: newFavoriteCount }
+					: recipe
+			)
+		);
+	};
+
 	return (
 		<div className="recipeList recipeListAdmin">
 			<div className="recipeListContainer">
@@ -62,6 +76,7 @@ const RecipeManagement = () => {
 						<RecipeItem
 							currentRecipes={currentRecipes}
 							currentPage={currentPage}
+							updateRecipeList={handleUpdateRecipeList}
 						/>
 						<Pagination
 							currentPage={currentPage}

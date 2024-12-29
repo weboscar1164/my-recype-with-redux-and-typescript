@@ -93,6 +93,20 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		);
 	});
 
+	// お気に入り操作時にrecipeListを更新
+	const handleUpdateRecipeList = (
+		recipeId: string,
+		newFavoriteCount: number
+	) => {
+		setRecipeList((prevState) =>
+			prevState.map((recipe) =>
+				recipe.recipeId === recipeId
+					? { ...recipe, favoriteCount: newFavoriteCount }
+					: recipe
+			)
+		);
+	};
+
 	//paginationフックを用いてページネーション用変数を準備
 	const {
 		currentItems: currentRecipes,
@@ -111,6 +125,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 				return "レシピ一覧";
 		}
 	};
+
 	return (
 		<div className="recipeList">
 			<div className="container recipeListContainer">
@@ -121,6 +136,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 						<RecipeItem
 							currentRecipes={currentRecipes}
 							currentPage={currentPage}
+							updateRecipeList={handleUpdateRecipeList}
 						/>
 						<Pagination
 							currentPage={currentPage}

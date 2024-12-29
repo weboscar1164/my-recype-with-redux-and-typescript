@@ -52,15 +52,11 @@ const Recipe = () => {
 	}, []);
 
 	// お気に入り制御
-	const handleChangeFavorite = async (
-		userId: string,
-		recipeId: string,
-		recipeName: string
-	) => {
+	const handleChangeFavorite = async (userId: string, recipeId: string) => {
 		if (containsFavorites(favorites, recipeId)) {
 			await deleteFavoriteAsync(userId, recipeId);
 		} else {
-			await addFavoriteAsync(userId, recipeId, recipeName);
+			await addFavoriteAsync(userId, recipeId);
 		}
 		setAnimatingFavIcon(true);
 		setTimeout(() => setAnimatingFavIcon(false), 300);
@@ -166,11 +162,7 @@ const Recipe = () => {
 									user?.uid
 										? currentRecipe.recipeId &&
 										  currentRecipe.recipeName &&
-										  handleChangeFavorite(
-												user.uid,
-												currentRecipe.recipeId,
-												currentRecipe.recipeName
-										  )
+										  handleChangeFavorite(user.uid, currentRecipe.recipeId)
 										: alert(
 												"お気に入り機能を使用するにはログインしてください。"
 										  )

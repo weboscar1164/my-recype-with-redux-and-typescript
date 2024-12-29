@@ -1,12 +1,4 @@
-import {
-	addDoc,
-	collection,
-	doc,
-	getDoc,
-	increment,
-	serverTimestamp,
-	updateDoc,
-} from "firebase/firestore";
+import { doc, increment, runTransaction, Timestamp } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
 import { addFavorite } from "../../features/favoritesSlice";
@@ -18,46 +10,51 @@ export const useAddFavorite = () => {
 
 	const addFavoriteAsync = async (
 		userId: string,
-		recipeId: string,
-		recipeName: string
-	) => {
+		recipeId: string
+	): Promise<number | null> => {
 		try {
-			// userのサブクエリfavoritesに追加
-			const favoritesRef = collection(db, "users", userId, "favorites");
-			const timeStamp = serverTimestamp();
-			const docRef = await addDoc(favoritesRef, {
+			//firebaseトランザクションで処理
+			const favoriteRef = doc(db, "favorites", `${recipeId}_${userId}`);
+			const recipeMetaRef = doc(
+				db,
+				"recipes",
 				recipeId,
-				recipeName,
-				createdAt: timeStamp,
-			});
-
-			// firebase内のtimestampをISOに変換
-			const docSnapshot = await getDoc(docRef);
-			const createdAt = docSnapshot.data()?.createdAt.toDate().toISOString();
-
-			// 追加したfavoriteをreduxに渡す
-			dispatch(
-				addFavorite({
-					recipeId,
-					recipeName,
-					createdAt,
-				})
+				"metaData",
+				"favoriteCount"
 			);
 
-			// recipeのfavoritCountをインクリメント
-			const recipeRef = doc(db, "recipes", recipeId);
-			await updateDoc(recipeRef, {
-				favoriteCount: increment(1),
+			const newFavoriteCount = await runTransaction(db, async (transaction) => {
+				// レシピ情報を取得
+				const recipeSnapshot = await transaction.get(recipeMetaRef);
+				if (!recipeSnapshot.exists()) {
+					throw new Error("レシピのメタデータが存在しません。");
+				}
+
+				// 現在のカウントを取得
+				const currentCount = recipeSnapshot.data().count || 0;
+
+				// お気に入りドキュメントの書き込み
+				transaction.set(favoriteRef, {
+					recipeId,
+					userId,
+					createdAt: Timestamp.now(),
+				});
+
+				// レシピのお気に入りカウントをインクリメント
+				transaction.update(recipeMetaRef, { count: increment(1) });
+
+				return currentCount + 1;
 			});
 
-			const recipeDocSnapshot: any = await getDoc(recipeRef);
-			const favoriteCount = recipeDocSnapshot.data().favoriteCount;
+			// // 追加したfavoriteをreduxに渡す
+			dispatch(addFavorite({ recipeId }));
+			dispatch(setFavoriteCount(newFavoriteCount));
 
-			dispatch(setFavoriteCount(favoriteCount));
+			return newFavoriteCount;
 		} catch (e: any) {
 			dispatch(setError("お気に入り操作時にエラーが発生しました。"));
-			console.log(e);
-		} finally {
+			console.error("Transaction failed: ", e);
+			return null;
 		}
 	};
 

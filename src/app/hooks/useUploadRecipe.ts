@@ -1,8 +1,8 @@
 import {
 	CollectionReference,
-	addDoc,
 	collection,
 	doc,
+	runTransaction,
 	serverTimestamp,
 	updateDoc,
 } from "firebase/firestore";
@@ -88,7 +88,6 @@ export const useUploadRecipe = () => {
 
 		if (!recipeInfo.recipeId) {
 			Object.assign(recipeData, {
-				favoriteCount: 0,
 				createdAt: serverTimestamp(),
 				user: user.uid,
 				userDisplayName: user.displayName,
@@ -100,12 +99,25 @@ export const useUploadRecipe = () => {
 				const docRef = doc(db, "recipes", recipeInfo.recipeId);
 				await updateDoc(docRef, recipeData);
 			} else {
-				const collectionRef = collection(
-					db,
-					"recipes"
-				) as CollectionReference<InitialRecipeState>;
-				const docRef = await addDoc(collectionRef, recipeData);
-				return docRef;
+				await runTransaction(db, async (transaction) => {
+					const collectionRef = collection(
+						db,
+						"recipes"
+					) as CollectionReference<InitialRecipeState>;
+					const docRef = doc(collectionRef);
+					transaction.set(docRef, recipeData);
+
+					// metaData サブコレクションに初期値を追加
+					const metaDataDocRef = doc(
+						db,
+						"recipes",
+						docRef.id,
+						"metaData",
+						"favoriteCount"
+					);
+					transaction.set(metaDataDocRef, { count: 0 });
+				});
+				// return docRef;
 			}
 		} catch (error) {
 			console.error(error);

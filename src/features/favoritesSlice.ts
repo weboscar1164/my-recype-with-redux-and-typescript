@@ -10,12 +10,10 @@ export const recipeSlice = createSlice({
 		setFavorites: (state, action) => action.payload,
 		addFavorite: (state, action) => {
 			// console.log(action.payload);
-			const { recipeId, recipeName, createdAt } = action.payload;
+			const { recipeId } = action.payload;
 			// console.log({ recipeId, recipeName, createdAt });
 			state.push({
 				recipeId,
-				recipeName,
-				createdAt,
 			});
 		},
 		removeFavorite: (state, action) => {

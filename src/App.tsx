@@ -63,6 +63,7 @@ function App() {
 					})
 				);
 
+				//お気に入りを取得
 				await fetchFavorites(loginUser.uid);
 			} else {
 				dispatch(logout());

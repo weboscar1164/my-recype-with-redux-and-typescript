@@ -40,8 +40,7 @@ export interface MaterialState {
 // お気に入り
 export interface FavoriteState {
 	recipeId: string;
-	recipeName: string;
-	createdAt: string;
+	createdAt?: string;
 }
 
 // 一覧として取得するアイテム
@@ -58,7 +57,7 @@ export interface RecipeListItem {
 export interface ConfirmModal {
 	message: string;
 	isOpen: boolean;
-	action: "admins" | "ignores" | "logout" | "deleteRecipe" | "";
+	action: "admins" | "ignores" | "login" | "logout" | "deleteRecipe" | "";
 	confirmed: boolean | null;
 }
 
