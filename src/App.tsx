@@ -45,12 +45,11 @@ function App() {
 				const ignoreDoc = await getDoc(doc(db, "ignores", loginUser.uid));
 				if (ignoreDoc.exists()) {
 					setIsIgnore(true);
-					dispatch(setError("ログイン権限がありません。"));
+					dispatch(setError("閲覧権限がありません。"));
 				} else {
 					setIsIgnore(false);
 					dispatch(setError(null));
 				}
-
 				dispatch(
 					login({
 						user: {

@@ -9,15 +9,12 @@ import { clearFavorites } from "../../features/favoritesSlice";
 import { Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
-import { signInWithPopup } from "firebase/auth";
-import { auth, db, provider } from "../../firebase";
+import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { useRegistUser } from "../../app/hooks/useRegistUser";
-import { User } from "../../Types";
-import { doc, getDoc } from "firebase/firestore";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { useEffect } from "react";
 import { openPopup } from "../../features/popupSlice";
+import { setError } from "../../features/pageStatusSlice";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
@@ -49,6 +46,7 @@ const Header = () => {
 					dispatch(
 						openPopup({ message: "ログアウトしました。", action: "success" })
 					);
+					dispatch(setError(null));
 					navigate("/");
 				}
 			}

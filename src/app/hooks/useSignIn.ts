@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useRegistUser } from "./useRegistUser";
 import { openPopup } from "../../features/popupSlice";
 import { useAppDispatch } from "./hooks";
+import { setError } from "../../features/pageStatusSlice";
 
 export const useSignIn = () => {
 	const dispatch = useAppDispatch();
@@ -38,6 +39,7 @@ export const useSignIn = () => {
 				dispatch(
 					openPopup({ message: "ログインしました。", action: "success" })
 				);
+				dispatch(setError(null));
 			} else {
 				throw new Error("No user infomation found after sign-in");
 			}
