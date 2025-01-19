@@ -4,11 +4,11 @@ export const searchWordSlice = createSlice({
 	name: "searchWord",
 	initialState: "",
 	reducers: {
-		setSearchQuery: (state, action) => {
+		setSearchQuery: (_state, action) => {
 			return action.payload;
 		},
 
-		clearSearchQuery: (state) => {
+		clearSearchQuery: (_state) => {
 			return "";
 		},
 	},

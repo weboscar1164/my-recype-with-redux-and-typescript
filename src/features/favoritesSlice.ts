@@ -7,7 +7,7 @@ export const recipeSlice = createSlice({
 	name: "favorites",
 	initialState,
 	reducers: {
-		setFavorites: (state, action) => action.payload,
+		setFavorites: (_state, action) => action.payload,
 		addFavorite: (state, action) => {
 			// console.log(action.payload);
 			const { recipeId } = action.payload;
