@@ -28,6 +28,9 @@ const EditRecipe = () => {
 		quantity: string;
 		group: number;
 	}
+	interface JsonData {
+		[key: string]: any;
+	}
 
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
@@ -39,12 +42,14 @@ const EditRecipe = () => {
 		comment: "",
 		serves: 1,
 	});
+	const [jsonData, setJsonData] = useState<JsonData | null>(null);
 	const [materials, setMaterials] = useState<Material[]>([
 		{ name: "", quantity: "", group: 0 },
 	]);
 	const [procedures, setProcedures] = useState<string[]>([""]);
 	const [errors, setErrors] = useState<any>({});
 	const [imgErrors, setImgErrors] = useState<any>({});
+	const [fileErrors, setFileErrors] = useState<any>({});
 	const [validateOnSubmit, setVaridateOnSubmit] = useState<boolean>(false);
 	const [preview, setPreview] = useState<string>("");
 	const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
@@ -116,6 +121,21 @@ const EditRecipe = () => {
 		}
 	}, [procedures.length]);
 
+	// JSONデータインポート時、編集画面に反映
+	useEffect(() => {
+		if (!jsonData) return;
+
+		setRecipe({
+			isPublic: recipe.isPublic,
+			recipeName: jsonData.recipeName || "",
+			recipeImageUrl: jsonData.recipeImageUrl || "",
+			comment: jsonData.comment || "",
+			serves: jsonData.serves || 1,
+		});
+		setMaterials(jsonData.materials || []);
+		setProcedures(jsonData.procedures || []);
+	}, [jsonData]);
+
 	//change
 	const handleChangeRecipe = (
 		value: string | number | File | null,
@@ -128,6 +148,48 @@ const EditRecipe = () => {
 			const newErrors = { ...errors };
 			validateRecipe(newRecipe, newErrors);
 			setErrors(newErrors);
+		}
+	};
+
+	//JSONファイルをインポートする
+	const handleJsonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		console.log("file:", file);
+		const newFileErrors: any = {};
+
+		if (!file) {
+			newFileErrors.notFile = "ファイルが選択されていません";
+			setFileErrors(newFileErrors);
+			return;
+		}
+
+		if (file.type !== "application/json") {
+			newFileErrors.notJson = "JSONファイルを選択してください";
+			setFileErrors(newFileErrors);
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			try {
+				const result = e.target?.result;
+				console.log("result: ", result);
+				if (typeof result === "string") {
+					const parsedJson = JSON.parse(result);
+					console.log("parsedJson: ", parsedJson);
+					setJsonData(parsedJson);
+					setFileErrors({});
+				}
+			} catch (error) {
+				console.error("JSONファイルのパースに失敗しました: ", error);
+				newFileErrors.parseError = "JSONの解析に失敗しました";
+				setFileErrors(newFileErrors);
+			}
+		};
+		reader.readAsText(file);
+
+		if (jsonData) {
+			// setRecipe(jsonData)
 		}
 	};
 
@@ -372,6 +434,32 @@ const EditRecipe = () => {
 				<form className="editRecipeForm" onSubmit={handleSubmit}>
 					<h2>{!recipe.recipeId ? "レシピ作成" : "レシピ編集"}</h2>
 					<ul className="editRecipeFormHeader">
+						{!recipe.recipeId && (
+							<>
+								<li className="editRecipeInputFileWrapper">
+									<label
+										className="button editRecipeInputFileButton"
+										htmlFor="recipeJsonData"
+									>
+										ファイル取込
+									</label>
+									<input
+										className="editRecipeInputFile"
+										type="file"
+										accept=".json"
+										id="recipeJsonData"
+										name="recipeJsonData"
+										onChange={(e) => handleJsonChange(e)}
+									/>
+								</li>
+								{fileErrors.notFile && (
+									<span className="validationError">{fileErrors.notFile}</span>
+								)}
+								{fileErrors.notJson && (
+									<span className="validationError">{fileErrors.notJson}</span>
+								)}
+							</>
+						)}
 						<li>
 							<label className="editRecipeFormLabel" htmlFor="recipeName">
 								レシピ名
