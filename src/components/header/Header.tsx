@@ -58,8 +58,17 @@ const Header = () => {
 	return (
 		<div className="header">
 			<div className="headerContainer">
-				<h1>
-					My <br className="brSmActive" /> Recipe
+				<h1 className="headerLogo">
+					<img
+						className="headerLogoPc"
+						src="my_recipe_logo.png"
+						alt="my recipe"
+					/>
+					<img
+						className="headerLogoSp"
+						src="my_recipe_logo_header.png"
+						alt="my recipe"
+					/>
 				</h1>
 				<Searchbar />
 				{user ? (

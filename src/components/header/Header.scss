@@ -23,8 +23,24 @@
 		}
 	}
 
-	h1 {
-		font-size: 30px;
+	&Logo {
+		display: flex;
+		align-items: center;
+		font-size: 10px;
+		&Pc {
+			width: 150px;
+			@include respond-to(sm) {
+				display: none;
+			}
+		}
+
+		&Sp {
+			display: none;
+			width: 35px;
+			@include respond-to(sm) {
+				display: inline;
+			}
+		}
 	}
 
 	.user {
@@ -73,15 +89,6 @@
 				font-size: 9px;
 				color: #fff;
 			}
-		}
-	}
-}
-
-@include respond-to(sm) {
-	.header {
-		h1 {
-			font-size: 18px;
-			line-height: 1.1;
 		}
 	}
 }
