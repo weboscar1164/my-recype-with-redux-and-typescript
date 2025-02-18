@@ -54,13 +54,23 @@ const Confirm = () => {
 			? "レシピを作成しました。"
 			: "レシピを更新しました。";
 
-		uploadRecipeToFirestore();
-		if (isAdminMode) {
-			navigate("/admin");
-		} else {
-			navigate("/");
+		try {
+			await uploadRecipeToFirestore();
+			if (isAdminMode) {
+				navigate("/admin");
+			} else {
+				navigate("/");
+			}
+			dispatch(openPopup({ message: popupMessage, action: "success" }));
+		} catch (error) {
+			dispatch(
+				openPopup({
+					message: "レシピのアップデートに失敗しました。",
+					action: "notice",
+				})
+			);
+			console.error("レシピのアップデートに失敗しました: ", error);
 		}
-		dispatch(openPopup({ message: popupMessage, action: "success" }));
 	};
 
 	return (
