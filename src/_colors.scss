@@ -1,0 +1,35 @@
+// colors
+// Primary Colors
+$primary-color: #a55500; // メインのブラウン
+$primary-light-color: #d1b79a; // メインのライトブラウン（背景やボーダーに使用）
+$primary-dark-color: #6b3a00; // メインのダークブラウン（ヘッダーやサイドバーの背景色）
+
+// Accent Colors
+$accent-color: #ff7900; // オレンジのアクセント（ボタンや強調テキストに使用）
+
+// Text Colors
+$text-primary-color: #3b2b23; // メインのテキストカラー（ダークブラウン）
+$text-secondary-color: #755f4e; // サブのテキストカラー（薄いブラウン）
+$text-light-color: #ffffff; // 明るいテキストカラー（白）
+
+// Background Colors
+$background-color: #f4e8de; // ページ全体の背景色（オフホワイト）
+$card-background-color: #e6d5c4; // カード背景色（ベージュ）
+
+// Border Colors
+$border-color: #ccb59b; // ボーダーや区切り線の色（薄いブラウン）
+
+// Status Colors
+$success-color: #4caf50; // 成功時のグリーン
+$error-color: #f44336; // エラー時のレッド
+$warning-color: #ff9800; // 警告時のオレンジ
+$info-color: #2196f3; // 情報メッセージのブルー
+
+// Icon Colors
+$icon-color: $text-primary-color; // アイコンのデフォルトカラー（メインのテキストカラーと同じ）
+$icon-disabled-color: #999999; // 無効化されたアイコンの色（グレー）
+
+// Misc Colors
+$button-hover-color: darken($primary-color, 10%); // ボタンのホバー時の色
+$input-background-color: #fbf7f3; // インプットフィールドの背景色
+$input-border-color: #c3b0a1; // インプットフィールドのボーダー色
