@@ -155,17 +155,15 @@ const EditRecipe = () => {
 	const handleJsonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		console.log("file:", file);
-		const newFileErrors: any = {};
+		setFileErrors({});
 
 		if (!file) {
-			newFileErrors.notFile = "ファイルが選択されていません";
-			setFileErrors(newFileErrors);
+			setFileErrors({ jsonError: ["ファイルが選択されていません"] });
 			return;
 		}
 
 		if (file.type !== "application/json") {
-			newFileErrors.notJson = "JSONファイルを選択してください";
-			setFileErrors(newFileErrors);
+			setFileErrors({ jsonError: ["JSONファイルを選択してください"] });
 			return;
 		}
 
@@ -177,13 +175,21 @@ const EditRecipe = () => {
 				if (typeof result === "string") {
 					const parsedJson = JSON.parse(result);
 					console.log("parsedJson: ", parsedJson);
+
+					const validationErrors = validateJsonData(parsedJson);
+
+					if (Object.keys(validationErrors).length > 0) {
+						console.error("バリデーションエラー: ", validationErrors);
+						setFileErrors({ jsonError: validationErrors });
+						return;
+					}
 					setJsonData(parsedJson);
+					console.log("setJson");
 					setFileErrors({});
 				}
 			} catch (error) {
 				console.error("JSONファイルのパースに失敗しました: ", error);
-				newFileErrors.parseError = "JSONの解析に失敗しました";
-				setFileErrors(newFileErrors);
+				setFileErrors({ jsonError: ["JSONの解析に失敗しました"] });
 			}
 		};
 		reader.readAsText(file);
@@ -191,6 +197,40 @@ const EditRecipe = () => {
 		if (jsonData) {
 			// setRecipe(jsonData)
 		}
+	};
+
+	// JSONデータのバリデーション
+	const validateJsonData = (json: any) => {
+		const errors: string[] = [];
+		if (!json.recipeName || typeof json.recipeName !== "string") {
+			errors.push("レシピ名が無効です");
+		}
+
+		if (!json.serves || typeof json.serves !== "number" || json.serves < 1) {
+			errors.push("提供人数(serves)は１以上の数値である必要があります");
+		}
+
+		if (!Array.isArray(json.materials)) {
+			errors.push("材料(materials)は配列である必要があります");
+		}
+
+		if (!Array.isArray(json.procedures)) {
+			errors.push("手順(procedures)は配列である必要があります");
+		}
+
+		// materials の各要素チェック
+		if (Array.isArray(json.materials)) {
+			json.materials.forEach((item: any, index: number) => {
+				if (
+					typeof item.group !== "number" ||
+					typeof item.name !== "string" ||
+					typeof item.quantity !== "string"
+				) {
+					errors.push(`材料${index + 1}が無効です`);
+				}
+			});
+		}
+		return errors;
 	};
 
 	// ファイルのinput要素でファイルが選択されたときの処理
@@ -451,13 +491,12 @@ const EditRecipe = () => {
 										name="recipeJsonData"
 										onChange={(e) => handleJsonChange(e)}
 									/>
+									{fileErrors.jsonError && (
+										<span className="validationError">
+											{fileErrors.jsonError}
+										</span>
+									)}
 								</li>
-								{fileErrors.notFile && (
-									<span className="validationError">{fileErrors.notFile}</span>
-								)}
-								{fileErrors.notJson && (
-									<span className="validationError">{fileErrors.notJson}</span>
-								)}
 							</>
 						)}
 						<li>
