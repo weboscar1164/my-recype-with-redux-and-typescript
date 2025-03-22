@@ -233,8 +233,8 @@ const EditRecipe = () => {
 		return errors;
 	};
 
-	// ファイルのinput要素でファイルが選択されたときの処理
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	// imgファイルのinput処理
+	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		setRecipe((prevRecipe) => ({ ...prevRecipe, recipeImage: "" }));
 		setPreview("");
@@ -253,10 +253,13 @@ const EditRecipe = () => {
 
 			// ファイルサイズを2MB以下に制限
 			const maxSyzeInBytes = 2 * 1024 * 1024; //2MB
+			let processedFile = file;
+
 			if (file.size > maxSyzeInBytes) {
-				newImgErrors.sizeError = "ファイルサイズは2MB以下にしてください。";
+				newImgErrors.sizeError =
+					"画像サイズが大きいため、圧縮してアップロードします。";
 				setImgErrors(newImgErrors);
-				return;
+				processedFile = await compressImage(file, 1024, 1024, 0.7);
 			} else {
 				delete newImgErrors.sizeError;
 				setImgErrors(newImgErrors);
@@ -270,8 +273,72 @@ const EditRecipe = () => {
 					handleChangeRecipe(filePath, "recipeImageUrl");
 				}
 			};
-			reader.readAsDataURL(file); // ファイルの内容をBase64形式の文字列として読み込む
+			reader.readAsDataURL(processedFile); // ファイルの内容をBase64形式の文字列として読み込む
 		}
+	};
+
+	/**
+	 * 画像を圧縮する関数
+	 * @param file 圧縮する画像ファイル
+	 * @param maxWidth 最大幅
+	 * @param maxHeight 最大高さ
+	 * @param quality 圧縮率 (0.1〜1.0)
+	 * @returns 圧縮後のFileオブジェクト
+	 */
+	const compressImage = (
+		file: File,
+		maxWidth: number,
+		maxHeight: number,
+		quality: number
+	): Promise<File> => {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			const reader = new FileReader();
+
+			reader.onload = (e) => {
+				if (e.target?.result) {
+					img.src = e.target.result as string;
+				}
+			};
+
+			img.onload = () => {
+				const canvas = document.createElement("canvas");
+				const ctx = canvas.getContext("2d");
+
+				let { width, height } = img;
+				if (width > maxWidth || height > maxHeight) {
+					const ratio = Math.min(maxWidth / width, maxHeight / height);
+					width *= ratio;
+					height *= ratio;
+				}
+
+				canvas.width = width;
+				canvas.height = height;
+
+				if (ctx) {
+					ctx.drawImage(img, 0, 0, width, height);
+					canvas.toBlob(
+						(blob) => {
+							if (blob) {
+								const compressedFile = new File([blob], file.name, {
+									type: "image/jpg",
+								});
+								resolve(compressedFile);
+							} else {
+								reject(new Error("画像の圧縮に失敗しました。"));
+							}
+						},
+						"image/jpeg",
+						quality
+					);
+				} else {
+					reject(new Error("canvasコンテキストの取得に失敗しました。"));
+				}
+			};
+
+			img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
+			reader.readAsDataURL(file);
+		});
 	};
 
 	const handleChangeMaterial = (
