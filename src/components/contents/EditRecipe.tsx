@@ -286,24 +286,33 @@ const EditRecipe = () => {
 	 * @returns 圧縮後のFileオブジェクト
 	 */
 	const compressImage = (
-		file: File,
+		file: globalThis.File,
 		maxWidth: number,
 		maxHeight: number,
 		quality: number
-	): Promise<File> => {
+	): Promise<globalThis.File> => {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 			const reader = new FileReader();
 
+			// 画像の読み込みが失敗している場合
+			reader.onerror = () =>
+				reject(new Error("ファイルの読み込みに失敗しました。"));
+
 			reader.onload = (e) => {
-				if (e.target?.result) {
-					img.src = e.target.result as string;
+				if (!e.target?.result) {
+					return reject(new Error("ファイルのデータが無効です。"));
 				}
+				img.src = e.target.result as string;
 			};
 
 			img.onload = () => {
 				const canvas = document.createElement("canvas");
 				const ctx = canvas.getContext("2d");
+
+				if (!ctx) {
+					return reject(new Error("canvasコンテキストの取得に失敗しました。"));
+				}
 
 				let { width, height } = img;
 				if (width > maxWidth || height > maxHeight) {
@@ -315,25 +324,21 @@ const EditRecipe = () => {
 				canvas.width = width;
 				canvas.height = height;
 
-				if (ctx) {
-					ctx.drawImage(img, 0, 0, width, height);
-					canvas.toBlob(
-						(blob) => {
-							if (blob) {
-								const compressedFile = new File([blob], file.name, {
-									type: "image/jpg",
-								});
-								resolve(compressedFile);
-							} else {
-								reject(new Error("画像の圧縮に失敗しました。"));
-							}
-						},
-						"image/jpeg",
-						quality
-					);
-				} else {
-					reject(new Error("canvasコンテキストの取得に失敗しました。"));
-				}
+				ctx.drawImage(img, 0, 0, width, height);
+				canvas.toBlob(
+					(blob) => {
+						if (blob) {
+							const compressedFile = new File([blob], file.name, {
+								type: "image/jpeg",
+							});
+							resolve(compressedFile);
+						} else {
+							reject(new Error("画像の圧縮に失敗しました。"));
+						}
+					},
+					"image/jpeg",
+					quality
+				);
 			};
 
 			img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
