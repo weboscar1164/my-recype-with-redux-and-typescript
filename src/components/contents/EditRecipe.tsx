@@ -54,6 +54,8 @@ const EditRecipe = () => {
 	const [preview, setPreview] = useState<string>("");
 	const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
 
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
 	//追加したフォームを参照
 	const recipeNameRef = useRef<HTMLInputElement>(null);
 	const materialRef = useRef<HTMLDivElement>(null);
@@ -154,6 +156,12 @@ const EditRecipe = () => {
 	//JSONファイルをインポートする
 	const handleJsonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
+
+		// 同じファイルを再選択したときにonchangeイベントを発火させるため、いちどinputをリセットする
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+
 		console.log("file:", file);
 		setFileErrors({});
 
@@ -177,6 +185,7 @@ const EditRecipe = () => {
 					console.log("parsedJson: ", parsedJson);
 
 					const validationErrors = validateJsonData(parsedJson);
+					console.log(validationErrors);
 
 					if (Object.keys(validationErrors).length > 0) {
 						console.error("バリデーションエラー: ", validationErrors);
@@ -558,6 +567,7 @@ const EditRecipe = () => {
 									<input
 										className="editRecipeInputFile"
 										type="file"
+										ref={fileInputRef}
 										accept=".json"
 										id="recipeJsonData"
 										name="recipeJsonData"
