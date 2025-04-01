@@ -23,6 +23,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { setError } from "./features/pageStatusSlice";
 import ConfirmModal from "./components/ConfirmModal";
 import Popup from "./components/Popup";
+import { useWakeLock } from "./app/hooks/useWakeLock";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -33,6 +34,8 @@ function App() {
 
 	const isLoading = useAppSelector((state) => state.pageStatus.isLoading);
 	const error = useAppSelector((state) => state.pageStatus.error);
+
+	useWakeLock();
 
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async (loginUser) => {
