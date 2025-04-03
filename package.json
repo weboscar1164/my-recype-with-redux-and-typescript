@@ -23,6 +23,7 @@
 		"firebase": "^10.11.1",
 		"firebase-admin": "^12.2.0",
 		"firebase-functions": "^5.0.1",
+		"image-size": "^1.2.1",
 		"image-validator": "^1.2.1",
 		"patch-package": "^8.0.0",
 		"path-to-regexp": "^8.2.0",
