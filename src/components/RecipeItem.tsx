@@ -68,6 +68,7 @@ const RecipeItem = ({
 			const newRecipe: InitialRecipeState = {
 				isPublic: currentRecipe.isPublic,
 				recipeName: currentRecipe.recipeName,
+				tags: currentRecipe.tags,
 				recipeImageUrl: currentRecipe.recipeImageUrl,
 				comment: currentRecipe.comment,
 				serves: currentRecipe.serves,

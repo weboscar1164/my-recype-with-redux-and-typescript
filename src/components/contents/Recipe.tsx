@@ -95,7 +95,7 @@ const Recipe = () => {
 		}
 	};
 
-	// レシピ削除
+	// レシピ削除モーダル表示
 	const handleDeleteRecipe = async () => {
 		let confirmMessage;
 		if (currentRecipe.user !== user?.uid) {
@@ -111,6 +111,7 @@ const Recipe = () => {
 		);
 	};
 
+	// レシピ削除
 	useEffect(() => {
 		const deleteRecipe = async () => {
 			if (
@@ -211,13 +212,16 @@ const Recipe = () => {
 						</>
 					)}
 				</div>
-				{/* <div className="recipeTag">
+				<div className="recipeTag">
 					<ul>
-						<li>ハンバーグ</li>
-						<li>オーブン</li>
-						<li>ひき肉</li>
+						<ul>
+							{currentRecipe.tags &&
+								currentRecipe.tags.map((tag, index) => (
+									<li key={index}>{tag}</li>
+								))}
+						</ul>
 					</ul>
-				</div> */}
+				</div>
 				<p className="recipeImg">
 					<img src={getRecipeImage(currentRecipe.recipeImageUrl)} alt="" />
 				</p>

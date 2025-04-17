@@ -17,6 +17,7 @@ export interface User {
 export interface InitialRecipeState {
 	isPublic: number;
 	recipeName: string | null;
+	tags?: string[];
 	recipeImageUrl: string | null;
 	comment: string | null;
 	serves: number;
@@ -46,6 +47,7 @@ export interface FavoriteState {
 // 一覧として取得するアイテム
 export interface RecipeListItem {
 	recipeName: string;
+	tags: string[];
 	recipeImageUrl: string;
 	recipeId: string;
 	favoriteCount: number;

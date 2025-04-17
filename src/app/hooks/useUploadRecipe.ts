@@ -77,6 +77,7 @@ export const useUploadRecipe = () => {
 		const recipeData = {
 			isPublic: recipeInfo.isPublic,
 			recipeName: recipeInfo.recipeName,
+			tags: recipeInfo.tags,
 			comment: recipeInfo.comment,
 			updateUser: user.uid,
 			recipeImageUrl: imageUrl,
@@ -95,6 +96,7 @@ export const useUploadRecipe = () => {
 		}
 
 		try {
+			console.log(recipeData);
 			if (recipeInfo.recipeId) {
 				const docRef = doc(db, "recipes", recipeInfo.recipeId);
 				await updateDoc(docRef, recipeData);
@@ -117,7 +119,6 @@ export const useUploadRecipe = () => {
 					);
 					transaction.set(metaDataDocRef, { count: 0 });
 				});
-				// return docRef;
 			}
 		} catch (error) {
 			console.error(error);

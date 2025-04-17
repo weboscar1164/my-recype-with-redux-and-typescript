@@ -59,7 +59,10 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	const sortedRecipes = recipeList.filter((recipe) => {
 		// 検索語句との一致
 		const matchesSerch = searchWord
-			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase())
+			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase()) ||
+			  recipe.tags?.some((tag) =>
+					tag.toLowerCase().includes(searchWord.toLowerCase())
+			  )
 			: true;
 		//　お気に入りモード時におけるお気に入りリストとの一致
 		const matchesFavorites =

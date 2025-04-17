@@ -43,6 +43,7 @@ export const useGetRecipeList = () => {
 
 					return {
 						recipeName: docSnapshot.data().recipeName,
+						tags: docSnapshot.data().tags,
 						recipeImageUrl: docSnapshot.data().recipeImageUrl,
 						recipeId: docSnapshot.id,
 						favoriteCount,

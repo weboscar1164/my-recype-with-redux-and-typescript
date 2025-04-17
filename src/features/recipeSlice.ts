@@ -27,6 +27,7 @@ export const recipeSlice = createSlice({
 			const sortedMaterials = sortMaterialsByGroup(action.payload.materials);
 			state.isPublic = action.payload.isPublic;
 			state.recipeName = action.payload.recipeName;
+			state.tags = action.payload.tags;
 			state.recipeImageUrl = action.payload.recipeImageUrl;
 			state.comment = action.payload.comment;
 			state.serves = action.payload.serves;

@@ -78,13 +78,12 @@ const Confirm = () => {
 			<div className="container recipeContainer">
 				<h2>確認画面</h2>
 				<h3>{recipeInfo.recipeName}</h3>
-				{/*<div className="recipeTag">
+				<div className="recipeTag">
 					<ul>
-						{tags.map((tag) => (
-							<li>{tag}</li>
-						))}
+						{recipeInfo.tags &&
+							recipeInfo.tags.map((tag, index) => <li key={index}>{tag}</li>)}
 					</ul>
-					</div>*/}
+				</div>
 				<div>{getIsPublic(recipeInfo.isPublic)}</div>
 				<p className="recipeImg">
 					<img src={getRecipeImage()} alt="" />

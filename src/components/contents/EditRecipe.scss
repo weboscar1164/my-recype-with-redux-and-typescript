@@ -90,6 +90,37 @@
 			}
 		}
 
+		&Tags {
+			ul {
+				width: 220px;
+				padding: 0;
+			}
+			li {
+				.editRecipeFormItem {
+					width: 120px;
+					position: relative;
+
+					input {
+						width: 100%;
+						padding: 10px 30px 10px 10px;
+					}
+				}
+			}
+
+			&Icon {
+				position: absolute;
+				right: 6px;
+				top: 6px;
+				cursor: pointer;
+			}
+
+			&Add {
+				width: 120px;
+				display: flex;
+				justify-content: end;
+			}
+		}
+
 		&Serves {
 			span {
 				margin-left: 10px;
@@ -161,6 +192,10 @@
 			margin-top: 5px;
 			display: flex;
 			justify-content: end;
+
+			&Icon {
+				cursor: pointer;
+			}
 		}
 
 		&Procedure {

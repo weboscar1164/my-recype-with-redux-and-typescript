@@ -16,6 +16,7 @@ const EditRecipe = () => {
 
 	interface Recipe {
 		recipeId?: string;
+		tags: string[];
 		isPublic: number;
 		recipeName: string;
 		recipeImageUrl: string;
@@ -36,6 +37,7 @@ const EditRecipe = () => {
 
 	const [recipe, setRecipe] = useState<Recipe>({
 		recipeId: "",
+		tags: [],
 		isPublic: 1,
 		recipeName: "",
 		recipeImageUrl: "",
@@ -43,6 +45,7 @@ const EditRecipe = () => {
 		serves: 1,
 	});
 	const [jsonData, setJsonData] = useState<JsonData | null>(null);
+	const [tags, setTags] = useState<string[]>([""]);
 	const [materials, setMaterials] = useState<Material[]>([
 		{ name: "", quantity: "", group: 0 },
 	]);
@@ -58,6 +61,7 @@ const EditRecipe = () => {
 
 	//追加したフォームを参照
 	const recipeNameRef = useRef<HTMLInputElement>(null);
+	const tagRef = useRef<HTMLInputElement>(null);
 	const materialRef = useRef<HTMLDivElement>(null);
 	const procedureRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +70,7 @@ const EditRecipe = () => {
 		if (recipeInfo) {
 			setRecipe({
 				recipeId: recipeInfo.recipeId || "",
+				tags: recipeInfo.tags || [],
 				isPublic: recipeInfo.isPublic || 1,
 				recipeName: recipeInfo.recipeName || "",
 				recipeImageUrl: recipeInfo.recipeImageUrl || "",
@@ -73,6 +78,10 @@ const EditRecipe = () => {
 				serves: recipeInfo.serves || 1,
 			});
 			setPreview(recipeInfo.recipeImageUrl || "");
+		}
+
+		if (recipeInfo.tags && recipeInfo.tags.length !== 0) {
+			setTags(recipeInfo.tags);
 		}
 
 		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
@@ -96,9 +105,24 @@ const EditRecipe = () => {
 		}
 	}, [recipeInfo]);
 
-	// material,procedure追加時にフォーカスを調整する
+	// tag,material,procedure追加時にフォーカスを調整する
 	useEffect(() => {
 		if (
+			(!isInitialRender && tags.length > 1) ||
+			(!isInitialRender && procedures.length > 1) ||
+			(!isInitialRender && materials.length > 1)
+		) {
+			focusTagFormInput(tags.length);
+		} else {
+			if (recipeNameRef.current) {
+				recipeNameRef.current.focus();
+			}
+		}
+	}, [tags.length]);
+
+	useEffect(() => {
+		if (
+			(!isInitialRender && tags.length > 1) ||
 			(!isInitialRender && procedures.length > 1) ||
 			(!isInitialRender && materials.length > 1)
 		) {
@@ -112,6 +136,7 @@ const EditRecipe = () => {
 
 	useEffect(() => {
 		if (
+			(!isInitialRender && tags.length > 1) ||
 			(!isInitialRender && procedures.length > 1) ||
 			(!isInitialRender && materials.length > 1)
 		) {
@@ -130,6 +155,7 @@ const EditRecipe = () => {
 		setRecipe({
 			isPublic: recipe.isPublic,
 			recipeName: jsonData.recipeName || "",
+			tags: jsonData.tags || [],
 			recipeImageUrl: jsonData.recipeImageUrl || "",
 			comment: jsonData.comment || "",
 			serves: jsonData.serves || 1,
@@ -355,6 +381,17 @@ const EditRecipe = () => {
 		});
 	};
 
+	const handleChangeTag = (index: number, value: string) => {
+		const newTag = [...tags];
+		newTag[index] = value;
+		setTags(newTag);
+		if (validateOnSubmit) {
+			const newErrors = { ...errors };
+			validateTags(tags, newErrors);
+			setErrors(newErrors);
+		}
+	};
+
 	const handleChangeMaterial = (
 		value: string | number,
 		key: string,
@@ -402,11 +439,17 @@ const EditRecipe = () => {
 				handleAddMaterial();
 			} else if (procedureRef.current?.contains(e.target as Node)) {
 				handleAddProcedure();
+			} else if (tagRef.current?.contains(e.target as Node)) {
+				handleAddTag();
 			}
 		}
 	};
 
 	//フォーム追加
+	const handleAddTag = () => {
+		setTags([...tags, ""]);
+	};
+
 	const handleAddMaterial = () => {
 		setMaterials([...materials, { name: "", quantity: "", group: 0 }]);
 	};
@@ -416,6 +459,17 @@ const EditRecipe = () => {
 	};
 
 	//追加したフォームにフォーカスを当てる
+	const focusTagFormInput = (index: number) => {
+		if (tagRef.current) {
+			const input = tagRef.current.querySelector(
+				`li:nth-child(${index}) input`
+			);
+			if (input) {
+				(input as HTMLElement).focus();
+			}
+		}
+	};
+
 	const focusMaterialFormInput = (index: number) => {
 		if (materialRef.current) {
 			const input = materialRef.current.querySelector(
@@ -426,6 +480,7 @@ const EditRecipe = () => {
 			}
 		}
 	};
+
 	const focusProcedureFormInput = (index: number) => {
 		if (procedureRef.current) {
 			const input = procedureRef.current.querySelector(
@@ -438,6 +493,11 @@ const EditRecipe = () => {
 	};
 
 	//フォーム削除
+	const handleCloseTag = (index: number) => {
+		const newTags = [...tags.slice(0, index), ...tags.slice(index + 1)];
+		setTags(newTags);
+	};
+
 	const handleCloseMaterial = (index: number) => {
 		const newMaterials = [
 			...materials.slice(0, index),
@@ -479,6 +539,7 @@ const EditRecipe = () => {
 	const handleSetRecipeSlice = () => {
 		const newRecipe: InitialRecipeState = {
 			recipeId: recipe.recipeId,
+			tags: tags,
 			isPublic: recipe.isPublic,
 			recipeName: recipe.recipeName,
 			recipeImageUrl: recipe.recipeImageUrl,
@@ -512,6 +573,20 @@ const EditRecipe = () => {
 		}
 	};
 
+	const validateTags = async (tags: string[], newErrors: any) => {
+		const cleanedTags = tags.filter((tag) => tag.trim() !== "");
+		console.log(cleanedTags);
+		cleanedTags.forEach((tag, index) => {
+			if (tag.length > 5) {
+				newErrors[`tag${index}`] = "5文字以内で設定してください";
+			} else {
+				delete newErrors[`tag${index}`];
+			}
+		});
+		setTags(cleanedTags);
+		setErrors((prevErrors: any) => ({ ...prevErrors, ...errors }));
+	};
+
 	const validateMaterial = (materials: Material[], newErrors: any) => {
 		materials.forEach((material, index) => {
 			if (!material.name) {
@@ -541,10 +616,11 @@ const EditRecipe = () => {
 	const validateForm = () => {
 		const newErrors: any = {};
 		validateRecipe(recipe, newErrors);
+		validateTags(tags, newErrors);
 		validateMaterial(materials, newErrors);
 		validateProcedure(procedures, newErrors);
 
-		// console.log(newErrors);
+		console.log(newErrors);
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -555,6 +631,7 @@ const EditRecipe = () => {
 				<form className="editRecipeForm" onSubmit={handleSubmit}>
 					<h2>{!recipe.recipeId ? "レシピ作成" : "レシピ編集"}</h2>
 					<ul className="editRecipeFormHeader">
+						{/* inputFile */}
 						{!recipe.recipeId && (
 							<>
 								<li className="editRecipeInputFileWrapper">
@@ -581,6 +658,7 @@ const EditRecipe = () => {
 								</li>
 							</>
 						)}
+						{/* recipeName */}
 						<li>
 							<label className="editRecipeFormLabel" htmlFor="recipeName">
 								レシピ名
@@ -599,6 +677,7 @@ const EditRecipe = () => {
 								<span className="validationError">{errors.recipeName}</span>
 							)}
 						</li>
+						{/* public */}
 						<li>
 							<select
 								name="isPublic"
@@ -610,10 +689,59 @@ const EditRecipe = () => {
 								<option value="0">非公開</option>
 							</select>
 						</li>
+						{/* tags */}
 						<li>
-							<label className="editRecipeFormLabel" htmlFor="recipeImg">
-								完成画像
-							</label>
+							<h3>タグ</h3>
+							<div className="editRecipeFormTags" ref={tagRef}>
+								<ul>
+									{tags.map((tag, index) => (
+										<li key={index}>
+											<div className="editRecipeFormItem">
+												<input
+													id={`tag${index + 1}`}
+													name={`tag${index + 1}`}
+													value={tag}
+													onChange={(e) =>
+														handleChangeTag(index, e.target.value)
+													}
+													onKeyDown={(e) => handleKeyDown(e)}
+												/>
+												{tags.length !== 1 && (
+													<div
+														className="editRecipeFormTagsIcon"
+														onClick={() => handleCloseTag(index)}
+													>
+														<CloseIcon />
+													</div>
+												)}
+											</div>
+											{errors[`tag${index}`] && (
+												<span className="validationError">
+													{errors[`tag${index}`]}
+												</span>
+											)}
+										</li>
+									))}
+								</ul>
+								{tags.length < 5 && (
+									<div className="editRecipeFormAdd editRecipeFormTagsAdd">
+										<div
+											className="editRecipeFormAddIcon"
+											onClick={handleAddTag}
+											onKeyDown={(e) => handleKeyDown(e)}
+											tabIndex={0}
+										>
+											<Tooltip title="追加">
+												<AddIcon />
+											</Tooltip>
+										</div>
+									</div>
+								)}
+							</div>
+						</li>
+						{/* image */}
+						<li>
+							<h3>完成画像</h3>
 							<label
 								className="button editRecipeInputImageButton"
 								htmlFor="recipeImg"
@@ -628,6 +756,7 @@ const EditRecipe = () => {
 								onChange={(e) => handleImageChange(e)}
 							/>
 						</li>
+						{/* imageInput */}
 						{recipe.recipeImageUrl ? (
 							<div className="editRecipeFormImg">
 								<img src={preview} alt="Recipe Image" />
@@ -641,7 +770,7 @@ const EditRecipe = () => {
 						{imgErrors.sizeError && (
 							<span className="validationError">{imgErrors.sizeError}</span>
 						)}
-
+						{/* comment */}
 						<li>
 							<label className="editRecipeFormLabel" htmlFor="comment">
 								コメント
@@ -658,6 +787,7 @@ const EditRecipe = () => {
 							)}
 						</li>
 					</ul>
+					{/* material */}
 					<h3>材料</h3>
 					<div className="editRecipeFormServes">
 						<select
@@ -679,6 +809,7 @@ const EditRecipe = () => {
 						</select>
 						<span>人分</span>
 					</div>
+					{/* materialItem */}
 					<div className="editRecipeFormMaterial" ref={materialRef}>
 						<ul>
 							{materials.length === 0 ? (
@@ -776,6 +907,7 @@ const EditRecipe = () => {
 							</div>
 						</div>
 					</div>
+					{/* procedure */}
 					<h3>作り方</h3>
 					<div className="editRecipeFormProcedure" ref={procedureRef}>
 						<ul>
