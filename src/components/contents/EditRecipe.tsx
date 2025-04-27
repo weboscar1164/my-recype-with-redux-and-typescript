@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Tooltip } from "@mui/material";
 import "./EditRecipe.scss";
 
@@ -46,6 +46,7 @@ const EditRecipe = () => {
 	});
 	const [jsonData, setJsonData] = useState<JsonData | null>(null);
 	const [tags, setTags] = useState<string[]>([""]);
+	const [showSuggestions, setShowSuggestions] = useState<boolean[]>([]);
 	const [materials, setMaterials] = useState<Material[]>([
 		{ name: "", quantity: "", group: 0 },
 	]);
@@ -107,10 +108,11 @@ const EditRecipe = () => {
 
 	// tag,material,procedure追加時にフォーカスを調整する
 	useEffect(() => {
+		setShowSuggestions(tags.map(() => false));
 		if (
-			(!isInitialRender && tags.length > 1) ||
-			(!isInitialRender && procedures.length > 1) ||
-			(!isInitialRender && materials.length > 1)
+			(!isInitialRender && tags.length > 0) ||
+			(!isInitialRender && procedures.length > 0) ||
+			(!isInitialRender && materials.length > 0)
 		) {
 			focusTagFormInput(tags.length);
 		} else {
@@ -122,9 +124,9 @@ const EditRecipe = () => {
 
 	useEffect(() => {
 		if (
-			(!isInitialRender && tags.length > 1) ||
-			(!isInitialRender && procedures.length > 1) ||
-			(!isInitialRender && materials.length > 1)
+			(!isInitialRender && tags.length > 0) ||
+			(!isInitialRender && procedures.length > 0) ||
+			(!isInitialRender && materials.length > 0)
 		) {
 			focusMaterialFormInput(materials.length);
 		} else {
@@ -136,9 +138,9 @@ const EditRecipe = () => {
 
 	useEffect(() => {
 		if (
-			(!isInitialRender && tags.length > 1) ||
-			(!isInitialRender && procedures.length > 1) ||
-			(!isInitialRender && materials.length > 1)
+			(!isInitialRender && tags.length > 0) ||
+			(!isInitialRender && procedures.length > 0) ||
+			(!isInitialRender && materials.length > 0)
 		) {
 			focusProcedureFormInput(procedures.length);
 		} else {
@@ -439,7 +441,10 @@ const EditRecipe = () => {
 				handleAddMaterial();
 			} else if (procedureRef.current?.contains(e.target as Node)) {
 				handleAddProcedure();
-			} else if (tagRef.current?.contains(e.target as Node)) {
+			} else if (
+				tagRef.current?.contains(e.target as Node) &&
+				tags.length < 5
+			) {
 				handleAddTag();
 			}
 		}
@@ -461,11 +466,13 @@ const EditRecipe = () => {
 	//追加したフォームにフォーカスを当てる
 	const focusTagFormInput = (index: number) => {
 		if (tagRef.current) {
-			const input = tagRef.current.querySelector(
-				`li:nth-child(${index}) input`
-			);
-			if (input) {
-				(input as HTMLElement).focus();
+			const ul = tagRef.current.querySelector("ul");
+			if (ul) {
+				const li = ul.children[index - 1];
+				const input = li?.querySelector("input");
+				if (input) {
+					(input as HTMLElement).focus();
+				}
 			}
 		}
 	};
@@ -516,6 +523,23 @@ const EditRecipe = () => {
 		// console.log(newProcedure);
 		setProcedures(newProcedures);
 	};
+
+	const handleShowSuggestion = useCallback((index: number) => {
+		setShowSuggestions((prev) => {
+			const updated = [...prev];
+			updated[index] = true;
+			return updated;
+		});
+	}, []);
+
+	// tagのおすすめ削除
+	const handleCloseSuggestion = useCallback((index: number) => {
+		setShowSuggestions((prev) => {
+			const updated = [...prev];
+			updated[index] = false;
+			return updated;
+		});
+	}, []);
 
 	// 「確認画面に行く」ボタンを押してバリデーションを実行
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -693,10 +717,10 @@ const EditRecipe = () => {
 						<li>
 							<h3>タグ</h3>
 							<div className="editRecipeFormTags" ref={tagRef}>
-								<ul>
+								<ul className="editRecipeFormTagsUl">
 									{tags.map((tag, index) => (
-										<li key={index}>
-											<div className="editRecipeFormItem">
+										<li key={index} className="editRecipeFormTagsLi">
+											<div className="editRecipeFormTagsItem">
 												<input
 													id={`tag${index + 1}`}
 													name={`tag${index + 1}`}
@@ -705,10 +729,15 @@ const EditRecipe = () => {
 														handleChangeTag(index, e.target.value)
 													}
 													onKeyDown={(e) => handleKeyDown(e)}
+													onFocus={() => handleShowSuggestion(index)}
+													onBlur={() => {
+														// サジェスト候補クリックイベントが走るのを少し待ってから非表示に
+														setTimeout(() => handleCloseSuggestion(index), 200);
+													}}
 												/>
 												{tags.length !== 1 && (
 													<div
-														className="editRecipeFormTagsIcon"
+														className="editRecipeFormTagsCloseIcon"
 														onClick={() => handleCloseTag(index)}
 													>
 														<CloseIcon />
@@ -719,6 +748,22 @@ const EditRecipe = () => {
 												<span className="validationError">
 													{errors[`tag${index}`]}
 												</span>
+											)}
+											{showSuggestions[index] && (
+												<div className="editRecipeFormTagsSuggestions">
+													<div
+														className="editRecipeFormTagsSuggestionsClose"
+														onClick={() => handleCloseSuggestion(index)}
+													>
+														<CloseIcon />
+													</div>
+													<ul>
+														<li>米</li>
+														<li>主菜</li>
+														<li>鶏肉</li>
+														<li>鶏肉</li>
+													</ul>
+												</div>
 											)}
 										</li>
 									))}

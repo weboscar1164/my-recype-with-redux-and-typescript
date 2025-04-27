@@ -69,3 +69,9 @@ export interface Popup {
 	message: string;
 	action: "success" | "notice" | "";
 }
+
+//suggestion
+export type Suggestion = {
+	word: string;
+	source: "local" | "fixed" | "server";
+};

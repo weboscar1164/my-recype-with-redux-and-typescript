@@ -91,23 +91,25 @@
 		}
 
 		&Tags {
-			ul {
+			&Ul {
 				width: 220px;
 				padding: 0;
 			}
-			li {
-				.editRecipeFormItem {
-					width: 120px;
-					position: relative;
 
-					input {
-						width: 100%;
-						padding: 10px 30px 10px 10px;
-					}
+			&Li {
+				position: relative;
+			}
+
+			&Item {
+				width: 120px;
+				position: relative;
+				input {
+					width: 100%;
+					padding: 10px 30px 10px 10px;
 				}
 			}
 
-			&Icon {
+			&CloseIcon {
 				position: absolute;
 				right: 6px;
 				top: 6px;
@@ -118,6 +120,36 @@
 				width: 120px;
 				display: flex;
 				justify-content: end;
+			}
+
+			&Suggestions {
+				position: absolute;
+				top: 40px;
+				background: #fff;
+				border-radius: 5px;
+				z-index: 10;
+				ul {
+					list-style: none;
+					width: 150px;
+					padding: 5px 10px;
+				}
+
+				li {
+					width: 110px;
+					margin: 0;
+					padding: 5px;
+
+					&:hover {
+						background: #f3ede6;
+					}
+				}
+
+				&Close {
+					position: absolute;
+					right: 5px;
+					top: 5px;
+					cursor: pointer;
+				}
 			}
 		}
 
