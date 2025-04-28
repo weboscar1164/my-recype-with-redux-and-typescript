@@ -1,5 +1,9 @@
 import "./Recipe.scss";
-import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
+import {
+	useAppDispatch,
+	useAppSelector,
+	useAddTagSuggections,
+} from "../../app/hooks/hooks";
 import { useNavigate } from "react-router-dom";
 import { InitialRecipeState } from "../../Types";
 import React, { useEffect } from "react";
@@ -19,6 +23,7 @@ const Confirm = () => {
 	const initialStateCheck = isInitialState(recipeInfo);
 
 	const { uploadRecipeToFirestore } = useUploadRecipe();
+	const { addTagSuggections } = useAddTagSuggections();
 
 	useEffect(() => {
 		if (initialStateCheck) {
@@ -56,6 +61,9 @@ const Confirm = () => {
 
 		try {
 			await uploadRecipeToFirestore();
+			if (recipeInfo.tags) {
+				await addTagSuggections(recipeInfo.tags);
+			}
 			if (isAdminMode) {
 				navigate("/admin");
 			} else {

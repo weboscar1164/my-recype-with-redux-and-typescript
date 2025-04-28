@@ -9,6 +9,7 @@ import { InitialRecipeState } from "../../Types";
 import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
 import { openPopup } from "../../features/popupSlice";
+import { usetagSuggestions } from "../../app/hooks/useTagSuggestions";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -33,6 +34,7 @@ const EditRecipe = () => {
 		[key: string]: any;
 	}
 
+	const { suggestions, addTag } = usetagSuggestions();
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
 	const [recipe, setRecipe] = useState<Recipe>({
@@ -46,6 +48,10 @@ const EditRecipe = () => {
 	});
 	const [jsonData, setJsonData] = useState<JsonData | null>(null);
 	const [tags, setTags] = useState<string[]>([""]);
+	const [tagInput, setTagInput] = useState("");
+	const [filteredSuggestions, setFilterdSuggestions] = useState<
+		typeof suggestions
+	>([]);
 	const [showSuggestions, setShowSuggestions] = useState<boolean[]>([]);
 	const [materials, setMaterials] = useState<Material[]>([
 		{ name: "", quantity: "", group: 0 },
@@ -387,11 +393,29 @@ const EditRecipe = () => {
 		const newTag = [...tags];
 		newTag[index] = value;
 		setTags(newTag);
+		setTagInput(value);
 		if (validateOnSubmit) {
 			const newErrors = { ...errors };
 			validateTags(tags, newErrors);
 			setErrors(newErrors);
 		}
+	};
+
+	useEffect(() => {
+		const uniqueSuggestions = suggestions.filter((s) => !tags.includes(s.word));
+		if (tagInput.trim() === "") {
+			setFilterdSuggestions([]);
+		} else {
+			setFilterdSuggestions(
+				uniqueSuggestions.filter((s) => s.word.includes(tagInput))
+			);
+		}
+	}, [tagInput, suggestions]);
+
+	const handleSelectSuggestion = (index: number, word: string) => {
+		handleChangeTag(index, word);
+		addTag(word);
+		setTagInput("");
 	};
 
 	const handleChangeMaterial = (
@@ -599,16 +623,23 @@ const EditRecipe = () => {
 
 	const validateTags = async (tags: string[], newErrors: any) => {
 		const cleanedTags = tags.filter((tag) => tag.trim() !== "");
-		console.log(cleanedTags);
+
+		const tagCounts: Record<string, number> = {};
+		cleanedTags.forEach((tag) => {
+			tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+		});
+
 		cleanedTags.forEach((tag, index) => {
 			if (tag.length > 5) {
 				newErrors[`tag${index}`] = "5文字以内で設定してください";
+			} else if (tagCounts[tag] > 1) {
+				newErrors[`tag${index}`] = "同じタグが複数あります。";
 			} else {
 				delete newErrors[`tag${index}`];
 			}
 		});
 		setTags(cleanedTags);
-		setErrors((prevErrors: any) => ({ ...prevErrors, ...errors }));
+		setErrors((prevErrors: any) => ({ ...prevErrors, ...newErrors }));
 	};
 
 	const validateMaterial = (materials: Material[], newErrors: any) => {
@@ -749,22 +780,29 @@ const EditRecipe = () => {
 													{errors[`tag${index}`]}
 												</span>
 											)}
-											{showSuggestions[index] && (
-												<div className="editRecipeFormTagsSuggestions">
-													<div
-														className="editRecipeFormTagsSuggestionsClose"
-														onClick={() => handleCloseSuggestion(index)}
-													>
-														<CloseIcon />
+											{filteredSuggestions.length !== 0 &&
+												showSuggestions[index] && (
+													<div className="editRecipeFormTagsSuggestions">
+														<div
+															className="editRecipeFormTagsSuggestionsClose"
+															onClick={() => handleCloseSuggestion(index)}
+														>
+															<CloseIcon />
+														</div>
+														<ul>
+															{filteredSuggestions.map((s, idx) => (
+																<li
+																	key={idx}
+																	onClick={() =>
+																		handleSelectSuggestion(index, s.word)
+																	}
+																>
+																	{s.word}
+																</li>
+															))}
+														</ul>
 													</div>
-													<ul>
-														<li>米</li>
-														<li>主菜</li>
-														<li>鶏肉</li>
-														<li>鶏肉</li>
-													</ul>
-												</div>
-											)}
+												)}
 										</li>
 									))}
 								</ul>
