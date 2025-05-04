@@ -34,7 +34,7 @@ const EditRecipe = () => {
 		[key: string]: any;
 	}
 
-	const { suggestions, addTag } = usetagSuggestions();
+	const { suggestions } = usetagSuggestions();
 	const recipeInfo = useAppSelector((state) => state.recipe);
 
 	const [recipe, setRecipe] = useState<Recipe>({
@@ -414,7 +414,6 @@ const EditRecipe = () => {
 
 	const handleSelectSuggestion = (index: number, word: string) => {
 		handleChangeTag(index, word);
-		addTag(word);
 		setTagInput("");
 	};
 
