@@ -6,12 +6,18 @@ export interface InitialUserState {
 	isAdmin: false;
 }
 
-export interface User {
+export interface AuthUser {
 	uid: string;
 	photoURL: string;
 	email: string;
 	displayName: string;
 }
+
+export type Role = "guest" | "user" | "admin";
+
+export type User = AuthUser & {
+	role: Role;
+};
 
 // レシピ
 export interface InitialRecipeState {
@@ -59,7 +65,6 @@ export interface RecipeListItem {
 export interface ConfirmModal {
 	message: string;
 	isOpen: boolean;
-	action: "admins" | "ignores" | "login" | "logout" | "deleteRecipe" | "";
 	confirmed: boolean | null;
 }
 

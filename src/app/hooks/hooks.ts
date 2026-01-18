@@ -16,3 +16,5 @@ export { usePagination } from "./usePagination";
 export { useFetchUsers } from "./useFetchUsers";
 export { useSignIn } from "./useSignIn";
 export { usetagSuggestions } from "./useTagSuggestions";
+export { useChangeUserRole } from "./useChangeUserRole";
+export { useIgnoreUser } from "./useIgnoreUser";

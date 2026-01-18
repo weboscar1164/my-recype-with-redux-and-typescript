@@ -1,13 +1,13 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
-import { User } from "../../Types";
+import { AuthUser, User } from "../../Types";
 import { setLoading } from "../../features/pageStatusSlice";
 
 export const useRegistUser = () => {
 	const dispatch = useAppDispatch();
 	// const user: User =
-	const registUser = async (loginUser: User | null) => {
+	const registUser = async (loginUser: AuthUser | null) => {
 		if (loginUser === null) {
 			console.error("User is not logged in or user data is not available");
 			return;
@@ -22,7 +22,10 @@ export const useRegistUser = () => {
 
 			if (!userDoc.exists()) {
 				// usersコレクションに新しいユーザーを追加
-				await setDoc(userRef, {});
+				await setDoc(userRef, {
+					role: "guest",
+					createdAt: serverTimestamp(),
+				});
 
 				console.log("User added to users collection with ID: ", loginUser.uid);
 			}

@@ -12,28 +12,23 @@ export const useFetchUsers = () => {
 		const usersList: User[] = [];
 		try {
 			const userSnapshot = await getDocs(collection(db, "users"));
+			const promises = userSnapshot.docs.map(async (userDoc) => {
+				const role = userDoc.data().role ?? "guest";
 
-			const userInfoCollectionPromises = userSnapshot.docs.map(
-				async (userDoc) => {
-					const userInfoCollectionRef = collection(
-						db,
-						"users",
-						userDoc.id,
-						"userInfo"
-					);
-					const userInfoSnapshot = await getDocs(userInfoCollectionRef);
+				const userInfoRef = collection(db, "users", userDoc.id, "userInfo");
+				const userInfoSnapshot = await getDocs(userInfoRef);
 
-					userInfoSnapshot.forEach((doc) => {
-						usersList.push({
-							uid: doc.id,
-							photoURL: doc.data().photoURL,
-							email: doc.data().email,
-							displayName: doc.data().displayName,
-						} as User);
-					});
-				}
-			);
-			await Promise.all(userInfoCollectionPromises);
+				userInfoSnapshot.forEach((doc) => {
+					usersList.push({
+						uid: doc.id,
+						photoURL: doc.data().photoURL,
+						email: doc.data().email,
+						displayName: doc.data().displayName,
+						role,
+					} as User);
+				});
+			});
+			await Promise.all(promises);
 
 			console.log(usersList);
 			return usersList;

@@ -1,6 +1,6 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../../firebase";
-import { User } from "../../Types";
+import { AuthUser, User } from "../../Types";
 import { doc, getDoc } from "firebase/firestore";
 import { useRegistUser } from "./useRegistUser";
 import { openPopup } from "../../features/popupSlice";
@@ -22,20 +22,38 @@ export const useSignIn = () => {
 				) {
 					throw new Error("Missing user information after sign-in");
 				}
-				const loginUser: User = {
+				const loginUserBase: AuthUser = {
 					uid: result.user.uid,
 					photoURL: result.user.photoURL,
 					email: result.user.email,
 					displayName: result.user.displayName,
 				};
-				console.log("Login successful: ", loginUser);
-				const userInfoDoc = await getDoc(
-					doc(db, "users", loginUser.uid, "userInfo", loginUser.uid)
-				);
-				// console.log(loginUser);
-				if (!userInfoDoc.exists()) {
-					await registUser(loginUser);
+
+				/** Firestoreから role を取得 */
+				const userRef = doc(db, "users", result.user.uid);
+				const userDoc = await getDoc(userRef);
+
+				if (!userDoc.exists()) {
+					// 初回ログイン　→ guest 作成
+					await registUser(loginUserBase);
 				}
+
+				const latestUserDoc = await getDoc(userRef);
+				const role = latestUserDoc.exists()
+					? latestUserDoc.data().role
+					: "guest";
+				const loginUser: User = {
+					...loginUserBase,
+					role,
+				};
+				console.log("Login successful: ", loginUser);
+				// const userInfoDoc = await getDoc(
+				// 	doc(db, "users", loginUser.uid, "userInfo", loginUser.uid)
+				// );
+				// // console.log(loginUser);
+				// if (!userInfoDoc.exists()) {
+				// 	await registUser(loginUser);
+				// }
 				dispatch(
 					openPopup({ message: "ログインしました。", action: "success" })
 				);

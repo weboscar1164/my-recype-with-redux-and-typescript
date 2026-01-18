@@ -4,7 +4,6 @@ import { ConfirmModal } from "../Types";
 const initialState: ConfirmModal = {
 	message: "",
 	isOpen: false,
-	action: "",
 	confirmed: null,
 };
 
@@ -16,18 +15,15 @@ export const modalSlice = createSlice({
 			state,
 			action: PayloadAction<{
 				message: string;
-				action: "admins" | "ignores" | "login" | "logout" | "deleteRecipe" | "";
 			}>
 		) {
 			state.isOpen = true;
 			state.message = action.payload.message;
-			state.action = action.payload.action;
 		},
 
 		closeModal(state) {
 			state.isOpen = false;
 			state.message = "";
-			state.action = "";
 			state.confirmed = null;
 		},
 

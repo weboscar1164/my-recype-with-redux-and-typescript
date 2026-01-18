@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useFetchUsers, usePagination } from "../../../app/hooks/hooks";
-import { User } from "../../../Types";
+import {
+	useFetchUsers,
+	useIgnoreUser,
+	usePagination,
+} from "../../../app/hooks/hooks";
+import { Role, User } from "../../../Types";
 import EmailIcon from "@mui/icons-material/Email";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
-import { Tooltip } from "@mui/material";
+import { MenuItem, Select, Tooltip } from "@mui/material";
 
 import "./UserManagement.scss";
 import {
-	useAddAdminAndIgnore,
 	useAppSelector,
-	useDeleteAdminAndIgnore,
 	useFetchAdminsAndIgnores,
+	useChangeUserRole,
 } from "../../../app/hooks/hooks";
 import { useDispatch } from "react-redux";
 import { openModal, resetModal } from "../../../features/modalSlice";
@@ -25,37 +26,40 @@ import { openPopup } from "../../../features/popupSlice";
 const UserManagement: React.FC = () => {
 	const { fetchUsers } = useFetchUsers();
 	const { fetchAdminsAndIgnores } = useFetchAdminsAndIgnores();
-	const { addAdminAndIgnore } = useAddAdminAndIgnore();
-	const { deleteAdminAndIgnore } = useDeleteAdminAndIgnore();
+	const { addIgnores, removeIgnores } = useIgnoreUser();
 
 	const dispatch = useDispatch();
 
 	const [users, setUsers] = useState<User[]>([]);
-	const [adminUIDs, setAdminUIDs] = useState<string[]>([]);
 	const [ignoreUIDs, setIgnoreUIDs] = useState<string[]>([]);
 	const [selectedUID, setSelectedUID] = useState<string>("");
+	const [newUserRole, setNewUserRole] = useState<Role | null>(null);
+	const [confirmAction, setConfirmAction] = useState<
+		"setRole" | "ignore" | null
+	>(null);
 
-	const [animationIcon, setAnimationIcon] = useState<{
-		admins: string | null;
-		ignores: string | null;
-	}>({ admins: null, ignores: null });
+	const [animationIcon, setAnimationIcon] = useState<string | null>(null);
 
 	const searchWord = useAppSelector((state) => state.searchWord);
 	const currentUser = useAppSelector((state) => state.user.user);
 	const modalState = useAppSelector((state) => state.modal);
 	const itemsPerPage = 10;
 
+	const { changeUserRole } = useChangeUserRole();
+
+	const rolabelMap: Record<Role, string> = {
+		admin: "管理者",
+		user: "ユーザー",
+		guest: "ゲスト",
+	};
+
 	useEffect(() => {
 		const getUsers = async () => {
-			const fetcheUusersList = await fetchUsers();
-			if (fetcheUusersList) {
-				setUsers(fetcheUusersList);
+			const fetcheUsersList = await fetchUsers();
+			if (fetcheUsersList) {
+				setUsers(fetcheUsersList);
 			}
 
-			const fetchedAdminUIDs = await fetchAdminsAndIgnores("admins");
-			if (fetchedAdminUIDs) {
-				setAdminUIDs(fetchedAdminUIDs);
-			}
 			const fetchedIgnoreUIDs = await fetchAdminsAndIgnores("ignores");
 			if (fetchedIgnoreUIDs) {
 				setIgnoreUIDs(fetchedIgnoreUIDs);
@@ -75,69 +79,85 @@ const UserManagement: React.FC = () => {
 
 		return matchesSerch && invisibleCurrentUser;
 	});
-	const isUserInList = (uid: string, list: string[]) => list.includes(uid);
-
-	const changeUserStatus = (uid: string, action: "admins" | "ignores") => {
-		setSelectedUID(uid);
-
-		const isInList = isUserInList(
-			uid,
-			action === "admins" ? adminUIDs : ignoreUIDs
-		);
-		const listName = action === "admins" ? "管理者リスト" : "使用制限リスト";
-		const actionText = isInList ? "から削除" : "に追加";
-		const confirmMessage = `${listName}${actionText}しますか？ `;
-
-		dispatch(openModal({ message: confirmMessage, action }));
-	};
 
 	useEffect(() => {
-		if (modalState.confirmed !== null && modalState.action) {
-			const action = modalState.action;
-			const isInList = isUserInList(
-				selectedUID,
-				action === "admins" ? adminUIDs : ignoreUIDs
-			);
-			const currentUIDs = action === "admins" ? adminUIDs : ignoreUIDs;
-			const setUIDs = action === "admins" ? setAdminUIDs : setIgnoreUIDs;
-			const listName = action === "admins" ? "管理者リスト" : "使用制限リスト";
-
-			if (modalState.confirmed) {
-				if (!isInList) {
-					addAdminAndIgnore(selectedUID, action);
-					setUIDs([...currentUIDs, selectedUID]);
+		if (modalState.confirmed !== true) return;
+		if (!confirmAction) return;
+		switch (confirmAction) {
+			case "setRole":
+				if (!selectedUID || !newUserRole) return;
+				changeUserRole(selectedUID, newUserRole);
+				dispatch(
+					openPopup({
+						message: `ステータスを ${rolabelMap[newUserRole]} に変更しました。`,
+						action: "success",
+					})
+				);
+				setUsers((prev) =>
+					prev.map((user) =>
+						user.uid === selectedUID ? { ...user, role: newUserRole } : user
+					)
+				);
+				setSelectedUID("");
+				setNewUserRole(null);
+				setConfirmAction(null);
+				break;
+			case "ignore":
+				if (isIgnoreUser(selectedUID)) {
+					removeIgnores(selectedUID);
+					setIgnoreUIDs(
+						ignoreUIDs.filter((userUID) => userUID !== selectedUID)
+					);
 					dispatch(
 						openPopup({
-							message: `${listName}に追加しました。`,
+							message: "使用制限リストから削除しました。",
 							action: "success",
 						})
 					);
 				} else {
-					deleteAdminAndIgnore(selectedUID, action);
-					setUIDs(currentUIDs.filter((userUID) => userUID !== selectedUID));
+					addIgnores(selectedUID);
+					setIgnoreUIDs([...ignoreUIDs, selectedUID]);
 					dispatch(
 						openPopup({
-							message: `${listName}から削除しました。`,
+							message: "使用制限リストに追加しました。",
 							action: "success",
 						})
 					);
 				}
-				setAnimationIcon((prev) => ({ ...prev, [action]: selectedUID }));
-				setTimeout(
-					() => setAnimationIcon((prev) => ({ ...prev, [action]: null })),
-					300
-				);
-			}
+				setAnimationIcon(selectedUID);
+				setTimeout(() => setAnimationIcon(null), 300);
+
+				setSelectedUID("");
+				setNewUserRole(null);
+				setConfirmAction(null);
+				break;
 		}
+
 		dispatch(resetModal());
 	}, [modalState.confirmed]);
 
-	const isAdminUser = (uid: string) => {
-		return adminUIDs.some((adminUID) => adminUID === uid);
-	};
-
 	const isIgnoreUser = (uid: string) => {
 		return ignoreUIDs.some((ignoreUID) => ignoreUID === uid);
+	};
+
+	const confirmUserRole = (uid: string, role: Role) => {
+		console.log(uid, role);
+
+		setConfirmAction("setRole");
+		setSelectedUID(uid);
+		setNewUserRole(role);
+		dispatch(
+			openModal({ message: `ステータスを${rolabelMap[role]}に変更しますか？` })
+		);
+	};
+
+	const confirmUserIgnore = (uid: string) => {
+		setSelectedUID(uid);
+		setConfirmAction("ignore");
+		const modalMessage = ignoreUIDs.includes(uid)
+			? "使用制限リストから削除しますか？"
+			: "使用制限リストに追加しますか？";
+		dispatch(openModal({ message: modalMessage }));
 	};
 
 	//paginationフックを用いてページネーション用変数を準備
@@ -161,9 +181,8 @@ const UserManagement: React.FC = () => {
 								<div className="userListImg">
 									<img src={user.photoURL} alt="" />
 								</div>
-
 								<h3 className="userListDisplayName">{user.displayName}</h3>
-								{isAdminUser(user.uid) && (
+								{user.role === "admin" && (
 									<div className="userListAdmin">
 										<Tooltip title="管理者">
 											<LockOpenIcon />
@@ -187,31 +206,24 @@ const UserManagement: React.FC = () => {
 										</a>
 									</Tooltip>
 								</div>
-								<div
-									className={`userListIcon ${
-										animationIcon.admins === user.uid && "animationIcon"
-									}`}
-									onClick={() => changeUserStatus(user.uid, "admins")}
-								>
-									<Tooltip
-										title={
-											!isAdminUser(user.uid)
-												? "管理者リストに追加"
-												: "管理者リストから削除"
+								<div>
+									<Select
+										size="small"
+										value={user.role}
+										onChange={(e) =>
+											confirmUserRole(user.uid, e.target.value as Role)
 										}
 									>
-										{!isAdminUser(user.uid) ? (
-											<PersonAddIcon />
-										) : (
-											<PersonRemoveIcon />
-										)}
-									</Tooltip>
+										<MenuItem value="guest">ゲスト</MenuItem>
+										<MenuItem value="user">ユーザー</MenuItem>
+										<MenuItem value="admin">管理者</MenuItem>
+									</Select>
 								</div>
 								<div
 									className={`userListIcon ${
-										animationIcon.ignores === user.uid && "animationIcon"
+										animationIcon === user.uid && "animationIcon"
 									}`}
-									onClick={() => changeUserStatus(user.uid, "ignores")}
+									onClick={() => confirmUserIgnore(user.uid)}
 								>
 									{!isIgnoreUser(user.uid) ? (
 										<Tooltip title="使用制限リストに追加">
