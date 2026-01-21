@@ -3,7 +3,6 @@ import { Timestamp } from "firebase/firestore";
 // ユーザー情報
 export interface InitialUserState {
 	user: null | User;
-	isAdmin: false;
 }
 
 export interface AuthUser {

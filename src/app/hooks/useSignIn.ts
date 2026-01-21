@@ -47,13 +47,7 @@ export const useSignIn = () => {
 					role,
 				};
 				console.log("Login successful: ", loginUser);
-				// const userInfoDoc = await getDoc(
-				// 	doc(db, "users", loginUser.uid, "userInfo", loginUser.uid)
-				// );
-				// // console.log(loginUser);
-				// if (!userInfoDoc.exists()) {
-				// 	await registUser(loginUser);
-				// }
+
 				dispatch(
 					openPopup({ message: "ログインしました。", action: "success" })
 				);

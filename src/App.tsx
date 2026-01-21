@@ -41,8 +41,8 @@ function App() {
 		const unsubscribe = auth.onAuthStateChanged(async (loginUser) => {
 			if (loginUser) {
 				//firebaseから管理者情報を取得
-				const userDoc = await getDoc(doc(db, "admins", loginUser.uid));
-				const isAdmin = userDoc.exists();
+				const userDoc = await getDoc(doc(db, "users", loginUser.uid));
+				const role = userDoc.exists() ? userDoc.data().role : "guest";
 
 				//firebaseからignores取得
 				const ignoreDoc = await getDoc(doc(db, "ignores", loginUser.uid));
@@ -60,8 +60,8 @@ function App() {
 							photoURL: loginUser.photoURL,
 							email: loginUser.email,
 							displayName: loginUser.displayName,
+							role,
 						},
-						isAdmin: isAdmin,
 					})
 				);
 
@@ -85,7 +85,7 @@ function App() {
 							<Route
 								path="/editrecipe"
 								element={
-									<ProtectedRoute condition="isAuthenticated">
+									<ProtectedRoute allow={["user", "admin"]}>
 										<EditRecipe />
 									</ProtectedRoute>
 								}
@@ -93,7 +93,7 @@ function App() {
 							<Route
 								path="/confirm"
 								element={
-									<ProtectedRoute condition="isAuthenticated">
+									<ProtectedRoute allow={["user", "admin"]}>
 										<Confirm />
 									</ProtectedRoute>
 								}
@@ -103,7 +103,7 @@ function App() {
 							<Route
 								path="/favorites"
 								element={
-									<ProtectedRoute condition="isAuthenticated">
+									<ProtectedRoute allow={["user", "admin"]}>
 										<RecipeList listMode={"favorites"} />
 									</ProtectedRoute>
 								}
@@ -111,7 +111,7 @@ function App() {
 							<Route
 								path="/myRecipe"
 								element={
-									<ProtectedRoute condition="isAuthenticated">
+									<ProtectedRoute allow={["user", "admin"]}>
 										<RecipeList listMode={"myRecipe"} />
 									</ProtectedRoute>
 								}
@@ -119,7 +119,7 @@ function App() {
 							<Route
 								path="/admin"
 								element={
-									<ProtectedRoute condition="isAdmin">
+									<ProtectedRoute allow={["admin"]}>
 										<AdminPanel />
 									</ProtectedRoute>
 								}

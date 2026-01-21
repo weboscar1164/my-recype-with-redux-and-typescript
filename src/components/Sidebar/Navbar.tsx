@@ -6,9 +6,23 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { resetRecipeInfo } from "../../features/recipeSlice";
 import { clearSearchQuery } from "../../features/searchWordSlice";
 
+type NavItem = {
+	label: string;
+	to: string;
+	allow: ("guest" | "user" | "admin")[];
+};
+
+const NAV_ITEMS: NavItem[] = [
+	{ label: "一覧", to: "/", allow: ["guest", "user", "admin"] },
+	{ label: "レシピ作成", to: "/editRecipe", allow: ["user", "admin"] },
+	{ label: "お気に入り", to: "/favorites", allow: ["user", "admin"] },
+	{ label: "マイレシピ", to: "/myRecipe", allow: ["user", "admin"] },
+	{ label: "管理ページ", to: "/admin", allow: ["admin"] },
+];
+
 const Navbar = () => {
 	const user = useAppSelector((state) => state.user.user);
-	const isAdmin = useAppSelector((state) => state.user.isAdmin);
+	const isAdmin = useAppSelector((state) => state.user.user?.role) === "admin";
 
 	const dispatch = useAppDispatch();
 
@@ -17,6 +31,8 @@ const Navbar = () => {
 	const handleNavToggle = () => {
 		setIsOpen(!isOpen);
 	};
+
+	const role = user?.role ?? "guest";
 
 	const onClickLink = () => {
 		dispatch(resetRecipeInfo());
@@ -39,53 +55,29 @@ const Navbar = () => {
 				</div>
 				<nav className="navList">
 					<ul>
-						<li>
-							<Link className="navItem" to={"/"} onClick={onClickLink}>
-								一覧
-							</Link>
-						</li>
-						{user?.uid && (
-							<>
-								<li>
-									<Link
-										className="navItem"
-										to={"/editRecipe"}
-										onClick={onClickLink}
-									>
-										レシピ作成
-									</Link>
-								</li>
-								<li>
-									<Link
-										className="navItem"
-										to={"/favorites"}
-										onClick={onClickLink}
-									>
-										お気に入り
-									</Link>
-								</li>
-								<li>
-									<Link
-										className="navItem"
-										to={"/myRecipe"}
-										onClick={onClickLink}
-									>
-										マイレシピ
-									</Link>
-								</li>
-								{isAdmin && (
-									<li>
+						{NAV_ITEMS.map((item) => {
+							const canAccess = item.allow.includes(role);
+							return (
+								<li key={item.to}>
+									{canAccess ? (
 										<Link
 											className="navItem"
-											to={"/admin"}
+											to={item.to}
 											onClick={onClickLink}
 										>
-											管理ページ
+											{item.label}
 										</Link>
-									</li>
-								)}
-							</>
-						)}
+									) : (
+										<span
+											className="navItem navItemDisabled"
+											title="ログインすると利用できます"
+										>
+											{item.label}
+										</span>
+									)}
+								</li>
+							);
+						})}
 					</ul>
 				</nav>
 			</div>

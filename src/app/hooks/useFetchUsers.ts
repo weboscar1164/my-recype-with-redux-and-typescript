@@ -30,7 +30,7 @@ export const useFetchUsers = () => {
 			});
 			await Promise.all(promises);
 
-			console.log(usersList);
+			// console.log(usersList);
 			return usersList;
 		} catch (error) {
 			dispatch(

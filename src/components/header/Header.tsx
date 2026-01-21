@@ -12,14 +12,14 @@ import LoginIcon from "@mui/icons-material/Login";
 import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { openModal, resetModal } from "../../features/modalSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { openPopup } from "../../features/popupSlice";
 import { setError } from "../../features/pageStatusSlice";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
-	const isAdmin = useAppSelector((state) => state.user.isAdmin);
 	const modalState = useAppSelector((state) => state.modal);
+	const [confirmAction, setConfirmAction] = useState<"logout" | null>(null);
 	const { signIn } = useSignIn();
 
 	const dispatch = useAppDispatch();
@@ -27,25 +27,25 @@ const Header = () => {
 
 	const signOutConfirm = () => {
 		const confirmMessage = "ログアウトしますか？";
+		setConfirmAction("logout");
 
 		dispatch(
 			openModal({
 				message: confirmMessage,
-				action: "logout",
 			})
 		);
 	};
-
 	// modalにおいてログアウト選択時の処理
 	useEffect(() => {
 		const handleLogout = async () => {
-			if (modalState.confirmed !== null && modalState.action === "logout") {
-				if (modalState.confirmed) {
+			if (modalState.confirmed !== null && confirmAction !== null) {
+				if (modalState.confirmed && confirmAction === "logout") {
 					await auth.signOut();
 					dispatch(clearFavorites());
 					dispatch(
 						openPopup({ message: "ログアウトしました。", action: "success" })
 					);
+					setConfirmAction(null);
 					dispatch(setError(null));
 					navigate("/");
 				}
@@ -82,7 +82,9 @@ const Header = () => {
 										alt=""
 									/>
 								</div>
-								{isAdmin && <div className="userIconAdmin">admin</div>}
+								{user.role !== "user" && (
+									<div className="userIconAdmin">{user.role}</div>
+								)}
 							</div>
 						</Tooltip>
 						<Tooltip title="ログアウト">

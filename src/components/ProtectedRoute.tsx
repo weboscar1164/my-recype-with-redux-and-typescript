@@ -1,39 +1,21 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAppSelector } from "../app/hooks/hooks";
-import { User } from "../Types";
+import { Role } from "../Types";
 
 interface ProtectedRouteProps {
 	children: React.ReactNode;
-	condition: "isAuthenticated" | "isAdmin";
+	allow: Role[];
 }
 
-const checkCondition = (
-	condition: "isAuthenticated" | "isAdmin",
-	user: User | null,
-	isAdmin: boolean
-): boolean => {
-	switch (condition) {
-		case "isAuthenticated":
-			return !!user;
-		case "isAdmin":
-			return !!user && isAdmin;
-		default:
-			return false;
-	}
-};
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-	children,
-	condition,
-}) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allow }) => {
 	const user = useAppSelector((state) => state.user.user);
-	const isAdmin = useAppSelector((state) => state.user.isAdmin);
 
-	const conditionMet = checkCondition(condition, user, isAdmin);
+	// 未ログイン　→ guest扱い
+	const role: Role = user?.role ?? "guest";
 
-	if (!conditionMet) {
-		return <Navigate to="/" />;
+	if (!allow.includes(role)) {
+		return <Navigate to="/" replace />;
 	}
 
 	return <>{children}</>;

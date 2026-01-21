@@ -21,6 +21,9 @@ const Recipe = () => {
 	const dispatch = useAppDispatch();
 
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<boolean>(false);
+	const [confirmAction, setConfirmAction] = useState<"deleteRecipe" | null>(
+		null
+	);
 
 	// URLから所在ページを取得
 	const [searchParams] = useSearchParams();
@@ -97,8 +100,9 @@ const Recipe = () => {
 
 	// レシピ削除モーダル表示
 	const handleDeleteRecipe = async () => {
+		setConfirmAction("deleteRecipe");
 		let confirmMessage;
-		if (currentRecipe.user !== user?.uid) {
+		if (currentRecipe.user !== user?.uid && user?.role === "admin") {
 			confirmMessage = "別のユーザーが作成したレシピです。 \n 削除しますか？";
 		} else {
 			confirmMessage = "削除しますか？";
@@ -106,7 +110,6 @@ const Recipe = () => {
 		dispatch(
 			openModal({
 				message: confirmMessage,
-				action: "deleteRecipe",
 			})
 		);
 	};
@@ -114,10 +117,7 @@ const Recipe = () => {
 	// レシピ削除
 	useEffect(() => {
 		const deleteRecipe = async () => {
-			if (
-				modalState.confirmed !== null &&
-				modalState.action === "deleteRecipe"
-			) {
+			if (modalState.confirmed !== null && confirmAction === "deleteRecipe") {
 				if (modalState.confirmed) {
 					if (currentRecipe.recipeId) {
 						try {
@@ -142,6 +142,7 @@ const Recipe = () => {
 			dispatch(resetModal());
 		};
 		deleteRecipe();
+		setConfirmAction(null);
 	}, [modalState.confirmed]);
 
 	return (
