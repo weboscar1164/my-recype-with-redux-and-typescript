@@ -103,7 +103,7 @@ function App() {
 							<Route
 								path="/favorites"
 								element={
-									<ProtectedRoute allow={["user", "admin"]}>
+									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<RecipeList listMode={"favorites"} />
 									</ProtectedRoute>
 								}

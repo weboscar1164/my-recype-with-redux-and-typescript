@@ -34,6 +34,7 @@ const RecipeItem = ({
 	const [processingFavorites, setIsProcessingFavorites] = useState<
 		string | null
 	>(null);
+	const [confirmAction, setConfirmAction] = useState<string | null>(null);
 
 	const favorites = useAppSelector((state) => state.favorites);
 	const user = useAppSelector((state) => state.user.user);
@@ -91,12 +92,13 @@ const RecipeItem = ({
 	useEffect(() => {
 		// ログインモーダルの確認処理
 		const handleLogin = async () => {
-			if (modalState.confirmed !== null && modalState.action === "login") {
+			if (modalState.confirmed !== null && confirmAction === "login") {
 				if (modalState.confirmed) {
 					signIn();
 				}
 			}
 			dispatch(resetModal());
+			setConfirmAction(null);
 		};
 		handleLogin();
 	}, [modalState.confirmed]);
@@ -133,10 +135,10 @@ const RecipeItem = ({
 				setAnimatingFavIcon(recipeId);
 				setTimeout(() => setAnimatingFavIcon(null), 300);
 			} else {
+				setConfirmAction("login");
 				dispatch(
 					openModal({
 						message: "ログインが必要です。ログインしますか？",
-						action: "login",
 					})
 				);
 			}
