@@ -1,0 +1,23 @@
+.authDescription {
+	h1 {
+		margin-bottom: 24px;
+	}
+
+	h2 {
+		margin-top: 32px;
+		margin-bottom: 16px;
+	}
+
+	p {
+		margin-bottom: 16px;
+		line-height: 1.7;
+	}
+
+	ul {
+		margin-bottom: 16px;
+	}
+
+	p:last-child {
+		margin-bottom: 0;
+	}
+}

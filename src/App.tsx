@@ -24,6 +24,8 @@ import { setError } from "./features/pageStatusSlice";
 import ConfirmModal from "./components/ConfirmModal";
 import Popup from "./components/Popup";
 import { useWakeLock } from "./app/hooks/useWakeLock";
+import Forbidden from "./components/Forbidden";
+import AboutAuth from "./components/AboutAuth";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -62,7 +64,7 @@ function App() {
 							displayName: loginUser.displayName,
 							role,
 						},
-					})
+					}),
 				);
 
 				//お気に入りを取得
@@ -85,7 +87,7 @@ function App() {
 							<Route
 								path="/editrecipe"
 								element={
-									<ProtectedRoute allow={["user", "admin"]}>
+									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<EditRecipe />
 									</ProtectedRoute>
 								}
@@ -93,7 +95,7 @@ function App() {
 							<Route
 								path="/confirm"
 								element={
-									<ProtectedRoute allow={["user", "admin"]}>
+									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<Confirm />
 									</ProtectedRoute>
 								}
@@ -111,7 +113,7 @@ function App() {
 							<Route
 								path="/myRecipe"
 								element={
-									<ProtectedRoute allow={["user", "admin"]}>
+									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<RecipeList listMode={"myRecipe"} />
 									</ProtectedRoute>
 								}
@@ -124,6 +126,8 @@ function App() {
 									</ProtectedRoute>
 								}
 							/>
+							<Route path="/forbidden" element={<Forbidden />} />
+							<Route path="about-auth" element={<AboutAuth />} />
 						</Routes>
 					) : (
 						<Error />

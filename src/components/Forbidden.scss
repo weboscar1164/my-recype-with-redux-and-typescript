@@ -1,0 +1,10 @@
+.forbidden {
+	&Contents {
+		margin-top: 20px;
+	}
+	&Actions {
+		display: flex;
+		margin-top: 20px;
+		gap: 10px;
+	}
+}

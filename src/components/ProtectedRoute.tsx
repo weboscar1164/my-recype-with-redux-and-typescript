@@ -10,12 +10,18 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allow }) => {
 	const user = useAppSelector((state) => state.user.user);
+	console.log("user.role: ", user?.role);
 
-	// 未ログイン　→ guest扱い
-	const role: Role = user?.role ?? "guest";
+	if (!user) {
+		return <Navigate to="/forbidden?reason=login" replace />;
+	}
 
-	if (!allow.includes(role)) {
-		return <Navigate to="/" replace />;
+	if (user.role === "guest" && !allow.includes("guest")) {
+		return <Navigate to="/forbidden?reason=verify" replace />;
+	}
+
+	if (!allow.includes(user.role)) {
+		return <Navigate to="/forbidden?reason=role" replace />;
 	}
 
 	return <>{children}</>;

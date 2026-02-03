@@ -14,8 +14,17 @@
 		border-radius: 15px;
 		transform: translate(-50%, -50px);
 		color: #fff;
+		line-height: 1.2;
 		font-size: 18px;
 		transition: opacity 0.3s, transform 0.3s;
+
+		svg {
+			display: block;
+		}
+
+		p {
+			margin: 0;
+		}
 
 		@include respond-to(sm) {
 			font-size: 14px;

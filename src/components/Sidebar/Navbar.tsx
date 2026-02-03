@@ -20,8 +20,8 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
 	{ label: "お気に入り", to: "/favorites", allow: ["user", "admin", "guest"] },
-	{ label: "レシピ作成", to: "/editRecipe", allow: ["user", "admin"] },
-	{ label: "マイレシピ", to: "/myRecipe", allow: ["user", "admin"] },
+	{ label: "レシピ作成", to: "/editRecipe", allow: ["user", "admin", "guest"] },
+	{ label: "マイレシピ", to: "/myRecipe", allow: ["user", "admin", "guest"] },
 ];
 
 const Navbar = () => {
@@ -68,14 +68,14 @@ const Navbar = () => {
 			dispatch(
 				openModal({
 					message: "ログインが必要です。ログインしますか？",
-				})
+				}),
 			);
 		} else {
 			dispatch(
 				openPopup({
 					message: `現在「ゲスト」としてログインしています。認証されることで使用できます。`,
 					action: "success",
-				})
+				}),
 			);
 		}
 	};
@@ -97,19 +97,17 @@ const Navbar = () => {
 					<ul>
 						<li>
 							<Link className="navItem" to="/" onClick={onClickLink}>
-								トップページ
+								メインページ
 							</Link>
 						</li>
 						{NAV_ITEMS.map((item) => {
 							const canAccess = item.allow.includes(role);
 							const distabledMessage = !isLoggedIn
 								? "ログインが必要です。"
-								: role === "guest"
-								? "認証が必要です。"
 								: "";
 							return (
 								<li key={item.to}>
-									{canAccess ? (
+									{canAccess && isLoggedIn ? (
 										<Link
 											className="navItem"
 											to={item.to}

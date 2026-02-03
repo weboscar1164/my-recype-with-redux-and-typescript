@@ -6,10 +6,12 @@ import { useRegistUser } from "./useRegistUser";
 import { openPopup } from "../../features/popupSlice";
 import { useAppDispatch } from "./hooks";
 import { setError } from "../../features/pageStatusSlice";
+import { useNavigate } from "react-router-dom";
 
 export const useSignIn = () => {
 	const dispatch = useAppDispatch();
 	const { registUser } = useRegistUser();
+	const navigate = useNavigate();
 
 	const signIn = async () => {
 		try {
@@ -52,6 +54,8 @@ export const useSignIn = () => {
 					openPopup({ message: "ログインしました。", action: "success" })
 				);
 				dispatch(setError(null));
+
+				navigate("/");
 			} else {
 				throw new Error("No user infomation found after sign-in");
 			}

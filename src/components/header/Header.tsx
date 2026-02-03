@@ -10,11 +10,13 @@ import { Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import { auth } from "../../firebase";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { useEffect, useState } from "react";
 import { openPopup } from "../../features/popupSlice";
 import { setError } from "../../features/pageStatusSlice";
+import { resetRecipeInfo } from "../../features/recipeSlice";
+import { clearSearchQuery } from "../../features/searchWordSlice";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
@@ -32,7 +34,7 @@ const Header = () => {
 		dispatch(
 			openModal({
 				message: confirmMessage,
-			})
+			}),
 		);
 	};
 	// modalにおいてログアウト選択時の処理
@@ -43,7 +45,7 @@ const Header = () => {
 					await auth.signOut();
 					dispatch(clearFavorites());
 					dispatch(
-						openPopup({ message: "ログアウトしました。", action: "success" })
+						openPopup({ message: "ログアウトしました。", action: "success" }),
 					);
 					setConfirmAction(null);
 					dispatch(setError(null));
@@ -55,20 +57,27 @@ const Header = () => {
 		handleLogout();
 	}, [modalState.confirmed]);
 
+	const onClickLink = () => {
+		dispatch(resetRecipeInfo());
+		dispatch(clearSearchQuery());
+	};
+
 	return (
 		<div className="header">
 			<div className="headerContainer">
 				<h1 className="headerLogo">
-					<img
-						className="headerLogoPc"
-						src="my_recipe_logo.png"
-						alt="my recipe"
-					/>
-					<img
-						className="headerLogoSp"
-						src="my_recipe_logo_header.png"
-						alt="my recipe"
-					/>
+					<Link to={"/"} onClick={onClickLink}>
+						<img
+							className="headerLogoPc"
+							src="my_recipe_logo.png"
+							alt="my recipe"
+						/>
+						<img
+							className="headerLogoSp"
+							src="my_recipe_logo_header.png"
+							alt="my recipe"
+						/>
+					</Link>
 				</h1>
 				<Searchbar />
 				{user ? (
