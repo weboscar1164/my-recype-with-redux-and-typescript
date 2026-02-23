@@ -16,7 +16,6 @@ import {
 } from "../../app/hooks/hooks";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { openPopup } from "../../features/popupSlice";
-import { recipeCountDoun, recipeCountUp } from "../../features/userSlice";
 
 const Recipe = () => {
 	const dispatch = useAppDispatch();
@@ -45,14 +44,14 @@ const Recipe = () => {
 	const modalState = useAppSelector((state) => state.modal);
 
 	useEffect(() => {
-		console.log("searchParams:", searchParams);
+		// console.log("searchParams:", searchParams);
 		// レシピデータが入っていない場合は一覧にリダイレクトする
 		if (!currentRecipe.recipeId) {
 			navigate("/");
 		}
 		// URLからページ番号を取得
 		setCurrentPage(searchParams.get("page") || "");
-		console.log("render:", currentRecipe.user === user?.uid);
+		// console.log("render:", currentRecipe.user === user?.uid);
 	}, []);
 
 	// お気に入り制御
