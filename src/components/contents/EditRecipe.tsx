@@ -34,8 +34,9 @@ const EditRecipe = () => {
 		[key: string]: any;
 	}
 
-	const { suggestions } = usetagSuggestions();
 	const recipeInfo = useAppSelector((state) => state.recipe);
+	const { suggestions } = usetagSuggestions();
+	const user = useAppSelector((state) => state.user.user);
 
 	const [recipe, setRecipe] = useState<Recipe>({
 		recipeId: "",
@@ -175,10 +176,16 @@ const EditRecipe = () => {
 	//change
 	const handleChangeRecipe = (
 		value: string | number | File | null,
-		key: string
+		key: string,
 	) => {
-		const newRecipe: Recipe = { ...recipe, [key]: value };
-		// console.log(newRecipe);
+		let newValue = value;
+
+		// ゲストアカウントには非公開のみ許可する
+		if (key === "isPublic" && user?.role === "guest") {
+			newValue = 0;
+		}
+
+		const newRecipe: Recipe = { ...recipe, [key]: newValue };
 		setRecipe(newRecipe);
 		if (validateOnSubmit) {
 			const newErrors = { ...errors };
@@ -332,7 +339,7 @@ const EditRecipe = () => {
 		file: globalThis.File,
 		maxWidth: number,
 		maxHeight: number,
-		quality: number
+		quality: number,
 	): Promise<globalThis.File> => {
 		return new Promise((resolve, reject) => {
 			const img = new Image();
@@ -380,7 +387,7 @@ const EditRecipe = () => {
 						}
 					},
 					"image/jpeg",
-					quality
+					quality,
 				);
 			};
 
@@ -407,7 +414,7 @@ const EditRecipe = () => {
 			setFilterdSuggestions([]);
 		} else {
 			setFilterdSuggestions(
-				uniqueSuggestions.filter((s) => s.word.includes(tagInput))
+				uniqueSuggestions.filter((s) => s.word.includes(tagInput)),
 			);
 		}
 	}, [tagInput, suggestions]);
@@ -420,12 +427,12 @@ const EditRecipe = () => {
 	const handleChangeMaterial = (
 		value: string | number,
 		key: string,
-		index: number
+		index: number,
 	) => {
 		// console.log(materials);
 		setMaterials((prevMaterials) => {
 			const newMaterials: Material[] = prevMaterials.map((material, i) =>
-				i === index ? { ...material, [key]: value } : material
+				i === index ? { ...material, [key]: value } : material,
 			);
 
 			if (validateOnSubmit) {
@@ -456,7 +463,7 @@ const EditRecipe = () => {
 			| HTMLTextAreaElement
 			| HTMLSelectElement
 			| HTMLDivElement
-		>
+		>,
 	) => {
 		if (e.key === "Enter") {
 			e.preventDefault(); // Enter キーのデフォルト動作を防止
@@ -503,7 +510,7 @@ const EditRecipe = () => {
 	const focusMaterialFormInput = (index: number) => {
 		if (materialRef.current) {
 			const input = materialRef.current.querySelector(
-				`li:nth-child(${index}) input`
+				`li:nth-child(${index}) input`,
 			);
 			if (input) {
 				(input as HTMLElement).focus();
@@ -514,7 +521,7 @@ const EditRecipe = () => {
 	const focusProcedureFormInput = (index: number) => {
 		if (procedureRef.current) {
 			const input = procedureRef.current.querySelector(
-				`li:nth-child(${index}) input`
+				`li:nth-child(${index}) input`,
 			);
 			if (input) {
 				(input as HTMLElement).focus();
@@ -572,7 +579,10 @@ const EditRecipe = () => {
 			handleSetRecipeSlice();
 		} else {
 			dispatch(
-				openPopup({ message: "入力内容を確認してください。", action: "notice" })
+				openPopup({
+					message: "入力内容を確認してください。",
+					action: "notice",
+				}),
 			);
 		}
 	};
@@ -587,7 +597,7 @@ const EditRecipe = () => {
 		const newRecipe: InitialRecipeState = {
 			recipeId: recipe.recipeId,
 			tags: tags,
-			isPublic: recipe.isPublic,
+			isPublic: user?.role === "guest" ? 0 : recipe.isPublic,
 			recipeName: recipe.recipeName,
 			recipeImageUrl: recipe.recipeImageUrl,
 			comment: recipe.comment,
@@ -733,15 +743,24 @@ const EditRecipe = () => {
 						</li>
 						{/* public */}
 						<li>
-							<select
-								name="isPublic"
-								id="isPublic"
-								onChange={(e) => handleChangeRecipe(e.target.value, "isPublic")}
-								value={recipe.isPublic}
-							>
-								<option value="1">公開</option>
-								<option value="0">非公開</option>
-							</select>
+							<label className="editRecipeFormLabel" htmlFor="recipeName">
+								公開/非公開
+							</label>
+							{user?.role === "guest" ? (
+								<p>guestアカウントは非公開のみ選択できます。</p>
+							) : (
+								<select
+									name="isPublic"
+									id="isPublic"
+									onChange={(e) =>
+										handleChangeRecipe(e.target.value, "isPublic")
+									}
+									value={recipe.isPublic}
+								>
+									<option value="1">公開</option>
+									<option value="0">非公開</option>
+								</select>
+							)}
 						</li>
 						{/* tags */}
 						<li>
@@ -940,7 +959,7 @@ const EditRecipe = () => {
 														handleChangeMaterial(
 															e.target.value,
 															"quantity",
-															index
+															index,
 														)
 													}
 													onKeyDown={(e) => handleKeyDown(e)}

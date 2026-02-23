@@ -32,7 +32,6 @@ export const usetagSuggestions = () => {
 					uniqueMap.set(sug.word, sug);
 				}
 			}
-			console.log("uniqueMap:", uniqueMap);
 			setSuggestions(Array.from(uniqueMap.values()));
 		};
 		initializeSuggestions();

@@ -14,7 +14,6 @@ const RecipeManagement = () => {
 	const [recipeList, setRecipeList] = useState<RecipeListItem[]>([]);
 	const recipesPerPage = 10;
 
-	const user = useAppSelector((state) => state.user.user);
 	const searchWord = useAppSelector((state) => state.searchWord);
 
 	const { getRecipeList } = useGetRecipeList();
@@ -37,11 +36,7 @@ const RecipeManagement = () => {
 			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase())
 			: true;
 
-		// 公開状態のチェック
-		const isPublicCheck = user
-			? recipe.isPublic == 1 || recipe.user === user.uid
-			: recipe.isPublic == 1;
-		return matchesSerch && isPublicCheck;
+		return matchesSerch;
 	});
 
 	//paginationフックを用いてページネーション用変数を準備
@@ -55,14 +50,14 @@ const RecipeManagement = () => {
 	// お気に入り操作時にrecipeListを更新
 	const handleUpdateRecipeList = (
 		recipeId: string,
-		newFavoriteCount: number
+		newFavoriteCount: number,
 	) => {
 		setRecipeList((prevState) =>
 			prevState.map((recipe) =>
 				recipe.recipeId === recipeId
 					? { ...recipe, favoriteCount: newFavoriteCount }
-					: recipe
-			)
+					: recipe,
+			),
 		);
 	};
 

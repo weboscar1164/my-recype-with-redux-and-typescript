@@ -16,8 +16,19 @@ export const userSlice = createSlice({
 		logout: (state) => {
 			state.user = null;
 		},
+		recipeCountUp: (state) => {
+			if (state.user) {
+				state.user.recipeCount += 1;
+			}
+		},
+		recipeCountDoun: (state) => {
+			if (state.user && state.user.recipeCount > 0) {
+				state.user.recipeCount -= 1;
+			}
+		},
 	},
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, recipeCountUp, recipeCountDoun } =
+	userSlice.actions;
 export default userSlice.reducer;

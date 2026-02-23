@@ -60,16 +60,17 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		// 検索語句との一致
 		const matchesSerch = searchWord
 			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase()) ||
-			  recipe.tags?.some((tag) =>
-					tag.toLowerCase().includes(searchWord.toLowerCase())
-			  )
+				recipe.tags?.some((tag) =>
+					tag.toLowerCase().includes(searchWord.toLowerCase()),
+				)
 			: true;
 		//　お気に入りモード時におけるお気に入りリストとの一致
 		const matchesFavorites =
 			listMode === "favorites"
 				? favorites.some(
-						(favorites: FavoriteState) => favorites.recipeId === recipe.recipeId
-				  )
+						(favorites: FavoriteState) =>
+							favorites.recipeId === recipe.recipeId,
+					)
 				: true;
 
 		// マイレシピモード時におけるユーザーとの一致
@@ -99,14 +100,14 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	// お気に入り操作時にrecipeListを更新
 	const handleUpdateRecipeList = (
 		recipeId: string,
-		newFavoriteCount: number
+		newFavoriteCount: number,
 	) => {
 		setRecipeList((prevState) =>
 			prevState.map((recipe) =>
 				recipe.recipeId === recipeId
 					? { ...recipe, favoriteCount: newFavoriteCount }
-					: recipe
-			)
+					: recipe,
+			),
 		);
 	};
 

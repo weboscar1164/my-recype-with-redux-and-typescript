@@ -20,8 +20,8 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
 	{ label: "お気に入り", to: "/favorites", allow: ["user", "admin", "guest"] },
-	{ label: "レシピ作成", to: "/editRecipe", allow: ["user", "admin", "guest"] },
 	{ label: "マイレシピ", to: "/myRecipe", allow: ["user", "admin", "guest"] },
+	// { label: "レシピ作成", to: "/editRecipe", allow: ["user", "admin", "guest"] },
 ];
 
 const Navbar = () => {
@@ -53,6 +53,8 @@ const Navbar = () => {
 	};
 
 	const role = user?.role ?? "guest";
+
+	const isGuestLimitReached = user?.role === "guest" && user.recipeCount >= 5;
 
 	const isLoggedIn = !!user;
 
@@ -127,6 +129,27 @@ const Navbar = () => {
 								</li>
 							);
 						})}
+						{isGuestLimitReached ? (
+							<li>
+								<span
+									className="navItem navItemDisabled"
+									title="ゲストアカウントは5件まで投稿可能です。"
+									onClick={() => onClickDisabled(isLoggedIn)}
+								>
+									レシピ作成
+								</span>
+							</li>
+						) : (
+							<li>
+								<Link
+									className="navItem"
+									to="/editrecipe"
+									onClick={onClickLink}
+								>
+									レシピ作成
+								</Link>
+							</li>
+						)}
 						{role === "admin" && (
 							<li>
 								<Link className="navItem" to="/admin" onClick={onClickLink}>

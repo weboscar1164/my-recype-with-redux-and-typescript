@@ -44,14 +44,20 @@ export const useSignIn = () => {
 				const role = latestUserDoc.exists()
 					? latestUserDoc.data().role
 					: "guest";
+
+				const recipeCount = latestUserDoc.exists()
+					? latestUserDoc.data().recipeCount
+					: 0;
+
 				const loginUser: User = {
 					...loginUserBase,
 					role,
+					recipeCount,
 				};
 				console.log("Login successful: ", loginUser);
 
 				dispatch(
-					openPopup({ message: "ログインしました。", action: "success" })
+					openPopup({ message: "ログインしました。", action: "success" }),
 				);
 				dispatch(setError(null));
 

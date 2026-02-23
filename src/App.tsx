@@ -45,6 +45,7 @@ function App() {
 				//firebaseから管理者情報を取得
 				const userDoc = await getDoc(doc(db, "users", loginUser.uid));
 				const role = userDoc.exists() ? userDoc.data().role : "guest";
+				const recipeCount = userDoc.exists() ? userDoc.data().recipeCount : 0;
 
 				//firebaseからignores取得
 				const ignoreDoc = await getDoc(doc(db, "ignores", loginUser.uid));
@@ -63,6 +64,7 @@ function App() {
 							email: loginUser.email,
 							displayName: loginUser.displayName,
 							role,
+							recipeCount,
 						},
 					}),
 				);

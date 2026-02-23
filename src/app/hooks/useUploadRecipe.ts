@@ -2,6 +2,7 @@ import {
 	CollectionReference,
 	collection,
 	doc,
+	increment,
 	runTransaction,
 	serverTimestamp,
 	updateDoc,
@@ -12,6 +13,7 @@ import { InitialRecipeState } from "../../Types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { resetRecipeInfo } from "../../features/recipeSlice";
 import { setError, setLoading } from "../../features/pageStatusSlice";
+import { recipeCountUp } from "../../features/userSlice";
 
 export const useUploadRecipe = () => {
 	const user = useAppSelector((state) => state.user.user);
@@ -96,7 +98,7 @@ export const useUploadRecipe = () => {
 		}
 
 		try {
-			console.log(recipeData);
+			// console.log(recipeData);
 			if (recipeInfo.recipeId) {
 				const docRef = doc(db, "recipes", recipeInfo.recipeId);
 				await updateDoc(docRef, recipeData);
@@ -104,7 +106,7 @@ export const useUploadRecipe = () => {
 				await runTransaction(db, async (transaction) => {
 					const collectionRef = collection(
 						db,
-						"recipes"
+						"recipes",
 					) as CollectionReference<InitialRecipeState>;
 					const docRef = doc(collectionRef);
 					transaction.set(docRef, recipeData);
@@ -115,9 +117,12 @@ export const useUploadRecipe = () => {
 						"recipes",
 						docRef.id,
 						"metaData",
-						"favoriteCount"
+						"favoriteCount",
 					);
 					transaction.set(metaDataDocRef, { count: 0 });
+					const userRef = doc(db, "users", user.uid);
+					transaction.update(userRef, { recipeCount: increment(1) });
+					dispatch(recipeCountUp());
 				});
 			}
 		} catch (error) {

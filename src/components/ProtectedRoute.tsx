@@ -10,7 +10,6 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allow }) => {
 	const user = useAppSelector((state) => state.user.user);
-	console.log("user.role: ", user?.role);
 
 	if (!user) {
 		return <Navigate to="/forbidden?reason=login" replace />;

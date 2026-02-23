@@ -16,6 +16,7 @@ export type Role = "guest" | "user" | "admin";
 
 export type User = AuthUser & {
 	role: Role;
+	recipeCount: number;
 };
 
 // レシピ
