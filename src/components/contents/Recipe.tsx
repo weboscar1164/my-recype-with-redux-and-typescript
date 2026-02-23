@@ -16,13 +16,14 @@ import {
 } from "../../app/hooks/hooks";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { openPopup } from "../../features/popupSlice";
+import { recipeCountDoun, recipeCountUp } from "../../features/userSlice";
 
 const Recipe = () => {
 	const dispatch = useAppDispatch();
 
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<boolean>(false);
 	const [confirmAction, setConfirmAction] = useState<"deleteRecipe" | null>(
-		null
+		null,
 	);
 
 	// URLから所在ページを取得
@@ -103,14 +104,14 @@ const Recipe = () => {
 		setConfirmAction("deleteRecipe");
 		let confirmMessage;
 		if (currentRecipe.user !== user?.uid && user?.role === "admin") {
-			confirmMessage = "別のユーザーが作成したレシピです。 \n 削除しますか？";
+			confirmMessage = "別のユーザーが作成したレシピです。削除しますか？";
 		} else {
 			confirmMessage = "削除しますか？";
 		}
 		dispatch(
 			openModal({
 				message: confirmMessage,
-			})
+			}),
 		);
 	};
 
@@ -119,11 +120,12 @@ const Recipe = () => {
 		const deleteRecipe = async () => {
 			if (modalState.confirmed !== null && confirmAction === "deleteRecipe") {
 				if (modalState.confirmed) {
-					if (currentRecipe.recipeId) {
+					if (currentRecipe.recipeId && currentRecipe.user) {
 						try {
 							await deleteFirebaseDocument(
 								currentRecipe.recipeId,
-								currentRecipe.recipeImageUrl
+								currentRecipe.user,
+								currentRecipe.recipeImageUrl,
 							);
 							if (isAdminMode) {
 								navigate("/admin");
@@ -131,7 +133,7 @@ const Recipe = () => {
 								navigate("/");
 							}
 							dispatch(
-								openPopup({ message: "削除しました。", action: "success" })
+								openPopup({ message: "削除しました。", action: "success" }),
 							);
 						} catch (error) {
 							console.error("レシピ削除時にエラーが発生しました: ", error);
@@ -163,11 +165,11 @@ const Recipe = () => {
 								onClick={() =>
 									user?.uid
 										? currentRecipe.recipeId &&
-										  currentRecipe.recipeName &&
-										  handleChangeFavorite(user.uid, currentRecipe.recipeId)
+											currentRecipe.recipeName &&
+											handleChangeFavorite(user.uid, currentRecipe.recipeId)
 										: alert(
-												"お気に入り機能を使用するにはログインしてください。"
-										  )
+												"お気に入り機能を使用するにはログインしてください。",
+											)
 								}
 							>
 								{currentRecipe.recipeId &&
@@ -213,16 +215,20 @@ const Recipe = () => {
 						</>
 					)}
 				</div>
-				<div className="recipeTag">
-					<ul>
+				{currentRecipe.tags && currentRecipe.tags[0] !== "" ? (
+					<div className="recipeTag">
 						<ul>
-							{currentRecipe.tags &&
-								currentRecipe.tags.map((tag, index) => (
-									<li key={index}>{tag}</li>
-								))}
+							<ul>
+								{currentRecipe.tags &&
+									currentRecipe.tags.map((tag, index) => (
+										<li key={index}>{tag}</li>
+									))}
+							</ul>
 						</ul>
-					</ul>
-				</div>
+					</div>
+				) : (
+					""
+				)}
 				<p className="recipeImg">
 					<img src={getRecipeImage(currentRecipe.recipeImageUrl)} alt="" />
 				</p>
@@ -252,7 +258,7 @@ const Recipe = () => {
 											</div>
 										</div>
 									</li>
-								)
+								),
 							)}
 					</ul>
 				</section>
@@ -264,7 +270,7 @@ const Recipe = () => {
 							currentRecipe.procedures.map(
 								(procedure: string, index: number) => (
 									<li key={index}>{procedure}</li>
-								)
+								),
 							)}
 					</ol>
 				</section>
