@@ -16,7 +16,7 @@ const Confirm = () => {
 	const dispatch = useAppDispatch();
 
 	const recipeInfo: InitialRecipeState = useAppSelector(
-		(state) => state.recipe
+		(state) => state.recipe,
 	);
 	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
 
@@ -47,7 +47,7 @@ const Confirm = () => {
 	};
 
 	const getRecipeImage = () => {
-		console.log(recipeInfo.recipeImageUrl);
+		// console.log(recipeInfo.recipeImageUrl);
 		return recipeInfo.recipeImageUrl
 			? recipeInfo.recipeImageUrl
 			: "noimage.jpg";
@@ -75,7 +75,7 @@ const Confirm = () => {
 				openPopup({
 					message: "レシピのアップデートに失敗しました。",
 					action: "notice",
-				})
+				}),
 			);
 			console.error("レシピのアップデートに失敗しました: ", error);
 		}

@@ -1,0 +1,78 @@
+@import "../_variables.scss";
+.drawer {
+	height: 100vh;
+	width: 100%;
+	color: #59340a;
+
+	&Paper {
+		background: rgba(#f3ede6, 0.9) !important;
+		overflow-y: scroll !important;
+	}
+
+	&Container {
+		padding: 30px 0 30px;
+		width: 85%;
+		max-width: 700px;
+		margin: auto;
+
+		@include respond-to(sm) {
+			width: 90%;
+		}
+	}
+	header,
+	p,
+	h3 {
+		margin-bottom: 10px;
+	}
+
+	ul {
+		list-style-type: none;
+		padding-left: 0;
+		li {
+			margin: 5px 0;
+			p {
+				padding-left: 20px;
+			}
+		}
+	}
+	hr {
+		margin: 10px 0;
+	}
+	textarea {
+		padding: 10px;
+		width: 100%;
+		height: 200px;
+		margin-bottom: 10px;
+		overflow-y: scroll;
+		border: none;
+		background-color: darken(#f3ede6, 10);
+		border-radius: 5px;
+	}
+
+	details {
+		margin-bottom: 10px;
+		pre {
+			background-color: darken(#f3ede6, 10);
+			padding: 10px;
+			border-radius: 5px;
+		}
+	}
+	button {
+		border: none;
+		background: #59340a;
+		color: #fff;
+		padding: 10px 30px;
+		border-radius: 10px;
+		transition: background-color 0.3s;
+
+		&:hover {
+			background: lighten(#59340a, 10);
+		}
+	}
+	/* タッチデバイス用のスタイル */
+	@media (hover: none) {
+		.button:hover {
+			background: #59340a; /* 元の背景色に戻す */
+		}
+	}
+}

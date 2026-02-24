@@ -39,6 +39,32 @@
 		&Wrapper {
 			align-items: end;
 		}
+
+		&GuideButton {
+			border: none;
+			background: none;
+			position: relative;
+			cursor: pointer;
+
+			&::after {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				content: "";
+				background: #59340a;
+				height: 1px;
+				width: 100%;
+				transform: scaleX(0);
+				transition: transform 0.3s;
+				transform-origin: left;
+			}
+
+			&:hover {
+				&::after {
+					transform: scaleX(1);
+				}
+			}
+		}
 	}
 
 	&Form {

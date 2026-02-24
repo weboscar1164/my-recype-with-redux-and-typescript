@@ -3,7 +3,7 @@
 .popup {
 	&Content {
 		opacity: 0;
-		z-index: 999;
+		z-index: 3000;
 		position: absolute;
 		top: 100px;
 		left: 50%;
@@ -16,7 +16,9 @@
 		color: #fff;
 		line-height: 1.2;
 		font-size: 18px;
-		transition: opacity 0.3s, transform 0.3s;
+		transition:
+			opacity 0.3s,
+			transform 0.3s;
 
 		svg {
 			display: block;
