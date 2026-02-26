@@ -87,7 +87,7 @@ function App() {
 					{!error ? (
 						<Routes>
 							<Route
-								path="/editrecipe"
+								path="/recipes/new"
 								element={
 									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<EditRecipe />
@@ -95,17 +95,25 @@ function App() {
 								}
 							/>
 							<Route
-								path="/confirm"
+								path="/recipes/:id/edit"
+								element={
+									<ProtectedRoute allow={["user", "admin", "guest"]}>
+										<EditRecipe />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/recipes/confirm"
 								element={
 									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<Confirm />
 									</ProtectedRoute>
 								}
 							/>
-							<Route path="/Recipe" element={<Recipe />} />
+							<Route path="/Recipes/:id" element={<Recipe />} />
 							<Route path="/" element={<RecipeList listMode={""} />} />
 							<Route
-								path="/favorites"
+								path="/recipes/favorites"
 								element={
 									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<RecipeList listMode={"favorites"} />
@@ -113,7 +121,7 @@ function App() {
 								}
 							/>
 							<Route
-								path="/myRecipe"
+								path="/recipes/mine"
 								element={
 									<ProtectedRoute allow={["user", "admin", "guest"]}>
 										<RecipeList listMode={"myRecipe"} />
@@ -129,7 +137,7 @@ function App() {
 								}
 							/>
 							<Route path="/forbidden" element={<Forbidden />} />
-							<Route path="about-auth" element={<AboutAuth />} />
+							<Route path="/about-auth" element={<AboutAuth />} />
 						</Routes>
 					) : (
 						<Error />

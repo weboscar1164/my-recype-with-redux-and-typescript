@@ -19,9 +19,16 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-	{ label: "お気に入り", to: "/favorites", allow: ["user", "admin", "guest"] },
-	{ label: "マイレシピ", to: "/myRecipe", allow: ["user", "admin", "guest"] },
-	// { label: "レシピ作成", to: "/editRecipe", allow: ["user", "admin", "guest"] },
+	{
+		label: "お気に入り",
+		to: "/recipes/favorites",
+		allow: ["user", "admin", "guest"],
+	},
+	{
+		label: "マイレシピ",
+		to: "/recipes/mine",
+		allow: ["user", "admin", "guest"],
+	},
 ];
 
 const Navbar = () => {
@@ -143,7 +150,7 @@ const Navbar = () => {
 							<li>
 								<Link
 									className="navItem"
-									to="/editrecipe"
+									to="/recipes/new"
 									onClick={onClickLink}
 								>
 									レシピ作成

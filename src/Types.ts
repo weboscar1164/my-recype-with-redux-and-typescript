@@ -39,6 +39,7 @@ export interface InitialRecipeState {
 
 // 材料
 export interface MaterialState {
+	id: string;
 	name: string;
 	quantity: string;
 	group: number;

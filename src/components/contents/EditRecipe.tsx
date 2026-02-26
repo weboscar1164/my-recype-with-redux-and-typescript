@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Tooltip } from "@mui/material";
 import "./EditRecipe.scss";
+import { v4 as uuid } from "uuid";
 
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,6 +11,7 @@ import { setRecipeInfo } from "../../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
 import { openPopup } from "../../features/popupSlice";
 import { usetagSuggestions } from "../../app/hooks/useTagSuggestions";
+import JsonImportGuideDrawer from "../JsonImportGuideDrawer";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -26,6 +28,7 @@ const EditRecipe = () => {
 	}
 
 	interface Material {
+		id: string;
 		name: string;
 		quantity: string;
 		group: number;
@@ -55,7 +58,7 @@ const EditRecipe = () => {
 	>([]);
 	const [showSuggestions, setShowSuggestions] = useState<boolean[]>([]);
 	const [materials, setMaterials] = useState<Material[]>([
-		{ name: "", quantity: "", group: 0 },
+		{ id: uuid(), name: "", quantity: "", group: 0 },
 	]);
 	const [procedures, setProcedures] = useState<string[]>([""]);
 	const [errors, setErrors] = useState<any>({});
@@ -64,6 +67,7 @@ const EditRecipe = () => {
 	const [validateOnSubmit, setVaridateOnSubmit] = useState<boolean>(false);
 	const [preview, setPreview] = useState<string>("");
 	const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
+	const [openGuide, setOpenGuide] = useState<boolean>(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,7 +97,13 @@ const EditRecipe = () => {
 		}
 
 		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
-			setMaterials(recipeInfo.materials);
+			const normalizedMaterials = recipeInfo.materials.map((m) => ({
+				id: m.id ?? uuid(),
+				name: m.name,
+				quantity: m.quantity,
+				group: Number(m.group ?? 0),
+			}));
+			setMaterials(normalizedMaterials);
 		}
 
 		if (recipeInfo.procedures && recipeInfo.procedures.length !== 0) {
@@ -169,7 +179,14 @@ const EditRecipe = () => {
 			comment: jsonData.comment || "",
 			serves: jsonData.serves || 1,
 		});
-		setMaterials(jsonData.materials || []);
+		setMaterials(
+			(jsonData.materials || []).map((m: any) => ({
+				id: uuid(),
+				name: m.name ?? "",
+				quantity: m.quantity ?? "",
+				group: Number(m.group ?? 0),
+			})),
+		);
 		setProcedures(jsonData.procedures || []);
 	}, [jsonData]);
 
@@ -203,7 +220,7 @@ const EditRecipe = () => {
 			fileInputRef.current.value = "";
 		}
 
-		console.log("file:", file);
+		// console.log("file:", file);
 		setFileErrors({});
 
 		if (!file) {
@@ -220,13 +237,13 @@ const EditRecipe = () => {
 		reader.onload = (e) => {
 			try {
 				const result = e.target?.result;
-				console.log("result: ", result);
+				// console.log("result: ", result);
 				if (typeof result === "string") {
 					const parsedJson = JSON.parse(result);
-					console.log("parsedJson: ", parsedJson);
+					// console.log("parsedJson: ", parsedJson);
 
 					const validationErrors = validateJsonData(parsedJson);
-					console.log(validationErrors);
+					// console.log(validationErrors);
 
 					if (Object.keys(validationErrors).length > 0) {
 						console.error("バリデーションエラー: ", validationErrors);
@@ -234,7 +251,7 @@ const EditRecipe = () => {
 						return;
 					}
 					setJsonData(parsedJson);
-					console.log("setJson");
+					// console.log("setJson");
 					setFileErrors({});
 				}
 			} catch (error) {
@@ -486,7 +503,10 @@ const EditRecipe = () => {
 	};
 
 	const handleAddMaterial = () => {
-		setMaterials([...materials, { name: "", quantity: "", group: 0 }]);
+		setMaterials([
+			...materials,
+			{ id: uuid(), name: "", quantity: "", group: 0 },
+		]);
 	};
 
 	const handleAddProcedure = () => {
@@ -606,9 +626,9 @@ const EditRecipe = () => {
 			procedures: procedures,
 		};
 
-		console.log(newRecipe);
+		// console.log(newRecipe);
 		dispatch(setRecipeInfo(newRecipe));
-		navigate("/confirm");
+		navigate("/recipes/confirm");
 	};
 
 	//バリデーション
@@ -684,397 +704,419 @@ const EditRecipe = () => {
 		validateMaterial(materials, newErrors);
 		validateProcedure(procedures, newErrors);
 
-		console.log(newErrors);
+		// console.log(newErrors);
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
 
 	return (
-		<div className="editRecipe">
-			<div className="editRecipeContainer">
-				<form className="editRecipeForm" onSubmit={handleSubmit}>
-					<h2>{!recipe.recipeId ? "レシピ作成" : "レシピ編集"}</h2>
-					<ul className="editRecipeFormHeader">
-						{/* inputFile */}
-						{!recipe.recipeId && (
-							<>
-								<li className="editRecipeInputFileWrapper">
-									<label
-										className="button editRecipeInputFileButton"
-										htmlFor="recipeJsonData"
-									>
-										ファイル取込
-									</label>
-									<input
-										className="editRecipeInputFile"
-										type="file"
-										ref={fileInputRef}
-										accept=".json"
-										id="recipeJsonData"
-										name="recipeJsonData"
-										onChange={(e) => handleJsonChange(e)}
-									/>
-									{fileErrors.jsonError && (
-										<span className="validationError">
-											{fileErrors.jsonError}
-										</span>
-									)}
-								</li>
-							</>
-						)}
-						{/* recipeName */}
-						<li>
-							<label className="editRecipeFormLabel" htmlFor="recipeName">
-								レシピ名
-							</label>
-							<input
-								type="text"
-								id="recipeName"
-								name="recipeName"
-								onChange={(e) =>
-									handleChangeRecipe(e.target.value, "recipeName")
-								}
-								ref={recipeNameRef}
-								value={recipe.recipeName}
-							/>
-							{errors.recipeName && (
-								<span className="validationError">{errors.recipeName}</span>
+		<>
+			<div className="editRecipe">
+				<div className="editRecipeContainer">
+					<form className="editRecipeForm" onSubmit={handleSubmit}>
+						<h2>{!recipe.recipeId ? "レシピ作成" : "レシピ編集"}</h2>
+						<ul className="editRecipeFormHeader">
+							{/* inputFile */}
+							{!recipe.recipeId && (
+								<>
+									<li className="editRecipeInputFileWrapper">
+										<label
+											className="button editRecipeInputFileButton"
+											htmlFor="recipeJsonData"
+										>
+											ファイル取込
+										</label>
+										<input
+											className="editRecipeInputFile"
+											type="file"
+											ref={fileInputRef}
+											accept=".json"
+											id="recipeJsonData"
+											name="recipeJsonData"
+											onChange={(e) => handleJsonChange(e)}
+										/>
+										{fileErrors.jsonError && (
+											<span className="validationError">
+												{fileErrors.jsonError}
+											</span>
+										)}
+										<button
+											className="editRecipeInputFileGuideButton"
+											onClick={() => setOpenGuide(true)}
+											type="button"
+										>
+											JSONファイル取り込みについて
+										</button>
+									</li>
+								</>
 							)}
-						</li>
-						{/* public */}
-						<li>
-							<label className="editRecipeFormLabel" htmlFor="recipeName">
-								公開/非公開
-							</label>
-							{user?.role === "guest" ? (
-								<p>guestアカウントは非公開のみ選択できます。</p>
-							) : (
-								<select
-									name="isPublic"
-									id="isPublic"
+							{/* recipeName */}
+							<li>
+								<label className="editRecipeFormLabel" htmlFor="recipeName">
+									レシピ名
+								</label>
+								<input
+									type="text"
+									id="recipeName"
+									name="recipeName"
 									onChange={(e) =>
-										handleChangeRecipe(e.target.value, "isPublic")
+										handleChangeRecipe(e.target.value, "recipeName")
 									}
-									value={recipe.isPublic}
-								>
-									<option value="1">公開</option>
-									<option value="0">非公開</option>
-								</select>
-							)}
-						</li>
-						{/* tags */}
-						<li>
-							<h3>タグ</h3>
-							<div className="editRecipeFormTags" ref={tagRef}>
-								<ul className="editRecipeFormTagsUl">
-									{tags.map((tag, index) => (
-										<li key={index} className="editRecipeFormTagsLi">
-											<div className="editRecipeFormTagsItem">
-												<input
-													id={`tag${index + 1}`}
-													name={`tag${index + 1}`}
-													value={tag}
-													onChange={(e) =>
-														handleChangeTag(index, e.target.value)
-													}
-													onKeyDown={(e) => handleKeyDown(e)}
-													onFocus={() => handleShowSuggestion(index)}
-													onBlur={() => {
-														// サジェスト候補クリックイベントが走るのを少し待ってから非表示に
-														setTimeout(() => handleCloseSuggestion(index), 200);
-													}}
-												/>
-												{tags.length !== 1 && (
-													<div
-														className="editRecipeFormTagsCloseIcon"
-														onClick={() => handleCloseTag(index)}
-													>
-														<CloseIcon />
-													</div>
-												)}
-											</div>
-											{errors[`tag${index}`] && (
-												<span className="validationError">
-													{errors[`tag${index}`]}
-												</span>
-											)}
-											{filteredSuggestions.length !== 0 &&
-												showSuggestions[index] && (
-													<div className="editRecipeFormTagsSuggestions">
+									ref={recipeNameRef}
+									value={recipe.recipeName}
+								/>
+								{errors.recipeName && (
+									<span className="validationError">{errors.recipeName}</span>
+								)}
+							</li>
+							{/* public */}
+							<li>
+								<label className="editRecipeFormLabel" htmlFor="recipeName">
+									公開/非公開
+								</label>
+								{user?.role === "guest" ? (
+									<p>guestアカウントは非公開のみ選択できます。</p>
+								) : (
+									<select
+										name="isPublic"
+										id="isPublic"
+										onChange={(e) =>
+											handleChangeRecipe(e.target.value, "isPublic")
+										}
+										value={recipe.isPublic}
+									>
+										<option value="1">公開</option>
+										<option value="0">非公開</option>
+									</select>
+								)}
+							</li>
+							{/* tags */}
+							<li>
+								<h3>タグ</h3>
+								<div className="editRecipeFormTags" ref={tagRef}>
+									<ul className="editRecipeFormTagsUl">
+										{tags.map((tag, index) => (
+											<li key={index} className="editRecipeFormTagsLi">
+												<div className="editRecipeFormTagsItem">
+													<input
+														id={`tag${index + 1}`}
+														name={`tag${index + 1}`}
+														value={tag}
+														onChange={(e) =>
+															handleChangeTag(index, e.target.value)
+														}
+														onKeyDown={(e) => handleKeyDown(e)}
+														onFocus={() => handleShowSuggestion(index)}
+														onBlur={() => {
+															// サジェスト候補クリックイベントが走るのを少し待ってから非表示に
+															setTimeout(
+																() => handleCloseSuggestion(index),
+																200,
+															);
+														}}
+													/>
+													{tags.length !== 1 && (
 														<div
-															className="editRecipeFormTagsSuggestionsClose"
-															onClick={() => handleCloseSuggestion(index)}
+															className="editRecipeFormTagsCloseIcon"
+															onClick={() => handleCloseTag(index)}
 														>
 															<CloseIcon />
 														</div>
-														<ul>
-															{filteredSuggestions.map((s, idx) => (
-																<li
-																	key={idx}
-																	onClick={() =>
-																		handleSelectSuggestion(index, s.word)
-																	}
-																>
-																	{s.word}
-																</li>
-															))}
-														</ul>
-													</div>
+													)}
+												</div>
+												{errors[`tag${index}`] && (
+													<span className="validationError">
+														{errors[`tag${index}`]}
+													</span>
 												)}
-										</li>
-									))}
-								</ul>
-								{tags.length < 5 && (
-									<div className="editRecipeFormAdd editRecipeFormTagsAdd">
-										<div
-											className="editRecipeFormAddIcon"
-											onClick={handleAddTag}
-											onKeyDown={(e) => handleKeyDown(e)}
-											tabIndex={0}
-										>
-											<Tooltip title="追加">
-												<AddIcon />
-											</Tooltip>
-										</div>
-									</div>
-								)}
-							</div>
-						</li>
-						{/* image */}
-						<li>
-							<h3>完成画像</h3>
-							<label
-								className="button editRecipeInputImageButton"
-								htmlFor="recipeImg"
-							>
-								ファイルを選択
-							</label>
-							<input
-								className="editRecipeInputImage"
-								type="file"
-								id="recipeImg"
-								name="recipeImg"
-								onChange={(e) => handleImageChange(e)}
-							/>
-						</li>
-						{/* imageInput */}
-						{recipe.recipeImageUrl ? (
-							<div className="editRecipeFormImg">
-								<img src={preview} alt="Recipe Image" />
-							</div>
-						) : (
-							<p>選択されていません</p>
-						)}
-						{imgErrors.notImg && (
-							<span className="validationError">{imgErrors.notImg}</span>
-						)}
-						{imgErrors.sizeError && (
-							<span className="validationError">{imgErrors.sizeError}</span>
-						)}
-						{/* comment */}
-						<li>
-							<label className="editRecipeFormLabel" htmlFor="comment">
-								コメント
-							</label>
-
-							<input
-								id="comment"
-								name="comment"
-								onChange={(e) => handleChangeRecipe(e.target.value, "comment")}
-								value={recipe.comment}
-							/>
-							{errors.comment && (
-								<span className="validationError">{errors.comment}</span>
-							)}
-						</li>
-					</ul>
-					{/* material */}
-					<h3>材料</h3>
-					<div className="editRecipeFormServes">
-						<select
-							name="serves"
-							id="serves"
-							onChange={(e) => handleChangeRecipe(e.target.value, "serves")}
-							value={recipe.serves}
-						>
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="6">6</option>
-							<option value="7">7</option>
-							<option value="8">8</option>
-							<option value="9">9</option>
-							<option value="10">10</option>
-						</select>
-						<span>人分</span>
-					</div>
-					{/* materialItem */}
-					<div className="editRecipeFormMaterial" ref={materialRef}>
-						<ul>
-							{materials.length === 0 ? (
-								<p className="editRecipeFormMaterialNotice">
-									材料を追加してください。
-								</p>
-							) : (
-								materials.map((material, index) => (
-									<li key={index}>
-										<div
-											className="editRecipeFormMaterialClose"
-											onClick={() => handleCloseMaterial(index)}
-										>
-											<CloseIcon />
-										</div>
-										<div className="editRecipeFormMaterialTitle">
-											材料{index + 1}
-										</div>
-										<div className="editRecipeFormMaterialContent">
-											<label htmlFor={`materialName${index}`}>名前</label>
-											<input
-												type="text"
-												id={`materialName${index}`}
-												name={`materialName${index}`}
-												value={material.name}
-												onChange={(e) =>
-													handleChangeMaterial(e.target.value, "name", index)
-												}
+												{filteredSuggestions.length !== 0 &&
+													showSuggestions[index] && (
+														<div className="editRecipeFormTagsSuggestions">
+															<div
+																className="editRecipeFormTagsSuggestionsClose"
+																onClick={() => handleCloseSuggestion(index)}
+															>
+																<CloseIcon />
+															</div>
+															<ul>
+																{filteredSuggestions.map((s, idx) => (
+																	<li
+																		key={idx}
+																		onClick={() =>
+																			handleSelectSuggestion(index, s.word)
+																		}
+																	>
+																		{s.word}
+																	</li>
+																))}
+															</ul>
+														</div>
+													)}
+											</li>
+										))}
+									</ul>
+									{tags.length < 5 && (
+										<div className="editRecipeFormAdd editRecipeFormTagsAdd">
+											<div
+												className="editRecipeFormAddIcon"
+												onClick={handleAddTag}
 												onKeyDown={(e) => handleKeyDown(e)}
-											/>
+												tabIndex={0}
+											>
+												<Tooltip title="追加">
+													<AddIcon />
+												</Tooltip>
+											</div>
 										</div>
-										{errors[`materialName${index}`] && (
-											<span className="validationError">
-												{errors[`materialName${index}`]}
-											</span>
-										)}
-										<div className="editRecipeFormMaterialBottom">
+									)}
+								</div>
+							</li>
+							{/* image */}
+							<li>
+								<h3>完成画像</h3>
+								<label
+									className="button editRecipeInputImageButton"
+									htmlFor="recipeImg"
+								>
+									ファイルを選択
+								</label>
+								<input
+									className="editRecipeInputImage"
+									type="file"
+									id="recipeImg"
+									name="recipeImg"
+									onChange={(e) => handleImageChange(e)}
+								/>
+							</li>
+							{/* imageInput */}
+							{recipe.recipeImageUrl ? (
+								<div className="editRecipeFormImg">
+									<img src={preview} alt="Recipe Image" />
+								</div>
+							) : (
+								<p>選択されていません</p>
+							)}
+							{imgErrors.notImg && (
+								<span className="validationError">{imgErrors.notImg}</span>
+							)}
+							{imgErrors.sizeError && (
+								<span className="validationError">{imgErrors.sizeError}</span>
+							)}
+							{/* comment */}
+							<li>
+								<label className="editRecipeFormLabel" htmlFor="comment">
+									コメント
+								</label>
+
+								<input
+									id="comment"
+									name="comment"
+									onChange={(e) =>
+										handleChangeRecipe(e.target.value, "comment")
+									}
+									value={recipe.comment}
+								/>
+								{errors.comment && (
+									<span className="validationError">{errors.comment}</span>
+								)}
+							</li>
+						</ul>
+						{/* material */}
+						<h3>材料</h3>
+						<div className="editRecipeFormServes">
+							<select
+								name="serves"
+								id="serves"
+								onChange={(e) => handleChangeRecipe(e.target.value, "serves")}
+								value={recipe.serves}
+							>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
+								<option value="10">10</option>
+							</select>
+							<span>人分</span>
+						</div>
+						{/* materialItem */}
+						<div className="editRecipeFormMaterial" ref={materialRef}>
+							<ul>
+								{materials.length === 0 ? (
+									<p className="editRecipeFormMaterialNotice">
+										材料を追加してください。
+									</p>
+								) : (
+									materials.map((material, index) => (
+										<li key={material.id}>
+											<div
+												className="editRecipeFormMaterialClose"
+												onClick={() => handleCloseMaterial(index)}
+											>
+												<CloseIcon />
+											</div>
+											<div className="editRecipeFormMaterialTitle">
+												材料{index + 1}
+											</div>
 											<div className="editRecipeFormMaterialContent">
-												<label htmlFor={`quantity${index}`}>分量</label>
+												<label htmlFor={`materialName${index}`}>名前</label>
 												<input
 													type="text"
-													id={`quantity${index}`}
-													name={`quantity${index}`}
-													value={material.quantity}
+													id={`materialName${index}`}
+													name={`materialName${index}`}
+													value={material.name}
 													onChange={(e) =>
-														handleChangeMaterial(
-															e.target.value,
-															"quantity",
-															index,
-														)
+														handleChangeMaterial(e.target.value, "name", index)
 													}
 													onKeyDown={(e) => handleKeyDown(e)}
 												/>
 											</div>
-											<div className="editRecipeFormMaterialContent">
-												<label htmlFor={`group${index}`}>グループ</label>
-												<select
-													name={`group${index}`}
-													id={`group${index}`}
-													value={material.group}
-													onChange={(e) =>
-														handleChangeMaterial(e.target.value, "group", index)
-													}
-													onKeyDown={(e) => handleKeyDown(e)}
-												>
-													<option value="0"></option>
-													<option value="1">★</option>
-													<option value="2">☆</option>
-													<option value="3">●</option>
-													<option value="4">○</option>
-													<option value="5">◎</option>
-												</select>
+											{errors[`materialName${index}`] && (
+												<span className="validationError">
+													{errors[`materialName${index}`]}
+												</span>
+											)}
+											<div className="editRecipeFormMaterialBottom">
+												<div className="editRecipeFormMaterialContent">
+													<label htmlFor={`quantity${index}`}>分量</label>
+													<input
+														type="text"
+														id={`quantity${index}`}
+														name={`quantity${index}`}
+														value={material.quantity}
+														onChange={(e) =>
+															handleChangeMaterial(
+																e.target.value,
+																"quantity",
+																index,
+															)
+														}
+														onKeyDown={(e) => handleKeyDown(e)}
+													/>
+												</div>
+												<div className="editRecipeFormMaterialContent">
+													<label htmlFor={`group${index}`}>グループ</label>
+													<select
+														name={`group${index}`}
+														id={`group${index}`}
+														value={material.group}
+														onChange={(e) =>
+															handleChangeMaterial(
+																Number(e.target.value),
+																"group",
+																index,
+															)
+														}
+														onKeyDown={(e) => handleKeyDown(e)}
+													>
+														<option value="0"></option>
+														<option value="1">★</option>
+														<option value="2">☆</option>
+														<option value="3">●</option>
+														<option value="4">○</option>
+														<option value="5">◎</option>
+													</select>
+												</div>
 											</div>
-										</div>
-										{errors[`materialQuantity${index}`] && (
-											<span className="validationError">
-												{errors[`materialQuantity${index}`]}
-											</span>
-										)}
-									</li>
-								))
-							)}
-						</ul>
+											{errors[`materialQuantity${index}`] && (
+												<span className="validationError">
+													{errors[`materialQuantity${index}`]}
+												</span>
+											)}
+										</li>
+									))
+								)}
+							</ul>
 
-						<div className="editRecipeFormAdd">
-							<div
-								className="editRecipeFormAddIcon"
-								onClick={handleAddMaterial}
-								onKeyDown={(e) => handleKeyDown(e)}
-								tabIndex={0}
-							>
-								<Tooltip title="追加">
-									<AddIcon />
-								</Tooltip>
+							<div className="editRecipeFormAdd">
+								<div
+									className="editRecipeFormAddIcon"
+									onClick={handleAddMaterial}
+									onKeyDown={(e) => handleKeyDown(e)}
+									tabIndex={0}
+								>
+									<Tooltip title="追加">
+										<AddIcon />
+									</Tooltip>
+								</div>
 							</div>
 						</div>
-					</div>
-					{/* procedure */}
-					<h3>作り方</h3>
-					<div className="editRecipeFormProcedure" ref={procedureRef}>
-						<ul>
-							{procedures.length === 0 ? (
-								<p className="editRecipeFormProcedureNotice">
-									作り方を入力してください。
-								</p>
-							) : (
-								procedures.map((procedure, index) => (
-									<li key={index}>
-										<div
-											className="editRecipeFormProcedureClose"
-											onClick={() => handleCloseProcedure(index)}
-										>
-											<CloseIcon />
-										</div>
-										<div className="editRecipeFormProcedureTitle">
-											作り方{index + 1}
-										</div>
-										<input
-											id={`procedure${index + 1}`}
-											name={`procedure${index + 1}`}
-											value={procedure}
-											onChange={(e) =>
-												handleChangeProcedure(index, e.target.value)
-											}
-											onKeyDown={(e) => handleKeyDown(e)}
-										/>
-										{errors[`procedure${index}`] && (
-											<span className="validationError">
-												{errors[`procedure${index}`]}
-											</span>
-										)}
-									</li>
-								))
-							)}
-						</ul>
-						<div className="editRecipeFormAdd">
-							<div
-								className="editRecipeFormAddIcon"
-								onClick={handleAddProcedure}
-								onKeyDown={(e) => handleKeyDown(e)}
-								tabIndex={0}
-							>
-								<Tooltip title="追加">
-									<AddIcon />
-								</Tooltip>
+						{/* procedure */}
+						<h3>作り方</h3>
+						<div className="editRecipeFormProcedure" ref={procedureRef}>
+							<ul>
+								{procedures.length === 0 ? (
+									<p className="editRecipeFormProcedureNotice">
+										作り方を入力してください。
+									</p>
+								) : (
+									procedures.map((procedure, index) => (
+										<li key={index}>
+											<div
+												className="editRecipeFormProcedureClose"
+												onClick={() => handleCloseProcedure(index)}
+											>
+												<CloseIcon />
+											</div>
+											<div className="editRecipeFormProcedureTitle">
+												作り方{index + 1}
+											</div>
+											<input
+												id={`procedure${index + 1}`}
+												name={`procedure${index + 1}`}
+												value={procedure}
+												onChange={(e) =>
+													handleChangeProcedure(index, e.target.value)
+												}
+												onKeyDown={(e) => handleKeyDown(e)}
+											/>
+											{errors[`procedure${index}`] && (
+												<span className="validationError">
+													{errors[`procedure${index}`]}
+												</span>
+											)}
+										</li>
+									))
+								)}
+							</ul>
+							<div className="editRecipeFormAdd">
+								<div
+									className="editRecipeFormAddIcon"
+									onClick={handleAddProcedure}
+									onKeyDown={(e) => handleKeyDown(e)}
+									tabIndex={0}
+								>
+									<Tooltip title="追加">
+										<AddIcon />
+									</Tooltip>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<div className="editRecipeFormSubmit">
-						<button className="button" type="submit">
-							確認画面に
-							<br className="brSmActive" />
-							進む
-						</button>
-						<button className="button" type="button" onClick={handleBackPage}>
-							前のページ
-							<br className="brSmActive" />
-							に戻る
-						</button>
-					</div>
-				</form>
+						<div className="editRecipeFormSubmit">
+							<button className="button" type="submit">
+								確認画面に
+								<br className="brSmActive" />
+								進む
+							</button>
+							<button className="button" type="button" onClick={handleBackPage}>
+								前のページ
+								<br className="brSmActive" />
+								に戻る
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
-		</div>
+			<JsonImportGuideDrawer
+				open={openGuide}
+				onClose={() => setOpenGuide(false)}
+			/>
+		</>
 	);
 };
 

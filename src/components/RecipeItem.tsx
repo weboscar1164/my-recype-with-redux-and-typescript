@@ -56,7 +56,7 @@ const RecipeItem = ({
 			"recipes",
 			recipeId,
 			"metaData",
-			"favoriteCount"
+			"favoriteCount",
 		);
 		const docSnap = await getDoc(docRef);
 		const metaDataDocSnap = await getDoc(metaDataDocRef);
@@ -83,7 +83,7 @@ const RecipeItem = ({
 
 			// console.log("newRecipe: ", newRecipe);
 			dispatch(setRecipeInfo(newRecipe));
-			navigate(`/recipe?currentPage=${currentPage}`);
+			navigate(`/recipes/${recipeId}?currentPage=${currentPage}`);
 		} else {
 			console.log("no sutch document!");
 		}
@@ -106,7 +106,7 @@ const RecipeItem = ({
 	// お気に入り切り替え
 	const handleClickFavorite = async (
 		userId: string | undefined,
-		recipeId: string
+		recipeId: string,
 	) => {
 		if (processingFavorites === recipeId) return;
 		setIsProcessingFavorites(recipeId);
@@ -115,7 +115,7 @@ const RecipeItem = ({
 			if (userId) {
 				// 現在のお気に入り状態を確認
 				const isFavorite = favorites.some(
-					(favorite: FavoriteState) => favorite.recipeId === recipeId
+					(favorite: FavoriteState) => favorite.recipeId === recipeId,
 				);
 
 				// reduxとfirestoreの整合性を保ちながら処理
@@ -139,7 +139,7 @@ const RecipeItem = ({
 				dispatch(
 					openModal({
 						message: "ログインが必要です。ログインしますか？",
-					})
+					}),
 				);
 			}
 		} finally {
@@ -153,8 +153,8 @@ const RecipeItem = ({
 			prevList.map((recipe) =>
 				recipe.recipeId === recipeId
 					? { ...recipe, favoriteCount: newCount }
-					: recipe
-			)
+					: recipe,
+			),
 		);
 		updateRecipeList(recipeId, newCount);
 	};
@@ -182,7 +182,8 @@ const RecipeItem = ({
 						>
 							{item.recipeId &&
 							favorites.some(
-								(favorite: FavoriteState) => favorite.recipeId === item.recipeId
+								(favorite: FavoriteState) =>
+									favorite.recipeId === item.recipeId,
 							) ? (
 								<FavoriteIcon
 									className={`recipeHeaderFavIcon ${

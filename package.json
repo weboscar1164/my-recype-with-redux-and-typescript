@@ -34,7 +34,8 @@
 		"redux-persist": "^6.0.0",
 		"rollup": "^4.36.0",
 		"sass": "^1.75.0",
-		"scss": "^0.2.4"
+		"scss": "^0.2.4",
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@types/kuromoji": "^0.1.3",

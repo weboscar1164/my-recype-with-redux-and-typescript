@@ -72,8 +72,8 @@ const Recipe = () => {
 
 	// レシピ画像がない場合はnoimageを表示
 	const getRecipeImage = (recipeImageUrl: string | null) => {
-		// console.log(recipeImageUrl);
-		return recipeImageUrl ? recipeImageUrl : "noimage.jpg";
+		console.log(recipeImageUrl);
+		return recipeImageUrl ? recipeImageUrl : "/noimage.jpg";
 	};
 
 	// グループ記号を取得
@@ -84,7 +84,7 @@ const Recipe = () => {
 
 	// 編集画面にジャンプ
 	const handleToEditRecipe = () => {
-		navigate("/editrecipe");
+		navigate(`/recipes/${currentRecipe.recipeId}/edit`);
 	};
 
 	// 前のページに戻る

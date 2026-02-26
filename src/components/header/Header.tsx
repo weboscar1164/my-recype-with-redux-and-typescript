@@ -69,12 +69,12 @@ const Header = () => {
 					<Link to={"/"} onClick={onClickLink}>
 						<img
 							className="headerLogoPc"
-							src="my_recipe_logo.png"
+							src="/my_recipe_logo.png"
 							alt="my recipe"
 						/>
 						<img
 							className="headerLogoSp"
-							src="my_recipe_logo_header.png"
+							src="/my_recipe_logo_header.png"
 							alt="my recipe"
 						/>
 					</Link>

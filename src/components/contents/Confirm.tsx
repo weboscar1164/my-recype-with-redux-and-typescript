@@ -27,13 +27,15 @@ const Confirm = () => {
 
 	useEffect(() => {
 		if (initialStateCheck) {
-			navigate("/editRecipe");
+			navigate("/recipes/new");
 		}
 	}, [recipeInfo, initialStateCheck]);
 
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-		navigate("/editrecipe");
+		!recipeInfo.recipeId
+			? navigate("/recipes/new")
+			: navigate(`/recipes/${recipeInfo.recipeId}/edit`);
 	};
 
 	const getGroupIcon = (value: number) => {
@@ -80,6 +82,7 @@ const Confirm = () => {
 			console.error("レシピのアップデートに失敗しました: ", error);
 		}
 	};
+	console.log("recipeinfo: ", recipeInfo);
 
 	return (
 		<div className="recipe">
@@ -87,10 +90,14 @@ const Confirm = () => {
 				<h2>確認画面</h2>
 				<h3>{recipeInfo.recipeName}</h3>
 				<div className="recipeTag">
-					<ul>
-						{recipeInfo.tags &&
-							recipeInfo.tags.map((tag, index) => <li key={index}>{tag}</li>)}
-					</ul>
+					{recipeInfo.tags && recipeInfo.tags[0] !== "" ? (
+						<ul>
+							{recipeInfo.tags &&
+								recipeInfo.tags.map((tag, index) => <li key={index}>{tag}</li>)}
+						</ul>
+					) : (
+						""
+					)}
 				</div>
 				<div>{getIsPublic(recipeInfo.isPublic)}</div>
 				<p className="recipeImg">
@@ -109,8 +116,8 @@ const Confirm = () => {
 					<h3>材料{recipeInfo.serves}人分</h3>
 					<ul>
 						{recipeInfo.materials &&
-							recipeInfo.materials.map((material, index) => (
-								<li key={index}>
+							recipeInfo.materials.map((material) => (
+								<li key={material.id}>
 									<div className="recipeMaterialGroup">
 										{getGroupIcon(material.group)}
 									</div>
