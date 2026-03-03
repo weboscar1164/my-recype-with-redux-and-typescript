@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { FavoriteState, InitialRecipeState, RecipeListItem } from "../Types";
+import { FavoriteState, RecipeListItem } from "../Types";
 import RecipeImage from "./contents/RecipeImage";
-import { setRecipeInfo } from "../features/recipeSlice";
 import { useNavigate } from "react-router-dom";
 import {
 	useAddFavorite,
@@ -10,8 +9,6 @@ import {
 	useDeleteFavorite,
 	useSignIn,
 } from "../app/hooks/hooks";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -47,47 +44,6 @@ const RecipeItem = ({
 	useEffect(() => {
 		setRecipeList(currentRecipes);
 	}, [currentRecipes]);
-
-	// レシピクリック時の挙動
-	const handleClickRecipe = async (recipeId: string) => {
-		const docRef = doc(db, "recipes", recipeId);
-		const metaDataDocRef = doc(
-			db,
-			"recipes",
-			recipeId,
-			"metaData",
-			"favoriteCount",
-		);
-		const docSnap = await getDoc(docRef);
-		const metaDataDocSnap = await getDoc(metaDataDocRef);
-
-		if (docSnap.exists()) {
-			const currentRecipe = docSnap.data();
-			const currentRecipeFavoriteCount = metaDataDocSnap.exists()
-				? metaDataDocSnap.data()?.count
-				: 0;
-			const newRecipe: InitialRecipeState = {
-				isPublic: currentRecipe.isPublic,
-				recipeName: currentRecipe.recipeName,
-				tags: currentRecipe.tags,
-				recipeImageUrl: currentRecipe.recipeImageUrl,
-				comment: currentRecipe.comment,
-				serves: currentRecipe.serves,
-				materials: currentRecipe.materials,
-				procedures: currentRecipe.procedures,
-				recipeId: recipeId,
-				user: currentRecipe.user,
-				userDisplayName: currentRecipe.userDisplayName,
-				favoriteCount: currentRecipeFavoriteCount,
-			};
-
-			// console.log("newRecipe: ", newRecipe);
-			dispatch(setRecipeInfo(newRecipe));
-			navigate(`/recipes/${recipeId}?currentPage=${currentPage}`);
-		} else {
-			console.log("no sutch document!");
-		}
-	};
 
 	useEffect(() => {
 		// ログインモーダルの確認処理
@@ -165,7 +121,9 @@ const RecipeItem = ({
 				<li key={item.recipeId}>
 					<div
 						className="recipeListItemLeft"
-						onClick={() => handleClickRecipe(item.recipeId)}
+						onClick={() =>
+							navigate(`/recipes/${item.recipeId}?currentPage=${currentPage}`)
+						}
 					>
 						<div className="recipeListImg">
 							<RecipeImage

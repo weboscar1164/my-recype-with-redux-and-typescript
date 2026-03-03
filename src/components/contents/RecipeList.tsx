@@ -45,15 +45,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		fetchLists();
 	}, []);
 
-	// ページ番号を変更したときにクエリパラメータを変更
-	useEffect(() => {
-		const currentPageFromParams = Number(searchParams.get("page"));
-		if (currentPageFromParams !== currentPage) {
-			setSearchParams({
-				page: String(currentPage),
-			});
-		}
-	}, [setSearchParams, searchParams]);
+	const pageFromUrl = Number(searchParams.get("page")) || 1;
 
 	// 表示するリストのソート
 	const sortedRecipes = recipeList.filter((recipe) => {
@@ -117,7 +109,11 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		totalPages,
 		currentPage,
 		handlePageChange,
-	} = usePagination(sortedRecipes, recipesPerPage);
+	} = usePagination(sortedRecipes, recipesPerPage, pageFromUrl);
+
+	useEffect(() => {
+		setSearchParams({ page: String(currentPage) });
+	}, [currentPage]);
 
 	const handleRenderTitle = (listMode: string) => {
 		switch (listMode) {

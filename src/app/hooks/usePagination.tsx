@@ -1,7 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export const usePagination = <T,>(items: T[], itemsPerPage: number) => {
-	const [currentPage, setCurrentPage] = useState(1);
+export const usePagination = <T,>(
+	items: T[],
+	itemsPerPage: number,
+	initialPage: number = 1,
+) => {
+	const [currentPage, setCurrentPage] = useState(initialPage);
+
+	// items が変わったときにページが範囲外なら補正
+	useEffect(() => {
+		const totalPages = Math.ceil(items.length / itemsPerPage);
+		if (totalPages === 0) return;
+		if (currentPage > totalPages) {
+			setCurrentPage(totalPages);
+		}
+	}, [items]);
 
 	//総ページ数を計算
 	const totalPages = Math.ceil(items.length / itemsPerPage);

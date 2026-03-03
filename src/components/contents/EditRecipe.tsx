@@ -6,12 +6,14 @@ import { v4 as uuid } from "uuid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
-import { InitialRecipeState } from "../../Types";
-import { setRecipeInfo } from "../../features/recipeSlice";
-import { useNavigate } from "react-router-dom";
+import { InitialRecipeState, MaterialState } from "../../Types";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { openPopup } from "../../features/popupSlice";
 import { usetagSuggestions } from "../../app/hooks/useTagSuggestions";
 import JsonImportGuideDrawer from "../JsonImportGuideDrawer";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import Loading from "../Loading";
 
 const EditRecipe = () => {
 	const dispatch = useAppDispatch();
@@ -37,7 +39,8 @@ const EditRecipe = () => {
 		[key: string]: any;
 	}
 
-	const recipeInfo = useAppSelector((state) => state.recipe);
+	const location = useLocation();
+
 	const { suggestions } = usetagSuggestions();
 	const user = useAppSelector((state) => state.user.user);
 
@@ -68,6 +71,10 @@ const EditRecipe = () => {
 	const [preview, setPreview] = useState<string>("");
 	const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
 	const [openGuide, setOpenGuide] = useState<boolean>(false);
+	const [recipeInfo, setRecipeInfo] = useState<InitialRecipeState | null>(null);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+
+	const { id } = useParams();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,6 +83,41 @@ const EditRecipe = () => {
 	const tagRef = useRef<HTMLInputElement>(null);
 	const materialRef = useRef<HTMLDivElement>(null);
 	const procedureRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const fetchRecipe = async () => {
+			if (location.state) {
+				setRecipeInfo(location.state);
+				return;
+			}
+			if (!id) return;
+			setIsLoading(true);
+
+			try {
+				if (recipeInfo?.recipeId === id) return;
+
+				const docRef = doc(db, "recipes", id);
+
+				const docSnap = await getDoc(docRef);
+
+				if (docSnap.exists()) {
+					const data = docSnap.data() as InitialRecipeState;
+					setRecipeInfo({
+						...data,
+						recipeId: id,
+					});
+				} else {
+					navigate("/");
+				}
+			} catch (e) {
+				console.error("fetch error: ", e);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchRecipe();
+	}, [id, location.state]);
 
 	//再編集のためのstate取得
 	useEffect(() => {
@@ -92,11 +134,11 @@ const EditRecipe = () => {
 			setPreview(recipeInfo.recipeImageUrl || "");
 		}
 
-		if (recipeInfo.tags && recipeInfo.tags.length !== 0) {
+		if (recipeInfo?.tags && recipeInfo.tags.length !== 0) {
 			setTags(recipeInfo.tags);
 		}
 
-		if (recipeInfo.materials && recipeInfo.materials.length !== 0) {
+		if (recipeInfo?.materials && recipeInfo.materials.length !== 0) {
 			const normalizedMaterials = recipeInfo.materials.map((m) => ({
 				id: m.id ?? uuid(),
 				name: m.name,
@@ -106,7 +148,7 @@ const EditRecipe = () => {
 			setMaterials(normalizedMaterials);
 		}
 
-		if (recipeInfo.procedures && recipeInfo.procedures.length !== 0) {
+		if (recipeInfo?.procedures && recipeInfo.procedures.length !== 0) {
 			setProcedures(recipeInfo.procedures);
 		}
 
@@ -420,7 +462,7 @@ const EditRecipe = () => {
 		setTagInput(value);
 		if (validateOnSubmit) {
 			const newErrors = { ...errors };
-			validateTags(tags, newErrors);
+			validateTags(newTag, newErrors);
 			setErrors(newErrors);
 		}
 	};
@@ -596,7 +638,7 @@ const EditRecipe = () => {
 		e.preventDefault();
 		setVaridateOnSubmit(true);
 		if (validateForm()) {
-			handleSetRecipeSlice();
+			handleConfirm();
 		} else {
 			dispatch(
 				openPopup({
@@ -609,12 +651,18 @@ const EditRecipe = () => {
 
 	// 前のページに戻る
 	const handleBackPage = () => {
-		navigate(-1);
+		navigate(`/recipes/${id}`);
+	};
+
+	const sortMaterialsByGroup = (materials: MaterialState[]) => {
+		// 材料をグループごとにまとめる
+		return [...materials].sort((a, b) => a.group - b.group);
 	};
 
 	// recipesliceに登録して確認画面に行く
-	const handleSetRecipeSlice = () => {
-		const newRecipe: InitialRecipeState = {
+	const handleConfirm = () => {
+		const sortedMaterials = sortMaterialsByGroup(materials);
+		const formData: InitialRecipeState = {
 			recipeId: recipe.recipeId,
 			tags: tags,
 			isPublic: user?.role === "guest" ? 0 : recipe.isPublic,
@@ -622,13 +670,11 @@ const EditRecipe = () => {
 			recipeImageUrl: recipe.recipeImageUrl,
 			comment: recipe.comment,
 			serves: recipe.serves,
-			materials: materials,
+			materials: sortedMaterials,
 			procedures: procedures,
 		};
 
-		// console.log(newRecipe);
-		dispatch(setRecipeInfo(newRecipe));
-		navigate("/recipes/confirm");
+		navigate("/recipes/confirm", { state: formData });
 	};
 
 	//バリデーション
@@ -708,6 +754,9 @@ const EditRecipe = () => {
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
+	if (isLoading || !recipe) {
+		return <Loading />;
+	}
 
 	return (
 		<>

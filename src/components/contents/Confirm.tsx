@@ -4,20 +4,19 @@ import {
 	useAppSelector,
 	usetagSuggestions,
 } from "../../app/hooks/hooks";
-import { useNavigate } from "react-router-dom";
-import { InitialRecipeState } from "../../Types";
+import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect } from "react";
 import { isInitialState } from "../../features/recipeSlice";
 import { useUploadRecipe } from "../../app/hooks/useUploadRecipe";
 import { openPopup } from "../../features/popupSlice";
+import { InitialRecipeState } from "../../Types";
 
 const Confirm = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
-	const recipeInfo: InitialRecipeState = useAppSelector(
-		(state) => state.recipe,
-	);
+	const location = useLocation();
+	const recipeInfo: InitialRecipeState = location.state;
 	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
 
 	const initialStateCheck = isInitialState(recipeInfo);
@@ -34,8 +33,8 @@ const Confirm = () => {
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		!recipeInfo.recipeId
-			? navigate("/recipes/new")
-			: navigate(`/recipes/${recipeInfo.recipeId}/edit`);
+			? navigate("/recipes/new", { state: recipeInfo })
+			: navigate(`/recipes/${recipeInfo.recipeId}/edit`, { state: recipeInfo });
 	};
 
 	const getGroupIcon = (value: number) => {
@@ -49,10 +48,9 @@ const Confirm = () => {
 	};
 
 	const getRecipeImage = () => {
-		// console.log(recipeInfo.recipeImageUrl);
 		return recipeInfo.recipeImageUrl
 			? recipeInfo.recipeImageUrl
-			: "noimage.jpg";
+			: "/noimage.jpg";
 	};
 
 	const handleRecipeSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {

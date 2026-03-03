@@ -5,8 +5,8 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { FavoriteState, MaterialState } from "../../Types";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { FavoriteState, MaterialState, InitialRecipeState } from "../../Types";
 import {
 	useAppSelector,
 	useAddFavorite,
@@ -16,6 +16,9 @@ import {
 } from "../../app/hooks/hooks";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { openPopup } from "../../features/popupSlice";
+import { db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import Loading from "../Loading";
 
 const Recipe = () => {
 	const dispatch = useAppDispatch();
@@ -29,9 +32,12 @@ const Recipe = () => {
 	const [searchParams] = useSearchParams();
 
 	const [currentPage, setCurrentPage] = useState<string>("");
+	const [currentRecipe, setCurrentRecipe] = useState<InitialRecipeState | null>(
+		null,
+	);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const user = useAppSelector((state) => state.user.user);
-	const currentRecipe = useAppSelector((state) => state.recipe);
 	const favorites = useAppSelector((state) => state.favorites);
 	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
 
@@ -43,16 +49,54 @@ const Recipe = () => {
 
 	const modalState = useAppSelector((state) => state.modal);
 
+	const { id } = useParams();
+
 	useEffect(() => {
-		// console.log("searchParams:", searchParams);
-		// レシピデータが入っていない場合は一覧にリダイレクトする
-		if (!currentRecipe.recipeId) {
-			navigate("/");
-		}
-		// URLからページ番号を取得
-		setCurrentPage(searchParams.get("page") || "");
-		// console.log("render:", currentRecipe.user === user?.uid);
-	}, []);
+		const page = searchParams.get("page");
+		if (page) setCurrentPage(page);
+	}, [searchParams]);
+
+	// firebaseから詳細データを取得
+	useEffect(() => {
+		const fetchRecipe = async () => {
+			if (!id) return;
+			setIsLoading(true);
+			try {
+				const docRef = doc(db, "recipes", id);
+				const metaDataDocRef = doc(
+					db,
+					"recipes",
+					id,
+					"metaData",
+					"favoriteCount",
+				);
+
+				const docSnap = await getDoc(docRef);
+				const metaDataDocSnap = await getDoc(metaDataDocRef);
+
+				if (docSnap.exists()) {
+					const data = docSnap.data() as InitialRecipeState;
+					const favoriteCount = metaDataDocSnap.exists()
+						? metaDataDocSnap.data()?.count
+						: 0;
+
+					setCurrentRecipe({
+						...data,
+						recipeId: id,
+						favoriteCount,
+					});
+				} else {
+					navigate("/");
+				}
+			} catch (e) {
+				console.error(e);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchRecipe();
+	}, [id]);
 
 	// お気に入り制御
 	const handleChangeFavorite = async (userId: string, recipeId: string) => {
@@ -84,25 +128,14 @@ const Recipe = () => {
 
 	// 編集画面にジャンプ
 	const handleToEditRecipe = () => {
-		navigate(`/recipes/${currentRecipe.recipeId}/edit`);
-	};
-
-	// 前のページに戻る
-	const handleBack = () => {
-		if (currentPage) {
-			// currentPage をクエリパラメータに追加して指定ページに戻る
-			navigate(`/?page=${currentPage}`);
-		} else {
-			// currentPage が無い場合は通常の前ページに戻る動作
-			navigate(-1);
-		}
+		navigate(`/recipes/${currentRecipe?.recipeId}/edit`);
 	};
 
 	// レシピ削除モーダル表示
 	const handleDeleteRecipe = async () => {
 		setConfirmAction("deleteRecipe");
 		let confirmMessage;
-		if (currentRecipe.user !== user?.uid && user?.role === "admin") {
+		if (currentRecipe?.user !== user?.uid && user?.role === "admin") {
 			confirmMessage = "別のユーザーが作成したレシピです。削除しますか？";
 		} else {
 			confirmMessage = "削除しますか？";
@@ -119,7 +152,7 @@ const Recipe = () => {
 		const deleteRecipe = async () => {
 			if (modalState.confirmed !== null && confirmAction === "deleteRecipe") {
 				if (modalState.confirmed) {
-					if (currentRecipe.recipeId && currentRecipe.user) {
+					if (currentRecipe?.recipeId && currentRecipe.user) {
 						try {
 							await deleteFirebaseDocument(
 								currentRecipe.recipeId,
@@ -145,6 +178,10 @@ const Recipe = () => {
 		deleteRecipe();
 		setConfirmAction(null);
 	}, [modalState.confirmed]);
+
+	if (isLoading || !currentRecipe) {
+		return <Loading />;
+	}
 
 	return (
 		<div className="recipe">
@@ -274,7 +311,7 @@ const Recipe = () => {
 					</ol>
 				</section>
 				<div className="recipeSubmit">
-					<button className="button" onClick={handleBack}>
+					<button className="button" onClick={() => navigate(-1)}>
 						前のページに戻る
 					</button>
 				</div>
