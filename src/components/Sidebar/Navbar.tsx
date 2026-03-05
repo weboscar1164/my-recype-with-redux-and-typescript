@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import "./Navbar.scss";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
 	useAppDispatch,
 	useAppSelector,
 	useSignIn,
 } from "../../app/hooks/hooks";
 import { resetRecipeInfo } from "../../features/recipeSlice";
-import { clearSearchQuery } from "../../features/searchWordSlice";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { openPopup } from "../../features/popupSlice";
 
@@ -67,7 +66,6 @@ const Navbar = () => {
 
 	const onClickLink = () => {
 		dispatch(resetRecipeInfo());
-		dispatch(clearSearchQuery());
 		handleNavToggle();
 	};
 

@@ -127,7 +127,7 @@ const RecipeItem = ({
 					>
 						<div className="recipeListImg">
 							<RecipeImage
-								src={item.recipeImageUrl ? item.recipeImageUrl : "noimage.jpg"}
+								src={item.recipeImageUrl ? item.recipeImageUrl : "/noimage.jpg"}
 								alt={item.recipeName}
 							/>
 						</div>

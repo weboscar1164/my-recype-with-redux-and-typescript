@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./RecipeList.scss";
 import {
 	useAppSelector,
@@ -12,6 +12,7 @@ import Pagination from "../Pagination";
 import RecipeItem from "../RecipeItem";
 import { usePagination } from "../../app/hooks/hooks";
 import { setAdmin } from "../../features/pageStatusSlice";
+import Fuse from "fuse.js";
 
 const recipeList = ({ listMode }: { listMode: string }) => {
 	const dispatch = useAppDispatch();
@@ -25,7 +26,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 
 	const favorites = useAppSelector((state) => state.favorites);
 	const user = useAppSelector((state) => state.user.user);
-	const searchWord = useAppSelector((state) => state.searchWord);
+	const searchQuery = searchParams.get("search") ?? "";
 
 	const { getRecipeList } = useGetRecipeList();
 	const { fetchAdminsAndIgnores } = useFetchAdminsAndIgnores();
@@ -48,14 +49,35 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	const pageFromUrl = Number(searchParams.get("page")) || 1;
 
 	// 表示するリストのソート
-	const sortedRecipes = recipeList.filter((recipe) => {
-		// 検索語句との一致
-		const matchesSerch = searchWord
-			? recipe.recipeName.toLowerCase().includes(searchWord.toLowerCase()) ||
-				recipe.tags?.some((tag) =>
-					tag.toLowerCase().includes(searchWord.toLowerCase()),
-				)
-			: true;
+	const toHiragana = (str: string) =>
+		str.replace(/[\u30a1-\u30f6]/g, (match) =>
+			String.fromCharCode(match.charCodeAt(0) - 0x60),
+		);
+
+	const normalizeText = (text: string) =>
+		toHiragana(text).toLowerCase().normalize("NFKC").trim();
+
+	const fuse = useMemo(() => {
+		const indexData = recipeList.map((recipe) => ({
+			...recipe,
+			_searchName: normalizeText(recipe.recipeName),
+			_searchTags: recipe.tags?.map((tag) => normalizeText(tag)) ?? [],
+		}));
+
+		return new Fuse(indexData, {
+			keys: ["_searchName", "_searchTags"],
+			threshold: 0.4,
+			ignoreLocation: true,
+		});
+	}, [recipeList]);
+
+	const searchedRecipes = useMemo(() => {
+		if (!searchQuery) return recipeList;
+
+		return fuse.search(normalizeText(searchQuery)).map((result) => result.item);
+	}, [searchQuery, fuse]);
+
+	const sortedRecipes = searchedRecipes.filter((recipe) => {
 		//　お気に入りモード時におけるお気に入りリストとの一致
 		const matchesFavorites =
 			listMode === "favorites"
@@ -75,17 +97,10 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 			: recipe.isPublic == 1;
 
 		// user状態のチェック
-		const isNotIgnores =
-			ignoreIdList.length !== 0
-				? ignoreIdList.some((ignoreId) => ignoreId !== recipe.user)
-				: true;
+		const isNotIgnores = !ignoreIdList.includes(recipe.user);
 
 		return (
-			matchesSerch &&
-			matchesFavorites &&
-			isPublicCheck &&
-			isNotIgnores &&
-			matchesCurrentUser
+			matchesFavorites && isPublicCheck && isNotIgnores && matchesCurrentUser
 		);
 	});
 
@@ -130,7 +145,7 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		<div className="recipeList">
 			<div className="container recipeListContainer">
 				<h2>{handleRenderTitle(listMode)}</h2>
-				<h3>{searchWord && `検索結果: ${searchWord}`}</h3>
+				<h3>{searchQuery && `検索結果: ${searchQuery}`}</h3>
 				{currentRecipes.length !== 0 ? (
 					<>
 						<RecipeItem
@@ -144,6 +159,8 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 							onPageChange={handlePageChange}
 						/>
 					</>
+				) : searchQuery ? (
+					<p>「{searchQuery}」の検索結果はありません</p>
 				) : (
 					<p>レシピがありません。</p>
 				)}

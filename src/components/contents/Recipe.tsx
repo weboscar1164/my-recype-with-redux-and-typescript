@@ -5,7 +5,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FavoriteState, MaterialState, InitialRecipeState } from "../../Types";
 import {
 	useAppSelector,
@@ -29,9 +29,7 @@ const Recipe = () => {
 	);
 
 	// URLから所在ページを取得
-	const [searchParams] = useSearchParams();
 
-	const [currentPage, setCurrentPage] = useState<string>("");
 	const [currentRecipe, setCurrentRecipe] = useState<InitialRecipeState | null>(
 		null,
 	);
@@ -50,11 +48,6 @@ const Recipe = () => {
 	const modalState = useAppSelector((state) => state.modal);
 
 	const { id } = useParams();
-
-	useEffect(() => {
-		const page = searchParams.get("page");
-		if (page) setCurrentPage(page);
-	}, [searchParams]);
 
 	// firebaseから詳細データを取得
 	useEffect(() => {
