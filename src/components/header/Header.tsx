@@ -10,13 +10,11 @@ import { Tooltip } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import { auth } from "../../firebase";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { openModal, resetModal } from "../../features/modalSlice";
 import { useEffect, useState } from "react";
 import { openPopup } from "../../features/popupSlice";
 import { setError } from "../../features/pageStatusSlice";
-import { resetRecipeInfo } from "../../features/recipeSlice";
-import { clearSearchQuery } from "../../features/searchWordSlice";
 
 const Header = () => {
 	const user = useAppSelector((state) => state.user.user);
@@ -26,6 +24,13 @@ const Header = () => {
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
+
+	const location = useLocation();
+
+	const hideSearchbar =
+		location.pathname.startsWith("/recipes/new") ||
+		location.pathname.includes("/edit") ||
+		location.pathname === "/recipes/confirm";
 
 	const signOutConfirm = () => {
 		const confirmMessage = "ログアウトしますか？";
@@ -57,16 +62,11 @@ const Header = () => {
 		handleLogout();
 	}, [modalState.confirmed]);
 
-	const onClickLink = () => {
-		dispatch(resetRecipeInfo());
-		dispatch(clearSearchQuery());
-	};
-
 	return (
 		<div className="header">
 			<div className="headerContainer">
 				<h1 className="headerLogo">
-					<Link to={"/"} onClick={onClickLink}>
+					<Link to={"/"}>
 						<img
 							className="headerLogoPc"
 							src="/my_recipe_logo.png"
@@ -79,7 +79,7 @@ const Header = () => {
 						/>
 					</Link>
 				</h1>
-				<Searchbar />
+				{!hideSearchbar && <Searchbar />}
 				{user ? (
 					<div className="userInfo" onClick={signOutConfirm}>
 						<Tooltip title={user?.displayName}>

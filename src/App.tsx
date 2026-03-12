@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+	BrowserRouter as Router,
+	Routes,
+	Route,
+	Navigate,
+} from "react-router-dom";
 
 import "./App.scss";
 import Header from "./components/header/Header";
@@ -26,6 +31,8 @@ import Popup from "./components/Popup";
 import { useWakeLock } from "./app/hooks/useWakeLock";
 import Forbidden from "./components/Forbidden";
 import AboutAuth from "./components/AboutAuth";
+import UserManagement from "./components/contents/admin/UserManagement";
+import RecipeManagement from "./components/contents/admin/RecipeManagement";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -86,48 +93,59 @@ function App() {
 				<div className="contents">
 					{!error ? (
 						<Routes>
-							<Route
-								path="/recipes/new"
-								element={
-									<ProtectedRoute allow={["user", "admin", "guest"]}>
-										<EditRecipe />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/recipes/:id/edit"
-								element={
-									<ProtectedRoute allow={["user", "admin", "guest"]}>
-										<EditRecipe />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/recipes/confirm"
-								element={
-									<ProtectedRoute allow={["user", "admin", "guest"]}>
-										<Confirm />
-									</ProtectedRoute>
-								}
-							/>
-							<Route path="/Recipes/:id" element={<Recipe />} />
-							<Route path="/" element={<RecipeList listMode={""} />} />
-							<Route
-								path="/recipes/favorites"
-								element={
-									<ProtectedRoute allow={["user", "admin", "guest"]}>
-										<RecipeList listMode={"favorites"} />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/recipes/mine"
-								element={
-									<ProtectedRoute allow={["user", "admin", "guest"]}>
-										<RecipeList listMode={"myRecipe"} />
-									</ProtectedRoute>
-								}
-							/>
+							<Route path="recipes">
+								<Route index element={<RecipeList listMode="all" />} />
+
+								<Route
+									path="favorites"
+									element={
+										<ProtectedRoute allow={["user", "admin", "guest"]}>
+											<RecipeList listMode="favorites" />
+										</ProtectedRoute>
+									}
+								/>
+
+								<Route
+									path="mine"
+									element={
+										<ProtectedRoute allow={["user", "admin", "guest"]}>
+											<RecipeList listMode="myRecipe" />
+										</ProtectedRoute>
+									}
+								/>
+
+								<Route path=":id" element={<Recipe />} />
+								<Route path="favorites/:id" element={<Recipe />} />
+								<Route path="mine/:id" element={<Recipe />} />
+
+								<Route
+									path="new"
+									element={
+										<ProtectedRoute allow={["user", "admin", "guest"]}>
+											<EditRecipe />
+										</ProtectedRoute>
+									}
+								/>
+
+								<Route
+									path=":id/edit"
+									element={
+										<ProtectedRoute allow={["user", "admin", "guest"]}>
+											<EditRecipe />
+										</ProtectedRoute>
+									}
+								/>
+
+								<Route
+									path="confirm"
+									element={
+										<ProtectedRoute allow={["user", "admin", "guest"]}>
+											<Confirm />
+										</ProtectedRoute>
+									}
+								/>
+							</Route>
+							{/* その他 */}
 							<Route
 								path="/admin"
 								element={
@@ -135,9 +153,28 @@ function App() {
 										<AdminPanel />
 									</ProtectedRoute>
 								}
+							>
+								<Route index element={<Navigate to="recipes" replace />} />
+
+								<Route path="recipes">
+									<Route index element={<RecipeList listMode="admin" />} />
+								</Route>
+
+								<Route path="users" element={<UserManagement />} />
+							</Route>
+
+							<Route
+								path="/admin/recipes/:id"
+								element={
+									<ProtectedRoute allow={["admin"]}>
+										<Recipe />
+									</ProtectedRoute>
+								}
 							/>
 							<Route path="/forbidden" element={<Forbidden />} />
 							<Route path="/about-auth" element={<AboutAuth />} />
+							{/* ルート直アクセスは /recipes にリダイレクト */}
+							<Route path="/" element={<Navigate to="/recipes" replace />} />
 						</Routes>
 					) : (
 						<Error />

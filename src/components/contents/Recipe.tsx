@@ -5,7 +5,12 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+	useLocation,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from "react-router-dom";
 import { FavoriteState, MaterialState, InitialRecipeState } from "../../Types";
 import {
 	useAppSelector,
@@ -28,8 +33,11 @@ const Recipe = () => {
 		null,
 	);
 
-	// URLから所在ページを取得
+	const [searchParams] = useSearchParams();
+	const pageFromUrl = Number(searchParams.get("page")) || 1;
 
+	// URLから所在ページを取得
+	const location = useLocation();
 	const [currentRecipe, setCurrentRecipe] = useState<InitialRecipeState | null>(
 		null,
 	);
@@ -109,7 +117,7 @@ const Recipe = () => {
 
 	// レシピ画像がない場合はnoimageを表示
 	const getRecipeImage = (recipeImageUrl: string | null) => {
-		console.log(recipeImageUrl);
+		// console.log(recipeImageUrl);
 		return recipeImageUrl ? recipeImageUrl : "/noimage.jpg";
 	};
 
@@ -121,7 +129,10 @@ const Recipe = () => {
 
 	// 編集画面にジャンプ
 	const handleToEditRecipe = () => {
-		navigate(`/recipes/${currentRecipe?.recipeId}/edit`);
+		const targetPath = `/recipes/${currentRecipe?.recipeId}/edit?page=${pageFromUrl}`;
+		navigate(targetPath, {
+			state: location.state,
+		});
 	};
 
 	// レシピ削除モーダル表示
@@ -171,6 +182,12 @@ const Recipe = () => {
 		deleteRecipe();
 		setConfirmAction(null);
 	}, [modalState.confirmed]);
+
+	const handleBackPage = () => {
+		const backPath = location.state?.from || "/recipes";
+
+		navigate(`${backPath}?page=${pageFromUrl}`);
+	};
 
 	if (isLoading || !currentRecipe) {
 		return <Loading />;
@@ -304,7 +321,7 @@ const Recipe = () => {
 					</ol>
 				</section>
 				<div className="recipeSubmit">
-					<button className="button" onClick={() => navigate(-1)}>
+					<button className="button" onClick={() => handleBackPage()}>
 						前のページに戻る
 					</button>
 				</div>

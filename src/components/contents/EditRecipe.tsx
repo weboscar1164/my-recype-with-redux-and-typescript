@@ -7,7 +7,12 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { useAppDispatch, useAppSelector } from "../../app/hooks/hooks";
 import { InitialRecipeState, MaterialState } from "../../Types";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+	useLocation,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from "react-router-dom";
 import { openPopup } from "../../features/popupSlice";
 import { usetagSuggestions } from "../../app/hooks/useTagSuggestions";
 import JsonImportGuideDrawer from "../JsonImportGuideDrawer";
@@ -77,6 +82,8 @@ const EditRecipe = () => {
 	const { id } = useParams();
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [searchParams] = useSearchParams();
+	const pageFromUrl = Number(searchParams.get("page")) || 1;
 
 	//追加したフォームを参照
 	const recipeNameRef = useRef<HTMLInputElement>(null);
@@ -85,9 +92,12 @@ const EditRecipe = () => {
 	const procedureRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
+		// console.log("id: ", id);
+		// console.log("recipeInfo: ", recipeInfo);
+		// console.log("location.state: ", location.state);
 		const fetchRecipe = async () => {
-			if (location.state) {
-				setRecipeInfo(location.state);
+			if (location.state?.reEdit) {
+				setRecipeInfo(location.state?.reEdit);
 				return;
 			}
 			if (!id) return;
@@ -651,7 +661,7 @@ const EditRecipe = () => {
 
 	// 前のページに戻る
 	const handleBackPage = () => {
-		navigate(`/recipes/${id}`);
+		navigate(`/recipes/${id}?page=${pageFromUrl}`);
 	};
 
 	const sortMaterialsByGroup = (materials: MaterialState[]) => {
@@ -659,7 +669,7 @@ const EditRecipe = () => {
 		return [...materials].sort((a, b) => a.group - b.group);
 	};
 
-	// recipesliceに登録して確認画面に行く
+	// stateに登録して確認画面に行く
 	const handleConfirm = () => {
 		const sortedMaterials = sortMaterialsByGroup(materials);
 		const formData: InitialRecipeState = {
@@ -674,7 +684,9 @@ const EditRecipe = () => {
 			procedures: procedures,
 		};
 
-		navigate("/recipes/confirm", { state: formData });
+		navigate(`/recipes/confirm?page=${pageFromUrl}`, {
+			state: { confirmData: formData },
+		});
 	};
 
 	//バリデーション
@@ -754,6 +766,7 @@ const EditRecipe = () => {
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
+
 	if (isLoading || !recipe) {
 		return <Loading />;
 	}

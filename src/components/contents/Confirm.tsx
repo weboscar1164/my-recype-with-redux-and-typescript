@@ -4,9 +4,8 @@ import {
 	useAppSelector,
 	usetagSuggestions,
 } from "../../app/hooks/hooks";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import React, { useEffect } from "react";
-import { isInitialState } from "../../features/recipeSlice";
 import { useUploadRecipe } from "../../app/hooks/useUploadRecipe";
 import { openPopup } from "../../features/popupSlice";
 import { InitialRecipeState } from "../../Types";
@@ -15,26 +14,29 @@ const Confirm = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 
-	const location = useLocation();
-	const recipeInfo: InitialRecipeState = location.state;
-	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
+	const [searchParams] = useSearchParams();
+	const pageFromUrl = Number(searchParams.get("page")) || 1;
 
-	const initialStateCheck = isInitialState(recipeInfo);
+	const location = useLocation();
+	const recipeInfo: InitialRecipeState = location.state?.confirmData;
+	const isAdminMode = useAppSelector((state) => state.pageStatus.isAdminMode);
 
 	const { uploadRecipeToFirestore } = useUploadRecipe();
 	const { addTagSuggestions } = usetagSuggestions();
 
 	useEffect(() => {
-		if (initialStateCheck) {
+		if (!location.state) {
 			navigate("/recipes/new");
 		}
-	}, [recipeInfo, initialStateCheck]);
+	}, [recipeInfo, location.state]);
 
 	const handleReEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		!recipeInfo.recipeId
 			? navigate("/recipes/new", { state: recipeInfo })
-			: navigate(`/recipes/${recipeInfo.recipeId}/edit`, { state: recipeInfo });
+			: navigate(`/recipes/${recipeInfo.recipeId}/edit?page=${pageFromUrl}`, {
+					state: { reEdit: recipeInfo },
+				});
 	};
 
 	const getGroupIcon = (value: number) => {

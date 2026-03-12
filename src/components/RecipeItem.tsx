@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FavoriteState, RecipeListItem } from "../Types";
 import RecipeImage from "./contents/RecipeImage";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
 	useAddFavorite,
 	useAppDispatch,
@@ -25,6 +25,7 @@ const RecipeItem = ({
 }) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const [recipeList, setRecipeList] = useState(currentRecipes);
 	const [animatingFavIcon, setAnimatingFavIcon] = useState<string | null>(null);
@@ -115,15 +116,20 @@ const RecipeItem = ({
 		updateRecipeList(recipeId, newCount);
 	};
 
+	const handleNavigateToDetail = (recipeId: string) => {
+		const targetPath = `${location.pathname}/${recipeId}?page=${currentPage}`;
+		navigate(targetPath, {
+			state: { from: location.pathname },
+		});
+	};
+
 	return (
 		<ul>
 			{recipeList.map((item: RecipeListItem) => (
 				<li key={item.recipeId}>
 					<div
 						className="recipeListItemLeft"
-						onClick={() =>
-							navigate(`/recipes/${item.recipeId}?currentPage=${currentPage}`)
-						}
+						onClick={() => handleNavigateToDetail(item.recipeId)}
 					>
 						<div className="recipeListImg">
 							<RecipeImage

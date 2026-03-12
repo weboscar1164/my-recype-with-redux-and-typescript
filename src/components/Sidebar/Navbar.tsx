@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import "./Navbar.scss";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
 	useAppDispatch,
 	useAppSelector,
@@ -103,7 +103,7 @@ const Navbar = () => {
 				<nav className="navList">
 					<ul>
 						<li>
-							<Link className="navItem" to="/" onClick={onClickLink}>
+							<Link className="navItem" to="/recipes/" onClick={onClickLink}>
 								メインページ
 							</Link>
 						</li>

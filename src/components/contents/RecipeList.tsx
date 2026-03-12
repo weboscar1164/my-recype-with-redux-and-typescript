@@ -14,7 +14,11 @@ import { usePagination } from "../../app/hooks/hooks";
 import { setAdmin } from "../../features/pageStatusSlice";
 import Fuse from "fuse.js";
 
-const recipeList = ({ listMode }: { listMode: string }) => {
+const RecipeList = ({
+	listMode,
+}: {
+	listMode: "all" | "favorites" | "myRecipe" | "admin";
+}) => {
 	const dispatch = useAppDispatch();
 
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -30,6 +34,9 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 
 	const { getRecipeList } = useGetRecipeList();
 	const { fetchAdminsAndIgnores } = useFetchAdminsAndIgnores();
+
+	const normalizeText = (text: string) =>
+		toHiragana(text).toLowerCase().normalize("NFKC").trim();
 
 	// 初回レンダリング時にrecipeList取得
 	useEffect(() => {
@@ -53,9 +60,6 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 		str.replace(/[\u30a1-\u30f6]/g, (match) =>
 			String.fromCharCode(match.charCodeAt(0) - 0x60),
 		);
-
-	const normalizeText = (text: string) =>
-		toHiragana(text).toLowerCase().normalize("NFKC").trim();
 
 	const fuse = useMemo(() => {
 		const indexData = recipeList.map((recipe) => ({
@@ -92,9 +96,12 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 			listMode === "myRecipe" && user ? recipe.user === user.uid : true;
 
 		// 公開状態のチェック
-		const isPublicCheck = user
-			? recipe.isPublic == 1 || recipe.user === user.uid
-			: recipe.isPublic == 1;
+		let isPublicCheck = true;
+		if (listMode !== "admin") {
+			isPublicCheck = user
+				? recipe.isPublic == 1 || recipe.user === user.uid
+				: recipe.isPublic == 1;
+		}
 
 		// user状態のチェック
 		const isNotIgnores = !ignoreIdList.includes(recipe.user);
@@ -127,23 +134,35 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	} = usePagination(sortedRecipes, recipesPerPage, pageFromUrl);
 
 	useEffect(() => {
-		setSearchParams({ page: String(currentPage) });
+		setSearchParams((prev) => {
+			const params = new URLSearchParams(prev);
+			params.set("page", String(currentPage));
+			return params;
+		});
 	}, [currentPage]);
 
-	const handleRenderTitle = (listMode: string) => {
+	const handleRenderTitle = (
+		listMode: "all" | "favorites" | "myRecipe" | "admin",
+	) => {
 		switch (listMode) {
 			case "favorites":
 				return "お気に入り一覧";
 			case "myRecipe":
 				return "マイレシピ";
+			case "admin":
+				return "レシピ管理";
 			default:
 				return "レシピ一覧";
 		}
 	};
 
 	return (
-		<div className="recipeList">
-			<div className="container recipeListContainer">
+		<div
+			className={`recipeList ${listMode === "admin" ? "recipeListAdmin" : ""}`}
+		>
+			<div
+				className={`${listMode !== "admin" ? "container" : ""} recipeListContainer`}
+			>
 				<h2>{handleRenderTitle(listMode)}</h2>
 				<h3>{searchQuery && `検索結果: ${searchQuery}`}</h3>
 				{currentRecipes.length !== 0 ? (
@@ -169,4 +188,4 @@ const recipeList = ({ listMode }: { listMode: string }) => {
 	);
 };
 
-export default recipeList;
+export default RecipeList;
