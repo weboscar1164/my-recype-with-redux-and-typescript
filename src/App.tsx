@@ -32,7 +32,6 @@ import { useWakeLock } from "./app/hooks/useWakeLock";
 import Forbidden from "./components/Forbidden";
 import AboutAuth from "./components/AboutAuth";
 import UserManagement from "./components/contents/admin/UserManagement";
-import RecipeManagement from "./components/contents/admin/RecipeManagement";
 
 function App() {
 	const dispatch = useAppDispatch();

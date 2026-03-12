@@ -1,6 +1,6 @@
 import "./Forbidden.scss";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAppSelector, useSignIn } from "../app/hooks/hooks";
+import { useSignIn } from "../app/hooks/hooks";
 
 type ForbiddenContent = {
 	title: string;
@@ -14,7 +14,6 @@ type ForbiddenContent = {
 const Forbidden = () => {
 	const [params] = useSearchParams();
 	const reason = params.get("reason");
-	const user = useAppSelector((state) => state.user.user);
 	const navigate = useNavigate();
 	const { signIn } = useSignIn();
 

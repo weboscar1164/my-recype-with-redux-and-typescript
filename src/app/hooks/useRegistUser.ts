@@ -1,7 +1,7 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppDispatch } from "./hooks";
-import { AuthUser, User } from "../../Types";
+import { AuthUser } from "../../Types";
 import { setLoading } from "../../features/pageStatusSlice";
 
 export const useRegistUser = () => {
@@ -35,7 +35,7 @@ export const useRegistUser = () => {
 				"users",
 				loginUser.uid,
 				"userInfo",
-				loginUser.uid
+				loginUser.uid,
 			);
 
 			// userのサブコレクションuserInfoのドキュメントリファレンスを取得
