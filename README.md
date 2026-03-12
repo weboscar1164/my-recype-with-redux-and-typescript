@@ -1,30 +1,56 @@
-# React + TypeScript + Vite
+![React](https://img.shields.io/badge/React-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript)
+![Redux](https://img.shields.io/badge/Redux-764ABC?logo=redux)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# My Recipe App
 
-Currently, two official plugins are available:
+レシピを登録・検索・管理できるWebアプリです。  
+React + TypeScript + Redux Toolkit + Firebase を使用して作成しました。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Demo
 
-## Expanding the ESLint configuration
+https://my-recipe-with-redux-and-ts.web.app
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Features
 
-- Configure the top-level `parserOptions` property like this:
+- レシピ一覧表示
+- レシピ詳細表示
+- レシピ作成 / 編集 / 削除
+- お気に入り登録
+- 検索機能
+- JSONインポート
+- ページネーション
+- Firebase Authenticationによるログイン管理
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+## Tech Stack
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Frontend
+
+- React
+- TypeScript
+- Redux Toolkit
+- React Router
+- Material UI
+
+Backend / Infrastructure
+
+- Firebase Authentication
+- Firestore
+- Firebase Hosting
+
+## Screenshots
+
+### Recipe List
+
+![recipe-list](docs/recipe-list.png)
+
+### Recipe Detail
+
+![recipe-detail](docs/recipe-detail.png)
+
+### Edit Recipe
+
+![edit-recipe](docs/edit-recipe.png)
+
+## Architecture
