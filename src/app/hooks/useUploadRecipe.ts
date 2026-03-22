@@ -17,16 +17,15 @@ import { recipeCountUp } from "../../features/userSlice";
 
 export const useUploadRecipe = () => {
 	const user = useAppSelector((state) => state.user.user);
-	const recipeInfo = useAppSelector((state) => state.recipe);
 
 	const dispatch = useAppDispatch();
 
-	const uploadRecipeToFirestore = async () => {
+	const uploadRecipeToFirestore = async (recipeInfo: InitialRecipeState) => {
 		dispatch(setLoading(true));
 
 		try {
 			const imageUrl = await handleImageUpload(recipeInfo.recipeImageUrl);
-			const response = await saveRecipeToFirestore(imageUrl);
+			const response = await saveRecipeToFirestore(recipeInfo, imageUrl);
 
 			dispatch(resetRecipeInfo());
 			return response;
@@ -71,7 +70,10 @@ export const useUploadRecipe = () => {
 		}
 	};
 
-	const saveRecipeToFirestore = async (imageUrl: string) => {
+	const saveRecipeToFirestore = async (
+		recipeInfo: InitialRecipeState,
+		imageUrl: string,
+	) => {
 		if (!user) {
 			dispatch(setError("ユーザーが認証されていません。"));
 			return;

@@ -62,7 +62,7 @@ const Confirm = () => {
 			: "レシピを更新しました。";
 
 		try {
-			await uploadRecipeToFirestore();
+			await uploadRecipeToFirestore(recipeInfo);
 			if (recipeInfo.tags) {
 				await addTagSuggestions(recipeInfo.tags);
 			}
